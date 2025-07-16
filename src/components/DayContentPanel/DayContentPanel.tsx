@@ -19,8 +19,7 @@ import {
     useMediaQuery,
     styled,
 } from "@mui/material";
-import { Dayjs } from "dayjs";
-import { Restaurant, CheckCircle, Circle, LocalFireDepartment, ExpandMore, ExpandLess, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
+import { Restaurant, CheckCircle, Circle, LocalFireDepartment, ExpandMore, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
 import dietPlan from "../../diet.json";
 
 // Styled Chip component that properly respects theme
@@ -42,14 +41,6 @@ const Chip = styled(MuiChip)(({ theme }) => ({
     },
 }));
 
-interface MealItem {
-    name: string;
-    calories: number;
-    protein: number;
-    carbs: number;
-    fats: number;
-}
-
 interface NutritionChipProps {
     icon: ReactElement;
     value: number;
@@ -58,12 +49,11 @@ interface NutritionChipProps {
 }
 
 interface DayContentPanelProps {
-    selectedDate: Dayjs;
     showDayContent: boolean;
     isMobile?: boolean;
 }
 
-export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, showDayContent, isMobile = false }) => {
+export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent, isMobile = false }) => {
     const theme = useTheme();
     const [completedMeals, setCompletedMeals] = useState<Record<string, boolean>>({});
     const [expandedMeals, setExpandedMeals] = useState<Record<string, boolean>>({});

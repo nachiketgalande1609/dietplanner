@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Typography, Button, Chip, Checkbox, TextField, Stack, Paper, Collapse, Divider, IconButton } from "@mui/material";
 import { Dayjs } from "dayjs";
-import { CheckCircle, Close, Edit, ExpandLess, ExpandMore, FitnessCenter, RadioButtonUnchecked, Save } from "@mui/icons-material";
+import { CheckCircle, Close, Edit, ExpandLess, ExpandMore, RadioButtonUnchecked, Save } from "@mui/icons-material";
 
 type WorkoutDay = {
     day: string;
@@ -163,7 +163,7 @@ const workoutRoutine: WorkoutDay[] = [
         ],
     },
 ];
-export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs; isMobile: boolean }> = ({ selectedDate, isMobile }) => {
+export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs }> = ({ selectedDate }) => {
     const dayOfWeek = selectedDate.format("dddd");
     const todayWorkout = workoutRoutine.find((day) => day.day === dayOfWeek) || { day: "Rest Day", categories: [] };
     const [workoutData, setWorkoutData] = useState<WorkoutDay>(todayWorkout);

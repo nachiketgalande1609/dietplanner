@@ -274,7 +274,7 @@ export const Workout: React.FC = () => {
                                 exit="exit"
                                 style={{ height: "100%" }}
                             >
-                                <WorkoutDayPanel selectedDate={selectedDate} isMobile={isMobile} />
+                                <WorkoutDayPanel selectedDate={selectedDate} />
                             </motion.div>
                         </AnimatePresence>
                     </Box>

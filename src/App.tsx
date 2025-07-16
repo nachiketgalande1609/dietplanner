@@ -54,7 +54,7 @@ export const App: React.FC = () => {
                             }}
                         >
                             <Button
-                                onClick={() => navigate("/page1")}
+                                onClick={() => navigate("/diet")}
                                 sx={{
                                     backgroundColor: "background.paper",
                                     color: "text.primary",
@@ -63,10 +63,10 @@ export const App: React.FC = () => {
                                     },
                                 }}
                             >
-                                Page 1
+                                Diet
                             </Button>
                             <Button
-                                onClick={() => navigate("/Workout")}
+                                onClick={() => navigate("/workout")}
                                 sx={{
                                     backgroundColor: "background.paper",
                                     color: "text.primary",
@@ -75,19 +75,7 @@ export const App: React.FC = () => {
                                     },
                                 }}
                             >
-                                Page 2
-                            </Button>
-                            <Button
-                                onClick={() => navigate("/page3")}
-                                sx={{
-                                    backgroundColor: "background.paper",
-                                    color: "text.primary",
-                                    "&:hover": {
-                                        backgroundColor: "action.hover",
-                                    },
-                                }}
-                            >
-                                Page 3
+                                Workout
                             </Button>
                         </ButtonGroup>
 
@@ -110,8 +98,8 @@ export const App: React.FC = () => {
 
                     <Routes>
                         <Route path="/" element={<Diet />} />
-                        <Route path="/page1" element={<Diet />} />
-                        <Route path="/Workout" element={<Workout />} />
+                        <Route path="/diet" element={<Diet />} />
+                        <Route path="/workout" element={<Workout />} />
                         <Route path="/page3" element={<Page3 />} />
                     </Routes>
                 </Box>
