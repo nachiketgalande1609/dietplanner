@@ -1,0 +1,209 @@
+{
+    "date": "2023-11-15",
+    "meals": [
+        {
+            "time": "7:00 AM",
+            "meal": "Pre-Workout",
+            "items": [
+                {
+                    "name": "1 Banana",
+                    "protein": 1,
+                    "carbs": 27,
+                    "fats": 0,
+                    "calories": 105
+                },
+                {
+                    "name": "1 Scoop Whey Protein",
+                    "protein": 25,
+                    "carbs": 3,
+                    "fats": 1,
+                    "calories": 120
+                }
+            ],
+            "total": {
+                "protein": 26,
+                "carbs": 30,
+                "fats": 1,
+                "calories": 225
+            }
+        },
+        {
+            "time": "9:00 AM",
+            "meal": "Post-Workout",
+            "items": [
+                {
+                    "name": "3 Egg Whites + 2 Whole Eggs",
+                    "protein": 24,
+                    "carbs": 1,
+                    "fats": 10,
+                    "calories": 210
+                },
+                {
+                    "name": "50g rolled oats (raw weight)",
+                    "protein": 6,
+                    "carbs": 30,
+                    "fats": 3,
+                    "calories": 190
+                },
+                {
+                    "name": "250 ml Milk",
+                    "protein": 8,
+                    "carbs": 12,
+                    "fats": 8,
+                    "calories": 150
+                },
+                {
+                    "name": "1 Apple",
+                    "protein": 0,
+                    "carbs": 15,
+                    "fats": 0,
+                    "calories": 60
+                },
+                {
+                    "name": "10 Almonds",
+                    "protein": 2,
+                    "carbs": 3,
+                    "fats": 5,
+                    "calories": 65
+                },
+                {
+                    "name": "5g Creatine",
+                    "protein": 0,
+                    "carbs": 0,
+                    "fats": 0,
+                    "calories": 0
+                }
+            ],
+            "total": {
+                "protein": 40,
+                "carbs": 61,
+                "fats": 26,
+                "calories": 675
+            }
+        },
+        {
+            "time": "1:00 PM",
+            "meal": "Lunch",
+            "items": [
+                {
+                    "name": "150g Chicken Breast",
+                    "protein": 45,
+                    "carbs": 0,
+                    "fats": 5,
+                    "calories": 225
+                },
+                {
+                    "name": "150g Cooked Basmati Rice",
+                    "protein": 5,
+                    "carbs": 40,
+                    "fats": 1,
+                    "calories": 190
+                },
+                {
+                    "name": "Mixed salad (cucumber, tomato, carrots)",
+                    "protein": 1,
+                    "carbs": 8,
+                    "fats": 0,
+                    "calories": 40
+                },
+                {
+                    "name": "1 tbsp Olive Oil",
+                    "protein": 0,
+                    "carbs": 0,
+                    "fats": 14,
+                    "calories": 120
+                }
+            ],
+            "total": {
+                "protein": 51,
+                "carbs": 48,
+                "fats": 20,
+                "calories": 575
+            }
+        },
+        {
+            "time": "4:30 PM",
+            "meal": "Evening Snack",
+            "items": [
+                {
+                    "name": "200g Curd",
+                    "protein": 20,
+                    "carbs": 10,
+                    "fats": 6,
+                    "calories": 150
+                },
+                {
+                    "name": "5 Almonds",
+                    "protein": 1,
+                    "carbs": 2,
+                    "fats": 3,
+                    "calories": 32
+                }
+            ],
+            "total": {
+                "protein": 21,
+                "carbs": 12,
+                "fats": 9,
+                "calories": 182
+            }
+        },
+        {
+            "time": "8:00 PM",
+            "meal": "Dinner",
+            "items": [
+                {
+                    "name": "100g Chicken Breast",
+                    "protein": 30,
+                    "carbs": 0,
+                    "fats": 3,
+                    "calories": 180
+                },
+                {
+                    "name": "2 Chapati",
+                    "protein": 5,
+                    "carbs": 35,
+                    "fats": 1,
+                    "calories": 170
+                },
+                {
+                    "name": "Vegetable (any)",
+                    "protein": 2,
+                    "carbs": 8,
+                    "fats": 5,
+                    "calories": 90
+                }
+            ],
+            "total": {
+                "protein": 37,
+                "carbs": 43,
+                "fats": 9,
+                "calories": 440
+            }
+        },
+        {
+            "time": "9:30 PM",
+            "meal": "Night Snack",
+            "items": [
+                {
+                    "name": "150g Paneer",
+                    "protein": 20,
+                    "carbs": 4,
+                    "fats": 10,
+                    "calories": 180
+                }
+            ],
+            "total": {
+                "protein": 20,
+                "carbs": 4,
+                "fats": 10,
+                "calories": 180
+            }
+        }
+    ],
+    "dailyTotal": {
+        "protein": 195,
+        "carbs": 198,
+        "fats": 75,
+        "calories": 2277
+    }
+}
