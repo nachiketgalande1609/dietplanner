@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box, CssBaseline, ThemeProvider, Button, ButtonGroup, Tooltip, IconButton } from "@mui/material";
 import { Diet } from "./components/Pages/Diet";
 import { Workout } from "./components/Pages/Workout";
@@ -11,6 +11,15 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 export const App: React.FC = () => {
     const [darkMode, setDarkMode] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation(); // Get the current path
+
+    const getButtonStyles = (path: string) => ({
+        backgroundColor: location.pathname === path ? "primary.main" : "background.paper",
+        color: location.pathname === path ? "primary.contrastText" : "text.primary",
+        "&:hover": {
+            backgroundColor: location.pathname === path ? "primary.dark" : "action.hover",
+        },
+    });
 
     return (
         <ThemeProvider theme={theme(darkMode ? "dark" : "light")}>
@@ -33,48 +42,25 @@ export const App: React.FC = () => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: {
-                                xs: "space-between", // on small screens (mobile)
-                                sm: "right", // on small+ screens and up
+                                xs: "space-between",
+                                sm: "right",
                             },
                             gap: 2,
                             mb: 2,
-                            flexWrap: "wrap", // Optional: ensures no overflow on very narrow screens
+                            flexWrap: "wrap",
                         }}
                     >
                         <ButtonGroup
                             sx={{
                                 "& .MuiButtonGroup-grouped": {
                                     border: "none",
-                                    backgroundColor: "background.paper",
-                                    color: "text.primary",
-                                    "&:hover": {
-                                        backgroundColor: "action.hover",
-                                    },
                                 },
                             }}
                         >
-                            <Button
-                                onClick={() => navigate("/diet")}
-                                sx={{
-                                    backgroundColor: "background.paper",
-                                    color: "text.primary",
-                                    "&:hover": {
-                                        backgroundColor: "action.hover",
-                                    },
-                                }}
-                            >
+                            <Button onClick={() => navigate("/diet")} sx={getButtonStyles("/diet")}>
                                 Diet
                             </Button>
-                            <Button
-                                onClick={() => navigate("/workout")}
-                                sx={{
-                                    backgroundColor: "background.paper",
-                                    color: "text.primary",
-                                    "&:hover": {
-                                        backgroundColor: "action.hover",
-                                    },
-                                }}
-                            >
+                            <Button onClick={() => navigate("/workout")} sx={getButtonStyles("/workout")}>
                                 Workout
                             </Button>
                         </ButtonGroup>
