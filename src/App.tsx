@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { Box, CssBaseline, ThemeProvider, Button, ButtonGroup, Tooltip, IconButton } from "@mui/material";
-import { Page1 } from "./components/Pages/Page1";
-import { Page2 } from "./components/Pages/Page2";
+import { Diet } from "./components/Pages/Diet";
+import { Workout } from "./components/Pages/Workout";
 import { Page3 } from "./components/Pages/Page3";
 import { theme } from "./theme";
 import SunnyIcon from "@mui/icons-material/Sunny";
@@ -66,7 +66,7 @@ export const App: React.FC = () => {
                                 Page 1
                             </Button>
                             <Button
-                                onClick={() => navigate("/page2")}
+                                onClick={() => navigate("/Workout")}
                                 sx={{
                                     backgroundColor: "background.paper",
                                     color: "text.primary",
@@ -109,9 +109,9 @@ export const App: React.FC = () => {
                     </Box>
 
                     <Routes>
-                        <Route path="/" element={<Page1 />} />
-                        <Route path="/page1" element={<Page1 />} />
-                        <Route path="/page2" element={<Page2 />} />
+                        <Route path="/" element={<Diet />} />
+                        <Route path="/page1" element={<Diet />} />
+                        <Route path="/Workout" element={<Workout />} />
                         <Route path="/page3" element={<Page3 />} />
                     </Routes>
                 </Box>

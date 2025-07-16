@@ -9,7 +9,7 @@ import {
     ListItemSecondaryAction,
     Checkbox,
     Divider,
-    Chip,
+    Chip as MuiChip,
     LinearProgress,
     Stack,
     Avatar,
@@ -17,10 +17,30 @@ import {
     IconButton,
     Collapse,
     useMediaQuery,
+    styled,
 } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { Restaurant, CheckCircle, Circle, LocalFireDepartment, ExpandMore, ExpandLess, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
 import dietPlan from "../../diet.json";
+
+// Styled Chip component that properly respects theme
+const Chip = styled(MuiChip)(({ theme }) => ({
+    // Small size adjustments
+    "&.MuiChip-sizeSmall": {
+        height: 20,
+        fontSize: "0.7rem",
+    },
+    // Outline variant adjustments
+    "&.MuiChip-outlined": {
+        backgroundColor: theme.palette.mode === "light" ? theme.palette.grey[100] : theme.palette.grey[800],
+        borderColor: theme.palette.mode === "light" ? theme.palette.grey[300] : theme.palette.grey[600],
+    },
+    // Success state
+    "&.MuiChip-colorSuccess": {
+        backgroundColor: theme.palette.success.main,
+        color: theme.palette.success.contrastText,
+    },
+}));
 
 interface MealItem {
     name: string;
@@ -31,7 +51,7 @@ interface MealItem {
 }
 
 interface NutritionChipProps {
-    icon: ReactElement; // More specific than ReactNode
+    icon: ReactElement;
     value: number;
     unit: string;
     color: string;
@@ -42,11 +62,12 @@ interface DayContentPanelProps {
     showDayContent: boolean;
     isMobile?: boolean;
 }
+
 export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, showDayContent, isMobile = false }) => {
     const theme = useTheme();
     const [completedMeals, setCompletedMeals] = useState<Record<string, boolean>>({});
     const [expandedMeals, setExpandedMeals] = useState<Record<string, boolean>>({});
-    const smallMobile = useMediaQuery("(max-width:400px)");
+    const smallMobile = useMediaQuery(theme.breakpoints.down(400));
 
     if (!showDayContent && !isMobile) {
         return (
@@ -56,8 +77,8 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "text.secondary",
-                    background: "linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)",
+                    color: theme.palette.text.secondary,
+                    background: theme.palette.background.default,
                     borderRadius: 2,
                 }}
             >
@@ -92,7 +113,10 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
     const NutritionChip = ({ icon, value, unit, color }: NutritionChipProps) => (
         <Stack direction="row" spacing={0.5} alignItems="center">
             {React.cloneElement(icon, {
-                sx: { fontSize: "0.8rem", color },
+                sx: {
+                    fontSize: "0.8rem",
+                    color: theme.palette.mode === "light" ? color : theme.palette.getContrastText(theme.palette.background.paper),
+                },
             })}
             <Typography variant="caption" color="text.secondary">
                 {value}
@@ -106,11 +130,11 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                height: "auto", // Changed from fixed height to auto
-                minHeight: "100%", // Ensure it takes at least full height
+                height: "auto",
+                minHeight: "100%",
+                bgcolor: "background.default",
             }}
         >
-            {/* Progress Bar - Hidden on mobile when calendar is visible */}
             {(!isMobile || showDayContent) && (
                 <Paper
                     elevation={0}
@@ -118,7 +142,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                         p: { xs: 1, sm: 3 },
                         mb: { xs: 1, sm: 2 },
                         borderRadius: 3,
-                        background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
+                        bgcolor: "background.paper",
                         border: `1px solid ${theme.palette.divider}`,
                     }}
                 >
@@ -127,13 +151,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                             <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
                                 Daily Progress
                             </Typography>
-                            <Chip
-                                label={`${completedCount}/${totalMeals} meals`}
-                                size="small"
-                                variant="outlined"
-                                color="primary"
-                                sx={{ fontSize: smallMobile ? "0.65rem" : "0.75rem" }}
-                            />
+                            <Chip label={`${completedCount}/${totalMeals} meals`} size="small" variant="outlined" color="default" />
                         </Stack>
                         <Chip
                             label={`${progress}%`}
@@ -160,7 +178,6 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                 </Paper>
             )}
 
-            {/* Meals list - Removed overflow: auto to prevent scrollbar */}
             <List sx={{ width: "100%", flex: 1, py: 0 }}>
                 {dietPlan.meals.map((meal, index) => {
                     const isCompleted = !!completedMeals[meal.time];
@@ -175,14 +192,17 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                                     borderRadius: 3,
                                     overflow: "hidden",
                                     borderLeft: `4px solid ${isCompleted ? theme.palette.success.main : theme.palette.divider}`,
+                                    bgcolor: "background.paper",
                                 }}
                             >
                                 <ListItem
                                     sx={{
-                                        backgroundColor: isCompleted ? "#e8f5e9" : "inherit",
+                                        backgroundColor: isCompleted ? theme.palette.success.light : "inherit",
                                         pr: { xs: 8, sm: 10 },
                                         py: { xs: 1, sm: 1.5 },
+                                        cursor: "pointer",
                                     }}
+                                    onClick={() => handleToggleExpand(meal.time)}
                                 >
                                     <ListItemSecondaryAction sx={{ right: { xs: 36, sm: 48 } }}>
                                         <Checkbox
@@ -198,11 +218,12 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                                     <ListItemSecondaryAction>
                                         <IconButton
                                             edge="end"
-                                            onClick={() => handleToggleExpand(meal.time)}
                                             size={smallMobile ? "small" : "medium"}
                                             sx={{
                                                 transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                                                transition: "transform 0.3s ease",
+                                                transition: theme.transitions.create("transform", {
+                                                    duration: theme.transitions.duration.shortest,
+                                                }),
                                             }}
                                         >
                                             <ExpandMore fontSize={smallMobile ? "small" : "medium"} />
@@ -239,18 +260,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                                                     </Typography>
                                                 </Stack>
                                                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
-                                                    {!smallMobile && (
-                                                        <Chip
-                                                            label={`${meal.items.length} items`}
-                                                            size="small"
-                                                            variant="outlined"
-                                                            sx={{
-                                                                fontSize: "0.7rem",
-                                                                height: 20,
-                                                                bgcolor: "grey.100",
-                                                            }}
-                                                        />
-                                                    )}
+                                                    {!smallMobile && <Chip label={`${meal.items.length} items`} size="small" variant="outlined" />}
                                                     <NutritionChip
                                                         icon={<FitnessCenter />}
                                                         value={meal.total.protein}
@@ -349,8 +359,6 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                 })}
             </List>
 
-            {/* Daily totals - Hidden on mobile when calendar is visible */}
-            {/* Daily totals - Hidden on mobile when calendar is visible */}
             {(!isMobile || showDayContent) && (
                 <Paper
                     elevation={0}
@@ -358,9 +366,9 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                         p: { xs: 1.5, sm: 2.5 },
                         mt: { xs: 1, sm: 2 },
                         borderRadius: "12px",
-                        background: theme.palette.background.paper,
+                        bgcolor: "background.paper",
                         border: "none",
-                        boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
+                        boxShadow: theme.shadows[2],
                     }}
                 >
                     <Typography
@@ -383,7 +391,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                             sx={{
                                 p: 1.5,
                                 borderRadius: "10px",
-                                background: "rgba(255, 76, 106, 0.1)",
+                                bgcolor: theme.palette.error.light,
                                 borderLeft: "4px solid",
                                 borderColor: theme.palette.error.main,
                             }}
@@ -419,7 +427,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                                         p: 1.5,
                                         height: "100%",
                                         borderRadius: "10px",
-                                        backgroundColor: "rgba(66, 165, 245, 0.1)",
+                                        bgcolor: theme.palette.primary.light,
                                         borderLeft: "4px solid",
                                         borderColor: theme.palette.primary.main,
                                     }}
@@ -451,7 +459,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                                         p: 1.5,
                                         height: "100%",
                                         borderRadius: "10px",
-                                        backgroundColor: "rgba(156, 204, 101, 0.1)",
+                                        bgcolor: theme.palette.success.light,
                                         borderLeft: "4px solid",
                                         borderColor: theme.palette.success.main,
                                     }}
@@ -483,7 +491,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ selectedDate, 
                                         p: 1.5,
                                         height: "100%",
                                         borderRadius: "10px",
-                                        backgroundColor: "rgba(255, 183, 77, 0.1)",
+                                        bgcolor: theme.palette.warning.light,
                                         borderLeft: "4px solid",
                                         borderColor: theme.palette.warning.main,
                                     }}

@@ -4,15 +4,24 @@ import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-import { DayContentPanel } from "../DayContentPanel/DayContentPanel";
 import { useTheme } from "@mui/material/styles";
 import { CalendarMonth } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
+import { WorkoutDayPanel } from "../DayContentPanel/WorkoutDayPanel";
 
-export const Page1: React.FC = () => {
+// Workout data structure
+type Workout = {
+    name: string;
+    completed: boolean;
+    sets: number;
+    reps: number;
+    weight: number;
+    notes: string;
+};
+
+export const Workout: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-    const [showDayContent, setShowDayContent] = useState(false);
-    const [showCalendar, setShowCalendar] = useState(false); // Start hidden on mobile
+    const [showCalendar, setShowCalendar] = useState(false);
     const [direction, setDirection] = useState<"left" | "right">("right");
 
     const theme = useTheme();
@@ -23,8 +32,7 @@ export const Page1: React.FC = () => {
             const newDirection = date.isAfter(selectedDate) ? "right" : "left";
             setDirection(newDirection);
             setSelectedDate(date);
-            setShowDayContent(true);
-            if (isMobile) setShowCalendar(false); // Auto-hide calendar on mobile after selection
+            if (isMobile) setShowCalendar(false);
         }
     };
 
@@ -32,7 +40,6 @@ export const Page1: React.FC = () => {
         setShowCalendar(!showCalendar);
     };
 
-    // Animation variants
     const dateHeaderVariants = {
         enter: (direction: "left" | "right") => ({
             x: direction === "right" ? 100 : -100,
@@ -42,7 +49,7 @@ export const Page1: React.FC = () => {
             x: 0,
             opacity: 1,
             transition: {
-                x: { type: "spring", stiffness: 300, damping: 30 },
+                x: { type: "spring" as const, stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
             },
         }),
@@ -50,7 +57,7 @@ export const Page1: React.FC = () => {
             x: direction === "right" ? -100 : 100,
             opacity: 0,
             transition: {
-                x: { type: "spring", stiffness: 300, damping: 30 },
+                x: { type: "spring" as const, stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
             },
         }),
@@ -65,7 +72,7 @@ export const Page1: React.FC = () => {
             x: 0,
             opacity: 1,
             transition: {
-                x: { type: "spring", stiffness: 300, damping: 30 },
+                x: { type: "spring" as const, stiffness: 300, damping: 30 },
                 opacity: { duration: 0.3 },
             },
         }),
@@ -73,7 +80,7 @@ export const Page1: React.FC = () => {
             x: direction === "right" ? -50 : 50,
             opacity: 0,
             transition: {
-                x: { type: "spring", stiffness: 300, damping: 30 },
+                x: { type: "spring" as const, stiffness: 300, damping: 30 },
                 opacity: { duration: 0.3 },
             },
         }),
@@ -92,7 +99,6 @@ export const Page1: React.FC = () => {
                 boxShadow: { xs: "none", sm: "0px 4px 20px rgba(0, 0, 0, 0.08)" },
             }}
         >
-            {/* Header - only shown on mobile */}
             {isMobile && (
                 <Box
                     sx={{
@@ -139,7 +145,6 @@ export const Page1: React.FC = () => {
                     overflow: "hidden",
                 }}
             >
-                {/* Calendar Section */}
                 <AnimatePresence>
                     {(showCalendar || !isMobile) && (
                         <motion.div
@@ -209,7 +214,6 @@ export const Page1: React.FC = () => {
                     )}
                 </AnimatePresence>
 
-                {/* Content Panel */}
                 <Box
                     sx={{
                         flexGrow: 1,
@@ -270,7 +274,7 @@ export const Page1: React.FC = () => {
                                 exit="exit"
                                 style={{ height: "100%" }}
                             >
-                                <DayContentPanel selectedDate={selectedDate} showDayContent={showDayContent || isMobile} isMobile={isMobile} />
+                                <WorkoutDayPanel selectedDate={selectedDate} isMobile={isMobile} />
                             </motion.div>
                         </AnimatePresence>
                     </Box>
