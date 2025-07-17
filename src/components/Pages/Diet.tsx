@@ -12,6 +12,7 @@ import {
     ListItemSecondaryAction,
     Divider,
     ListItemText,
+    IconButton,
 } from "@mui/material";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -19,7 +20,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { DayContentPanel } from "../DayContentPanel/DayContentPanel";
 import { useTheme } from "@mui/material/styles";
-import { CalendarMonth, ErrorOutline } from "@mui/icons-material";
+import { CalendarMonth, ChevronLeft, ChevronRight, ErrorOutline } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchDietPlan, markMealComplete, markMealIncomplete } from "../../api/dietApi";
 
@@ -406,9 +407,35 @@ export const Diet: React.FC = () => {
                         borderColor: "divider",
                     }}
                 >
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        {selectedDate.format("MMM D, YYYY")}
-                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <IconButton
+                            onClick={() => handleDateChange(selectedDate.subtract(1, "day"))}
+                            size="small"
+                            sx={{
+                                color: "text.primary",
+                                "&:hover": {
+                                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                },
+                            }}
+                        >
+                            <ChevronLeft />
+                        </IconButton>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            {selectedDate.format("MMM D, YYYY")}
+                        </Typography>
+                        <IconButton
+                            onClick={() => handleDateChange(selectedDate.add(1, "day"))}
+                            size="small"
+                            sx={{
+                                color: "text.primary",
+                                "&:hover": {
+                                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                },
+                            }}
+                        >
+                            <ChevronRight />
+                        </IconButton>
+                    </Box>
                     <Button
                         variant="contained"
                         onClick={toggleCalendar}
@@ -529,6 +556,9 @@ export const Diet: React.FC = () => {
                                 color: "primary.contrastText",
                                 position: "relative",
                                 overflow: "hidden",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
                             }}
                         >
                             <AnimatePresence mode="wait" custom={direction}>
@@ -545,6 +575,31 @@ export const Diet: React.FC = () => {
                                     </Typography>
                                 </motion.div>
                             </AnimatePresence>
+
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                                <IconButton
+                                    onClick={() => handleDateChange(selectedDate.subtract(1, "day"))}
+                                    sx={{
+                                        color: "primary.contrastText",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                        },
+                                    }}
+                                >
+                                    <ChevronLeft />
+                                </IconButton>
+                                <IconButton
+                                    onClick={() => handleDateChange(selectedDate.add(1, "day"))}
+                                    sx={{
+                                        color: "primary.contrastText",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                        },
+                                    }}
+                                >
+                                    <ChevronRight />
+                                </IconButton>
+                            </Box>
                         </Box>
                     )}
 

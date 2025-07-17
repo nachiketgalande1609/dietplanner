@@ -192,8 +192,11 @@ export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs }> = ({ selectedDat
     return (
         <Box
             sx={{
-                maxWidth: "1200px",
-                margin: "0 auto",
+                display: "flex",
+                flexDirection: "column",
+                height: "auto",
+                minHeight: "100%",
+                bgcolor: "background.default",
             }}
         >
             {todayWorkout.categories.length === 0 ? (
