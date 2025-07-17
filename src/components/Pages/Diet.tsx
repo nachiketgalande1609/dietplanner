@@ -21,7 +21,7 @@ import { DayContentPanel } from "../DayContentPanel/DayContentPanel";
 import { useTheme } from "@mui/material/styles";
 import { CalendarMonth, ErrorOutline } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { fetchDietPlan } from "../../api/dietApi";
+import { fetchDietPlan, markMealComplete, markMealIncomplete } from "../../api/dietApi";
 
 export const Diet: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -77,11 +77,29 @@ export const Diet: React.FC = () => {
         }
     };
 
-    const handleToggleMeal = (mealTime: string) => {
-        setCompletedMeals((prev) => ({
-            ...prev,
-            [mealTime]: !prev[mealTime],
-        }));
+    const handleToggleMeal = async (mealTime: string) => {
+        const dateStr = selectedDate.format("YYYY-MM-DD");
+        const isCurrentlyCompleted = completedMeals[mealTime];
+
+        try {
+            setCompletedMeals((prev) => ({
+                ...prev,
+                [mealTime]: !isCurrentlyCompleted,
+            }));
+
+            if (isCurrentlyCompleted) {
+                await markMealIncomplete(dateStr, mealTime);
+            } else {
+                await markMealComplete(dateStr, mealTime);
+            }
+        } catch (error) {
+            console.error("Error toggling meal status:", error);
+
+            setCompletedMeals((prev) => ({
+                ...prev,
+                [mealTime]: isCurrentlyCompleted,
+            }));
+        }
     };
 
     const toggleCalendar = () => {
