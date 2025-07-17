@@ -1,31 +1,87 @@
-import React, { useState } from "react";
-import { Box, Typography, Button, useMediaQuery } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+    Box,
+    Typography,
+    Button,
+    useMediaQuery,
+    Skeleton,
+    Paper,
+    Stack,
+    List,
+    ListItem,
+    ListItemSecondaryAction,
+    Divider,
+    ListItemText,
+} from "@mui/material";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { DayContentPanel } from "../DayContentPanel/DayContentPanel";
 import { useTheme } from "@mui/material/styles";
-import { CalendarMonth } from "@mui/icons-material";
+import { CalendarMonth, ErrorOutline } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
+import { fetchDietPlan } from "../../api/dietApi";
 
 export const Diet: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
     const [showDayContent, setShowDayContent] = useState(false);
-    const [showCalendar, setShowCalendar] = useState(false); // Start hidden on mobile
+    const [showCalendar, setShowCalendar] = useState(false);
     const [direction, setDirection] = useState<"left" | "right">("right");
+    const [dietData, setDietData] = useState<any>(null);
+    const [completedMeals, setCompletedMeals] = useState<Record<string, boolean>>({});
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const dateStr = selectedDate.format("YYYY-MM-DD");
+            const data = await fetchDietPlan(dateStr);
+            setDietData(data);
+
+            // Initialize completed meals state
+            const completed: Record<string, boolean> = {};
+            if (data?.completedMeals) {
+                data.completedMeals.forEach((mealTime: string) => {
+                    completed[mealTime] = true;
+                });
+            }
+            setCompletedMeals(completed);
+
+            setShowDayContent(true);
+        } catch (err) {
+            console.error("Failed to fetch diet plan:", err);
+            setError("Failed to load diet plan. Please try again.");
+            setDietData(null);
+            setShowDayContent(false);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [selectedDate]);
 
     const handleDateChange = (date: Dayjs | null) => {
         if (date) {
             const newDirection = date.isAfter(selectedDate) ? "right" : "left";
             setDirection(newDirection);
             setSelectedDate(date);
-            setShowDayContent(true);
-            if (isMobile) setShowCalendar(false); // Auto-hide calendar on mobile after selection
+            if (isMobile) setShowCalendar(false);
         }
+    };
+
+    const handleToggleMeal = (mealTime: string) => {
+        setCompletedMeals((prev) => ({
+            ...prev,
+            [mealTime]: !prev[mealTime],
+        }));
     };
 
     const toggleCalendar = () => {
@@ -77,6 +133,229 @@ export const Diet: React.FC = () => {
                 opacity: { duration: 0.3 },
             },
         }),
+    };
+
+    const LoadingSkeleton = () => {
+        const theme = useTheme();
+        const isSmallMobile = useMediaQuery(theme.breakpoints.down(400));
+
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "auto",
+                    minHeight: "100%",
+                    bgcolor: "background.default",
+                    gap: 2,
+                    p: { xs: 1, sm: 2 },
+                }}
+            >
+                {/* Daily Progress Skeleton */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        p: { xs: 1.5, sm: 2 },
+                        borderRadius: 3,
+                        bgcolor: "background.paper",
+                        border: `1px solid ${theme.palette.divider}`,
+                    }}
+                >
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <Skeleton variant="text" width={100} height={24} />
+                            <Skeleton variant="rectangular" width={80} height={24} sx={{ borderRadius: 12 }} />
+                        </Stack>
+                        <Skeleton variant="rectangular" width={50} height={24} sx={{ borderRadius: 12 }} />
+                    </Stack>
+                    <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 5 }} />
+                </Paper>
+
+                {/* Meals List Skeleton */}
+                <List sx={{ width: "100%", flex: 1, py: 0, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    {[1, 2, 3].map((mealIndex) => (
+                        <Paper
+                            key={mealIndex}
+                            elevation={isMobile ? 0 : 1}
+                            sx={{
+                                borderRadius: 3,
+                                overflow: "hidden",
+                                borderLeft: `4px solid ${theme.palette.divider}`,
+                                bgcolor: "background.paper",
+                            }}
+                        >
+                            <ListItem
+                                sx={{
+                                    pr: { xs: 8, sm: 10 },
+                                    py: { xs: 1.5, sm: 2 },
+                                }}
+                            >
+                                <ListItemSecondaryAction sx={{ right: { xs: 36, sm: 48 } }}>
+                                    <Skeleton variant="circular" width={24} height={24} />
+                                </ListItemSecondaryAction>
+
+                                <ListItemSecondaryAction>
+                                    <Skeleton variant="circular" width={32} height={32} />
+                                </ListItemSecondaryAction>
+
+                                <Box sx={{ flex: 1 }}>
+                                    <Stack direction="row" alignItems="center" spacing={1.5}>
+                                        <Skeleton variant="circular" width={32} height={32} sx={{ display: { xs: "none", sm: "block" } }} />
+                                        <Box sx={{ flex: 1 }}>
+                                            <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+                                                <Skeleton variant="text" width={80} height={24} />
+                                                <Skeleton variant="text" width={120} height={20} />
+                                            </Stack>
+                                            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+                                                {!isSmallMobile && (
+                                                    <Skeleton variant="rectangular" width={70} height={24} sx={{ borderRadius: 12 }} />
+                                                )}
+                                                <Skeleton variant="rectangular" width={60} height={24} sx={{ borderRadius: 12 }} />
+                                                <Skeleton variant="rectangular" width={60} height={24} sx={{ borderRadius: 12 }} />
+                                                <Skeleton variant="rectangular" width={60} height={24} sx={{ borderRadius: 12 }} />
+                                                <Skeleton variant="rectangular" width={70} height={24} sx={{ borderRadius: 12 }} />
+                                            </Stack>
+                                        </Box>
+                                    </Stack>
+                                </Box>
+                            </ListItem>
+
+                            {/* Meal items skeleton */}
+                            <Box sx={{ px: { xs: 1.5, sm: 2 }, pb: { xs: 1.5, sm: 2 } }}>
+                                <Divider sx={{ mb: 1.5 }} />
+                                {[1, 2].map((itemIndex) => (
+                                    <ListItem key={itemIndex} sx={{ py: 0.5, px: { xs: 0, sm: 1 } }}>
+                                        <ListItemText
+                                            primary={<Skeleton variant="text" width="60%" height={20} />}
+                                            secondary={
+                                                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ pt: 0.5 }}>
+                                                    <Skeleton variant="rectangular" width={50} height={20} sx={{ borderRadius: 12 }} />
+                                                    <Skeleton variant="rectangular" width={50} height={20} sx={{ borderRadius: 12 }} />
+                                                    <Skeleton variant="rectangular" width={50} height={20} sx={{ borderRadius: 12 }} />
+                                                    <Skeleton variant="rectangular" width={60} height={20} sx={{ borderRadius: 12 }} />
+                                                </Stack>
+                                            }
+                                            secondaryTypographyProps={{ component: "div" }}
+                                        />
+                                    </ListItem>
+                                ))}
+                            </Box>
+                        </Paper>
+                    ))}
+                </List>
+
+                {/* Daily Nutrition Skeleton */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        p: { xs: 1.5, sm: 2.5 },
+                        borderRadius: "12px",
+                        bgcolor: "background.paper",
+                        border: "none",
+                        boxShadow: theme.shadows[2],
+                    }}
+                >
+                    <Skeleton variant="text" width={120} height={32} sx={{ mb: 2 }} />
+
+                    <Stack spacing={2}>
+                        {/* Calories Skeleton */}
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 1.5,
+                                borderRadius: "10px",
+                                bgcolor: theme.palette.error.light,
+                                borderLeft: "4px solid",
+                                borderColor: theme.palette.error.main,
+                            }}
+                        >
+                            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                <Stack direction="row" alignItems="center" spacing={1.5}>
+                                    <Skeleton variant="circular" width={20} height={20} />
+                                    <Skeleton variant="text" width={60} height={24} />
+                                </Stack>
+                                <Stack alignItems="flex-end" spacing={0.5}>
+                                    <Skeleton variant="text" width={100} height={28} />
+                                    <Skeleton variant="text" width={40} height={16} />
+                                </Stack>
+                            </Stack>
+                        </Paper>
+
+                        {/* Macros Row Skeleton */}
+                        <Box sx={{ display: "flex", gap: 1.5 }}>
+                            {/* Protein */}
+                            <Box sx={{ flex: 1 }}>
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 1.5,
+                                        height: "100%",
+                                        borderRadius: "10px",
+                                        bgcolor: theme.palette.primary.light,
+                                        borderLeft: "4px solid",
+                                        borderColor: theme.palette.primary.main,
+                                    }}
+                                >
+                                    <Stack direction="column" spacing={1}>
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            <Skeleton variant="circular" width={20} height={20} />
+                                            <Skeleton variant="text" width={50} height={20} />
+                                        </Stack>
+                                        <Skeleton variant="text" width={80} height={24} />
+                                    </Stack>
+                                </Paper>
+                            </Box>
+
+                            {/* Carbs */}
+                            <Box sx={{ flex: 1 }}>
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 1.5,
+                                        height: "100%",
+                                        borderRadius: "10px",
+                                        bgcolor: theme.palette.success.light,
+                                        borderLeft: "4px solid",
+                                        borderColor: theme.palette.success.main,
+                                    }}
+                                >
+                                    <Stack direction="column" spacing={1}>
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            <Skeleton variant="circular" width={20} height={20} />
+                                            <Skeleton variant="text" width={50} height={20} />
+                                        </Stack>
+                                        <Skeleton variant="text" width={80} height={24} />
+                                    </Stack>
+                                </Paper>
+                            </Box>
+
+                            {/* Fats */}
+                            <Box sx={{ flex: 1 }}>
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 1.5,
+                                        height: "100%",
+                                        borderRadius: "10px",
+                                        bgcolor: theme.palette.warning.light,
+                                        borderLeft: "4px solid",
+                                        borderColor: theme.palette.warning.main,
+                                    }}
+                                >
+                                    <Stack direction="column" spacing={1}>
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            <Skeleton variant="circular" width={20} height={20} />
+                                            <Skeleton variant="text" width={50} height={20} />
+                                        </Stack>
+                                        <Skeleton variant="text" width={80} height={24} />
+                                    </Stack>
+                                </Paper>
+                            </Box>
+                        </Box>
+                    </Stack>
+                </Paper>
+            </Box>
+        );
     };
 
     return (
@@ -260,19 +539,99 @@ export const Diet: React.FC = () => {
                             overflowX: "hidden",
                         }}
                     >
-                        <AnimatePresence mode="wait" custom={direction}>
-                            <motion.div
-                                key={selectedDate.toString()}
-                                custom={direction}
-                                variants={contentVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                style={{ height: "100%" }}
+                        {loading ? (
+                            <LoadingSkeleton />
+                        ) : error ? (
+                            <Box
+                                sx={{
+                                    height: "100%",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    p: 3,
+                                    textAlign: "center",
+                                    gap: 2,
+                                }}
                             >
-                                <DayContentPanel showDayContent={showDayContent || isMobile} isMobile={isMobile} />
-                            </motion.div>
-                        </AnimatePresence>
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 3,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        gap: 2,
+                                        borderRadius: 3,
+                                        bgcolor: "background.paper",
+                                        border: `1px solid ${theme.palette.error.light}`,
+                                        maxWidth: 400,
+                                        width: "100%",
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            width: 60,
+                                            height: 60,
+                                            borderRadius: "50%",
+                                            bgcolor: theme.palette.error.light,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: theme.palette.error.main,
+                                            mb: 1,
+                                        }}
+                                    >
+                                        <ErrorOutline sx={{ fontSize: 32, color: theme.palette.background.default }} />
+                                    </Box>
+
+                                    <Typography variant="h6" color="text.primary" fontWeight={600}>
+                                        Failed to Load Diet Plan
+                                    </Typography>
+                                    <Typography variant="body1" color="text.secondary">
+                                        {error}
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        onClick={fetchData}
+                                        sx={{
+                                            mt: 2,
+                                            px: 4,
+                                            py: 1,
+                                            borderRadius: "20px",
+                                            textTransform: "none",
+                                            fontWeight: 600,
+                                            bgcolor: theme.palette.error.main,
+                                            "&:hover": {
+                                                bgcolor: theme.palette.error.dark,
+                                            },
+                                        }}
+                                    >
+                                        Try Again
+                                    </Button>
+                                </Paper>
+                            </Box>
+                        ) : (
+                            <AnimatePresence mode="wait" custom={direction}>
+                                <motion.div
+                                    key={selectedDate.toString()}
+                                    custom={direction}
+                                    variants={contentVariants}
+                                    initial="enter"
+                                    animate="center"
+                                    exit="exit"
+                                    style={{ height: "100%" }}
+                                >
+                                    <DayContentPanel
+                                        showDayContent={showDayContent || isMobile}
+                                        isMobile={isMobile}
+                                        dietData={dietData}
+                                        completedMeals={completedMeals}
+                                        onToggleMeal={handleToggleMeal}
+                                    />
+                                </motion.div>
+                            </AnimatePresence>
+                        )}
                     </Box>
                 </Box>
             </Box>

@@ -20,21 +20,17 @@ import {
     styled,
 } from "@mui/material";
 import { Restaurant, CheckCircle, Circle, LocalFireDepartment, ExpandMore, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
-import dietPlan from "../../diet.json";
 
-// Styled Chip component that properly respects theme
+// Styled Chip component
 const Chip = styled(MuiChip)(({ theme }) => ({
-    // Small size adjustments
     "&.MuiChip-sizeSmall": {
         height: 20,
         fontSize: "0.7rem",
     },
-    // Outline variant adjustments
     "&.MuiChip-outlined": {
         backgroundColor: theme.palette.mode === "light" ? theme.palette.grey[100] : theme.palette.grey[800],
         borderColor: theme.palette.mode === "light" ? theme.palette.grey[300] : theme.palette.grey[600],
     },
-    // Success state
     "&.MuiChip-colorSuccess": {
         backgroundColor: theme.palette.success.main,
         color: theme.palette.success.contrastText,
@@ -51,11 +47,13 @@ interface NutritionChipProps {
 interface DayContentPanelProps {
     showDayContent: boolean;
     isMobile?: boolean;
+    dietData?: any;
+    completedMeals: Record<string, boolean>;
+    onToggleMeal: (mealTime: string) => void;
 }
 
-export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent, isMobile = false }) => {
+export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent, isMobile = false, dietData, completedMeals, onToggleMeal }) => {
     const theme = useTheme();
-    const [completedMeals, setCompletedMeals] = useState<Record<string, boolean>>({});
     const [expandedMeals, setExpandedMeals] = useState<Record<string, boolean>>({});
     const smallMobile = useMediaQuery(theme.breakpoints.down(400));
 
@@ -82,12 +80,13 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
         );
     }
 
-    const handleToggleMeal = (mealTime: string) => {
-        setCompletedMeals((prev) => ({
-            ...prev,
-            [mealTime]: !prev[mealTime],
-        }));
-    };
+    if (!dietData) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                <Typography>No diet data available for this date</Typography>
+            </Box>
+        );
+    }
 
     const handleToggleExpand = (mealTime: string) => {
         setExpandedMeals((prev) => ({
@@ -97,8 +96,8 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
     };
 
     const completedCount = Object.values(completedMeals).filter(Boolean).length;
-    const totalMeals = dietPlan.meals.length;
-    const progress = Math.round((completedCount / totalMeals) * 100);
+    const totalMeals = dietData.meals?.length || 0;
+    const progress = totalMeals > 0 ? Math.round((completedCount / totalMeals) * 100) : 0;
 
     const NutritionChip = ({ icon, value, unit, color }: NutritionChipProps) => (
         <Stack direction="row" spacing={0.5} alignItems="center">
@@ -169,7 +168,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
             )}
 
             <List sx={{ width: "100%", flex: 1, py: 0 }}>
-                {dietPlan.meals.map((meal, index) => {
+                {dietData.meals?.map((meal: any, index: number) => {
                     const isCompleted = !!completedMeals[meal.time];
                     const isExpanded = !!expandedMeals[meal.time];
 
@@ -198,7 +197,8 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                         <Checkbox
                                             edge="end"
                                             checked={isCompleted}
-                                            onChange={() => handleToggleMeal(meal.time)}
+                                            onChange={() => onToggleMeal(meal.time)}
+                                            onClick={(e) => e.stopPropagation()}
                                             icon={<Circle fontSize="small" />}
                                             checkedIcon={<CheckCircle color="success" fontSize="small" />}
                                             size={smallMobile ? "small" : "medium"}
@@ -209,6 +209,10 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                         <IconButton
                                             edge="end"
                                             size={smallMobile ? "small" : "medium"}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleToggleExpand(meal.time);
+                                            }}
                                             sx={{
                                                 transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
                                                 transition: theme.transitions.create("transform", {
@@ -285,7 +289,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                     <Box sx={{ px: { xs: 1, sm: 2 }, pb: { xs: 1, sm: 2 } }}>
                                         <Divider />
                                         <List dense sx={{ py: 0 }}>
-                                            {meal.items.map((item, itemIndex) => (
+                                            {meal.items.map((item: any, itemIndex: number) => (
                                                 <ListItem
                                                     key={itemIndex}
                                                     sx={{
@@ -349,13 +353,13 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                 })}
             </List>
 
-            {(!isMobile || showDayContent) && (
+            {(!isMobile || showDayContent) && dietData.dailyTotal && (
                 <Paper
                     elevation={0}
                     sx={{
                         p: { xs: 1.5, sm: 2.5 },
                         mt: { xs: 1, sm: 2 },
-                        borderRadius: "12px",
+                        borderRadius: 3,
                         bgcolor: "background.paper",
                         border: "none",
                         boxShadow: theme.shadows[2],
@@ -371,7 +375,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                             letterSpacing: "-0.2px",
                         }}
                     >
-                        Daily Nutrition
+                        Summary
                     </Typography>
 
                     <Stack spacing={2}>
@@ -379,8 +383,8 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                         <Paper
                             elevation={0}
                             sx={{
-                                p: 1.5,
-                                borderRadius: "10px",
+                                p: "12px 24px",
+                                borderRadius: 3,
                                 bgcolor: theme.palette.error.light,
                                 borderLeft: "4px solid",
                                 borderColor: theme.palette.error.main,
@@ -395,7 +399,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                 </Stack>
                                 <Stack alignItems="flex-end" spacing={0.5}>
                                     <Typography variant="h6" fontWeight={600} fontSize={smallMobile ? "1.1rem" : "1.3rem"}>
-                                        {dietPlan.dailyTotal.calories}
+                                        {dietData.dailyTotal.calories}
                                         <Box component="span" sx={{ opacity: 0.7, fontSize: "0.9rem" }}>
                                             / 2400
                                         </Box>
@@ -414,9 +418,9 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: 1.5,
+                                        p: "12px 24px",
                                         height: "100%",
-                                        borderRadius: "10px",
+                                        borderRadius: 3,
                                         bgcolor: theme.palette.primary.light,
                                         borderLeft: "4px solid",
                                         borderColor: theme.palette.primary.main,
@@ -431,7 +435,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                         </Stack>
                                         <Stack direction="row" alignItems="baseline" spacing={0.5}>
                                             <Typography variant="h6" fontWeight={600} fontSize={smallMobile ? "1rem" : "1.1rem"}>
-                                                {dietPlan.dailyTotal.protein}
+                                                {dietData.dailyTotal.protein}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary" fontSize={smallMobile ? "0.75rem" : "0.8rem"}>
                                                 / 190g
@@ -446,9 +450,9 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: 1.5,
+                                        p: "12px 24px",
                                         height: "100%",
-                                        borderRadius: "10px",
+                                        borderRadius: 3,
                                         bgcolor: theme.palette.success.light,
                                         borderLeft: "4px solid",
                                         borderColor: theme.palette.success.main,
@@ -463,7 +467,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                         </Stack>
                                         <Stack direction="row" alignItems="baseline" spacing={0.5}>
                                             <Typography variant="h6" fontWeight={600} fontSize={smallMobile ? "1rem" : "1.1rem"}>
-                                                {dietPlan.dailyTotal.carbs}
+                                                {dietData.dailyTotal.carbs}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary" fontSize={smallMobile ? "0.75rem" : "0.8rem"}>
                                                 / 200g
@@ -478,9 +482,9 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: 1.5,
+                                        p: "12px 24px",
                                         height: "100%",
-                                        borderRadius: "10px",
+                                        borderRadius: 3,
                                         bgcolor: theme.palette.warning.light,
                                         borderLeft: "4px solid",
                                         borderColor: theme.palette.warning.main,
@@ -495,7 +499,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                         </Stack>
                                         <Stack direction="row" alignItems="baseline" spacing={0.5}>
                                             <Typography variant="h6" fontWeight={600} fontSize={smallMobile ? "1rem" : "1.1rem"}>
-                                                {dietPlan.dailyTotal.fats}
+                                                {dietData.dailyTotal.fats}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary" fontSize={smallMobile ? "0.75rem" : "0.8rem"}>
                                                 / 75g
