@@ -1,5 +1,5 @@
 import axios from "axios";
-import { fetchDietPlanURL, markMealCompleteURL, markMealIncompleteURL } from "./apiEndpoints";
+import { fetchDietPlanURL, markMealCompleteURL, markMealIncompleteURL, updateDietPlanURL } from "./apiEndpoints";
 
 export const fetchDietPlan = async (date: string) => {
     try {
@@ -34,6 +34,16 @@ export const markMealIncomplete = async (date: string, mealTime: string) => {
         return response.data;
     } catch (error) {
         console.error("Error marking meal incomplete:", error);
+        throw error;
+    }
+};
+
+export const updateDietPlan = async (updatedData: any) => {
+    try {
+        const response = await axios.put(updateDietPlanURL, updatedData);
+        return response; // Return full response
+    } catch (error) {
+        console.error("Error updating diet plan:", error);
         throw error;
     }
 };

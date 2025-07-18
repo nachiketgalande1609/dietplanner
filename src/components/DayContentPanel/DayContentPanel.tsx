@@ -18,8 +18,9 @@ import {
     Collapse,
     useMediaQuery,
     styled,
+    Button,
 } from "@mui/material";
-import { Restaurant, CheckCircle, Circle, LocalFireDepartment, ExpandMore, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
+import { Restaurant, CheckCircle, Circle, LocalFireDepartment, ExpandMore, FitnessCenter, Grain, SetMeal, Edit } from "@mui/icons-material";
 
 // Styled Chip component
 const Chip = styled(MuiChip)(({ theme }) => ({
@@ -50,9 +51,17 @@ interface DayContentPanelProps {
     dietData?: any;
     completedMeals: Record<string, boolean>;
     onToggleMeal: (mealTime: string) => void;
+    onEdit?: () => void; // Add this line
 }
 
-export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent, isMobile = false, dietData, completedMeals, onToggleMeal }) => {
+export const DayContentPanel: React.FC<DayContentPanelProps> = ({
+    showDayContent,
+    isMobile = false,
+    dietData,
+    completedMeals,
+    onToggleMeal,
+    onEdit,
+}) => {
     const theme = useTheme();
     const [expandedMeals, setExpandedMeals] = useState<Record<string, boolean>>({});
     const smallMobile = useMediaQuery(theme.breakpoints.down(400));
@@ -133,15 +142,18 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                         borderRadius: 3,
                         bgcolor: "background.paper",
                         border: `1px solid ${theme.palette.divider}`,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                     }}
                 >
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
-                                Daily Progress
-                            </Typography>
-                            <Chip label={`${completedCount}/${totalMeals} meals`} size="small" variant="outlined" color="default" />
-                        </Stack>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
+                            Daily Progress
+                        </Typography>
+                        <Chip label={`${completedCount}/${totalMeals} meals`} size="small" variant="outlined" color="default" />
+                    </Stack>
+                    <Stack direction="row" spacing={1}>
                         <Chip
                             label={`${progress}%`}
                             color={progress === 100 ? "success" : "primary"}
@@ -151,19 +163,12 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({ showDayContent
                                 fontSize: smallMobile ? "0.75rem" : "0.875rem",
                             }}
                         />
+                        {onEdit && (
+                            <Button variant="outlined" size="small" onClick={onEdit} startIcon={<Edit fontSize="small" />}>
+                                Edit
+                            </Button>
+                        )}
                     </Stack>
-                    <LinearProgress
-                        variant="determinate"
-                        value={progress}
-                        color={progress === 100 ? "success" : "primary"}
-                        sx={{
-                            height: 8,
-                            borderRadius: 5,
-                            "& .MuiLinearProgress-bar": {
-                                borderRadius: 5,
-                            },
-                        }}
-                    />
                 </Paper>
             )}
 

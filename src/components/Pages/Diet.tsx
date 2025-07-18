@@ -22,7 +22,8 @@ import { DayContentPanel } from "../DayContentPanel/DayContentPanel";
 import { useTheme } from "@mui/material/styles";
 import { CalendarMonth, ChevronLeft, ChevronRight, ErrorOutline } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { fetchDietPlan, markMealComplete, markMealIncomplete } from "../../api/dietApi";
+import { fetchDietPlan, markMealComplete, markMealIncomplete, updateDietPlan } from "../../api/dietApi";
+import { EditDietPlan } from "../EditDietPlan/EditDietPlan";
 
 export const Diet: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -33,6 +34,7 @@ export const Diet: React.FC = () => {
     const [completedMeals, setCompletedMeals] = useState<Record<string, boolean>>({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [editMode, setEditMode] = useState(false);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -105,6 +107,23 @@ export const Diet: React.FC = () => {
 
     const toggleCalendar = () => {
         setShowCalendar(!showCalendar);
+    };
+
+    const handleSaveEditedPlan = async (updatedData: any) => {
+        try {
+            const response = await updateDietPlan(updatedData);
+
+            if (!response.success) {
+                throw new Error(response.error || "Failed to save diet plan");
+            }
+
+            setDietData(updatedData);
+            setEditMode(false);
+            alert("Diet plan saved successfully!");
+        } catch (error) {
+            console.error("Failed to save diet plan:", error);
+            alert("Failed to save diet plan. Please try again.");
+        }
     };
 
     // Animation variants
@@ -684,6 +703,8 @@ export const Diet: React.FC = () => {
                                     </Button>
                                 </Paper>
                             </Box>
+                        ) : editMode ? (
+                            <EditDietPlan dietData={dietData} onSave={handleSaveEditedPlan} onCancel={() => setEditMode(false)} />
                         ) : (
                             <AnimatePresence mode="wait" custom={direction}>
                                 <motion.div
@@ -701,6 +722,7 @@ export const Diet: React.FC = () => {
                                         dietData={dietData}
                                         completedMeals={completedMeals}
                                         onToggleMeal={handleToggleMeal}
+                                        onEdit={() => setEditMode(true)}
                                     />
                                 </motion.div>
                             </AnimatePresence>
