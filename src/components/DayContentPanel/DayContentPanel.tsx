@@ -19,6 +19,8 @@ import {
     useMediaQuery,
     styled,
     Button,
+    type SxProps,
+    type Theme,
 } from "@mui/material";
 import { Restaurant, CheckCircle, Circle, LocalFireDepartment, ExpandMore, FitnessCenter, Grain, SetMeal, Edit } from "@mui/icons-material";
 
@@ -39,7 +41,7 @@ const Chip = styled(MuiChip)(({ theme }) => ({
 }));
 
 interface NutritionChipProps {
-    icon: ReactElement;
+    icon: ReactElement<{ sx?: SxProps<Theme> }>;
     value: number;
     unit: string;
     color: string;

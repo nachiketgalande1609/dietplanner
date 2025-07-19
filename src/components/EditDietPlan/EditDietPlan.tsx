@@ -1,5 +1,5 @@
 // EditDietPlan.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     Box,
     Typography,
@@ -23,7 +23,7 @@ import {
     useTheme,
 } from "@mui/material";
 import { Add, Delete, Edit, Check, Close, DragHandle, LocalFireDepartment, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 interface NutritionValues {
     calories: number;

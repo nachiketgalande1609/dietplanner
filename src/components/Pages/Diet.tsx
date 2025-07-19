@@ -112,9 +112,10 @@ export const Diet: React.FC = () => {
     const handleSaveEditedPlan = async (updatedData: any) => {
         try {
             const response = await updateDietPlan(updatedData);
+            const { success, error } = response.data; // <-- extract from response.data
 
-            if (!response.success) {
-                throw new Error(response.error || "Failed to save diet plan");
+            if (!success) {
+                throw new Error(error || "Failed to save diet plan");
             }
 
             setDietData(updatedData);
