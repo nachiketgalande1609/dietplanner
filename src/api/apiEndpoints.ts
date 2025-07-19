@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export const fetchDietPlanURL = `${API_BASE_URL}/diet`;
 export const markMealCompleteURL = `${API_BASE_URL}/diet/complete`;
