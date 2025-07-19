@@ -142,33 +142,55 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({
                         borderRadius: 3,
                         bgcolor: "background.paper",
                         border: `1px solid ${theme.palette.divider}`,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
                     }}
                 >
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
-                            Daily Progress
-                        </Typography>
-                        <Chip label={`${completedCount}/${totalMeals} meals`} size="small" variant="outlined" color="default" />
-                    </Stack>
-                    <Stack direction="row" spacing={1}>
-                        <Chip
-                            label={`${progress}%`}
-                            color={progress === 100 ? "success" : "primary"}
-                            variant={progress === 100 ? "filled" : "outlined"}
-                            sx={{
-                                fontWeight: 600,
-                                fontSize: smallMobile ? "0.75rem" : "0.875rem",
-                            }}
-                        />
-                        {onEdit && (
-                            <Button variant="outlined" size="small" onClick={onEdit} startIcon={<Edit fontSize="small" />}>
-                                Edit
-                            </Button>
-                        )}
-                    </Stack>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
+                                Daily Progress
+                            </Typography>
+                            <Chip label={`${completedCount}/${totalMeals} meals`} size="small" variant="outlined" color="default" />
+                        </Stack>
+
+                        <Stack direction="row" spacing={1}>
+                            <Chip
+                                label={`${progress}%`}
+                                color={progress === 100 ? "success" : "primary"}
+                                variant={progress === 100 ? "filled" : "outlined"}
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: smallMobile ? "0.75rem" : "0.875rem",
+                                }}
+                            />
+                            {onEdit && (
+                                <Button variant="outlined" size="small" onClick={onEdit} startIcon={<Edit fontSize="small" />}>
+                                    Edit
+                                </Button>
+                            )}
+                        </Stack>
+                    </Box>
+
+                    {/* Progress Bar */}
+                    <LinearProgress
+                        variant="determinate"
+                        value={progress}
+                        color="success"
+                        sx={{
+                            mt: 2,
+                            height: 8,
+                            borderRadius: 5,
+                            backgroundColor: theme.palette.grey[200],
+                            "& .MuiLinearProgress-bar": {
+                                borderRadius: 5,
+                            },
+                        }}
+                    />
                 </Paper>
             )}
 
