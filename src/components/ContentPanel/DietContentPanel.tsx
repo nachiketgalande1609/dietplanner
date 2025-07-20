@@ -8,7 +8,6 @@ import {
     ListItemText,
     ListItemSecondaryAction,
     Checkbox,
-    Divider,
     Chip as MuiChip,
     LinearProgress,
     Stack,
@@ -47,7 +46,7 @@ interface NutritionChipProps {
     color: string;
 }
 
-interface DayContentPanelProps {
+interface DietContentPanelProps {
     showDayContent: boolean;
     isMobile?: boolean;
     dietData?: any;
@@ -56,7 +55,7 @@ interface DayContentPanelProps {
     onEdit?: () => void; // Add this line
 }
 
-export const DayContentPanel: React.FC<DayContentPanelProps> = ({
+export const DietContentPanel: React.FC<DietContentPanelProps> = ({
     showDayContent,
     isMobile = false,
     dietData,

@@ -1,29 +1,14 @@
 import React, { useState, useEffect } from "react";
-import {
-    Box,
-    Typography,
-    Button,
-    useMediaQuery,
-    Skeleton,
-    Paper,
-    Stack,
-    List,
-    ListItem,
-    ListItemSecondaryAction,
-    Divider,
-    ListItemText,
-    IconButton,
-} from "@mui/material";
-import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Box, Typography, Button, useMediaQuery, Paper, IconButton } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
-import { DayContentPanel } from "../DayContentPanel/DayContentPanel";
+import { DietContentPanel } from "../ContentPanel/DietContentPanel";
 import { useTheme } from "@mui/material/styles";
 import { CalendarMonth, ChevronLeft, ChevronRight, ErrorOutline } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchDietPlan, markMealComplete, markMealIncomplete, updateDietPlan } from "../../api/dietApi";
 import { EditDietPlan } from "../EditDietPlan/EditDietPlan";
+import { DietSkeleton } from "../DietSkeleton/DietSkeleton";
+import CalendarPanel from "../CalendarPanel/CalendarPanel";
 
 export const Diet: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -174,229 +159,6 @@ export const Diet: React.FC = () => {
         }),
     };
 
-    const LoadingSkeleton = () => {
-        const theme = useTheme();
-        const isSmallMobile = useMediaQuery(theme.breakpoints.down(400));
-
-        return (
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "auto",
-                    minHeight: "100%",
-                    bgcolor: "background.default",
-                    gap: 2,
-                    p: { xs: 1, sm: 2 },
-                }}
-            >
-                {/* Daily Progress Skeleton */}
-                <Paper
-                    elevation={0}
-                    sx={{
-                        p: { xs: 2, sm: 2 },
-                        borderRadius: 3,
-                        bgcolor: "background.paper",
-                        border: `1px solid ${theme.palette.divider}`,
-                    }}
-                >
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <Skeleton variant="text" width={100} height={24} />
-                            <Skeleton variant="rectangular" width={80} height={24} sx={{ borderRadius: 12 }} />
-                        </Stack>
-                        <Skeleton variant="rectangular" width={50} height={24} sx={{ borderRadius: 12 }} />
-                    </Stack>
-                    <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 5 }} />
-                </Paper>
-
-                {/* Meals List Skeleton */}
-                <List sx={{ width: "100%", flex: 1, py: 0, display: "flex", flexDirection: "column", gap: 1.5 }}>
-                    {[1, 2, 3].map((mealIndex) => (
-                        <Paper
-                            key={mealIndex}
-                            elevation={isMobile ? 0 : 1}
-                            sx={{
-                                borderRadius: 3,
-                                overflow: "hidden",
-                                borderLeft: `4px solid ${theme.palette.divider}`,
-                                bgcolor: "background.paper",
-                            }}
-                        >
-                            <ListItem
-                                sx={{
-                                    pr: { xs: 8, sm: 10 },
-                                    py: { xs: 1.5, sm: 2 },
-                                }}
-                            >
-                                <ListItemSecondaryAction sx={{ right: { xs: 36, sm: 48 } }}>
-                                    <Skeleton variant="circular" width={24} height={24} />
-                                </ListItemSecondaryAction>
-
-                                <ListItemSecondaryAction>
-                                    <Skeleton variant="circular" width={32} height={32} />
-                                </ListItemSecondaryAction>
-
-                                <Box sx={{ flex: 1 }}>
-                                    <Stack direction="row" alignItems="center" spacing={1.5}>
-                                        <Skeleton variant="circular" width={32} height={32} sx={{ display: { xs: "none", sm: "block" } }} />
-                                        <Box sx={{ flex: 1 }}>
-                                            <Stack direction="row" alignItems="center" spacing={1} mb={1}>
-                                                <Skeleton variant="text" width={80} height={24} />
-                                                <Skeleton variant="text" width={120} height={20} />
-                                            </Stack>
-                                            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-                                                {!isSmallMobile && (
-                                                    <Skeleton variant="rectangular" width={70} height={24} sx={{ borderRadius: 12 }} />
-                                                )}
-                                                <Skeleton variant="rectangular" width={60} height={24} sx={{ borderRadius: 12 }} />
-                                                <Skeleton variant="rectangular" width={60} height={24} sx={{ borderRadius: 12 }} />
-                                                <Skeleton variant="rectangular" width={60} height={24} sx={{ borderRadius: 12 }} />
-                                                <Skeleton variant="rectangular" width={70} height={24} sx={{ borderRadius: 12 }} />
-                                            </Stack>
-                                        </Box>
-                                    </Stack>
-                                </Box>
-                            </ListItem>
-
-                            {/* Meal items skeleton */}
-                            <Box sx={{ px: { xs: 1.5, sm: 2 }, pb: { xs: 1.5, sm: 2 } }}>
-                                <Divider sx={{ mb: 1.5 }} />
-                                {[1, 2].map((itemIndex) => (
-                                    <ListItem key={itemIndex} sx={{ py: 0.5, px: { xs: 0, sm: 1 } }}>
-                                        <ListItemText
-                                            primary={<Skeleton variant="text" width="60%" height={20} />}
-                                            secondary={
-                                                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ pt: 0.5 }}>
-                                                    <Skeleton variant="rectangular" width={50} height={20} sx={{ borderRadius: 12 }} />
-                                                    <Skeleton variant="rectangular" width={50} height={20} sx={{ borderRadius: 12 }} />
-                                                    <Skeleton variant="rectangular" width={50} height={20} sx={{ borderRadius: 12 }} />
-                                                    <Skeleton variant="rectangular" width={60} height={20} sx={{ borderRadius: 12 }} />
-                                                </Stack>
-                                            }
-                                            secondaryTypographyProps={{ component: "div" }}
-                                        />
-                                    </ListItem>
-                                ))}
-                            </Box>
-                        </Paper>
-                    ))}
-                </List>
-
-                {/* Daily Nutrition Skeleton */}
-                <Paper
-                    elevation={0}
-                    sx={{
-                        p: { xs: 1.5, sm: 2.5 },
-                        borderRadius: "12px",
-                        bgcolor: "background.paper",
-                        border: "none",
-                        boxShadow: theme.shadows[2],
-                    }}
-                >
-                    <Skeleton variant="text" width={120} height={32} sx={{ mb: 2 }} />
-
-                    <Stack spacing={2}>
-                        {/* Calories Skeleton */}
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 1.5,
-                                borderRadius: "10px",
-                                bgcolor: theme.palette.error.light,
-                                borderLeft: "4px solid",
-                                borderColor: theme.palette.error.main,
-                            }}
-                        >
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Stack direction="row" alignItems="center" spacing={1.5}>
-                                    <Skeleton variant="circular" width={20} height={20} />
-                                    <Skeleton variant="text" width={60} height={24} />
-                                </Stack>
-                                <Stack alignItems="flex-end" spacing={0.5}>
-                                    <Skeleton variant="text" width={100} height={28} />
-                                    <Skeleton variant="text" width={40} height={16} />
-                                </Stack>
-                            </Stack>
-                        </Paper>
-
-                        {/* Macros Row Skeleton */}
-                        <Box sx={{ display: "flex", gap: 1.5 }}>
-                            {/* Protein */}
-                            <Box sx={{ flex: 1 }}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        p: 1.5,
-                                        height: "100%",
-                                        borderRadius: "10px",
-                                        bgcolor: theme.palette.primary.light,
-                                        borderLeft: "4px solid",
-                                        borderColor: theme.palette.primary.main,
-                                    }}
-                                >
-                                    <Stack direction="column" spacing={1}>
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Skeleton variant="circular" width={20} height={20} />
-                                            <Skeleton variant="text" width={50} height={20} />
-                                        </Stack>
-                                        <Skeleton variant="text" width={80} height={24} />
-                                    </Stack>
-                                </Paper>
-                            </Box>
-
-                            {/* Carbs */}
-                            <Box sx={{ flex: 1 }}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        p: 1.5,
-                                        height: "100%",
-                                        borderRadius: "10px",
-                                        bgcolor: theme.palette.success.light,
-                                        borderLeft: "4px solid",
-                                        borderColor: theme.palette.success.main,
-                                    }}
-                                >
-                                    <Stack direction="column" spacing={1}>
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Skeleton variant="circular" width={20} height={20} />
-                                            <Skeleton variant="text" width={50} height={20} />
-                                        </Stack>
-                                        <Skeleton variant="text" width={80} height={24} />
-                                    </Stack>
-                                </Paper>
-                            </Box>
-
-                            {/* Fats */}
-                            <Box sx={{ flex: 1 }}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        p: 1.5,
-                                        height: "100%",
-                                        borderRadius: "10px",
-                                        bgcolor: theme.palette.warning.light,
-                                        borderLeft: "4px solid",
-                                        borderColor: theme.palette.warning.main,
-                                    }}
-                                >
-                                    <Stack direction="column" spacing={1}>
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Skeleton variant="circular" width={20} height={20} />
-                                            <Skeleton variant="text" width={50} height={20} />
-                                        </Stack>
-                                        <Skeleton variant="text" width={80} height={24} />
-                                    </Stack>
-                                </Paper>
-                            </Box>
-                        </Box>
-                    </Stack>
-                </Paper>
-            </Box>
-        );
-    };
-
     return (
         <Box
             sx={{
@@ -483,74 +245,7 @@ export const Diet: React.FC = () => {
                 }}
             >
                 {/* Calendar Section */}
-                <AnimatePresence>
-                    {(showCalendar || !isMobile) && (
-                        <motion.div
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: -20, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            style={{
-                                width: isMobile ? "100%" : 350,
-                                flexShrink: 0,
-                                minHeight: isMobile ? "auto" : "100%",
-                                zIndex: isMobile ? 5 : 1,
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    width: "100%",
-                                    height: isMobile ? "auto" : "100%",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    p: { xs: 1, md: 2 },
-                                    borderRadius: { xs: 0, sm: 3 },
-                                    bgcolor: "background.default",
-                                    border: isMobile ? "none" : "1px solid",
-                                    borderColor: "divider",
-                                    boxShadow: isMobile ? "0px 4px 10px rgba(0, 0, 0, 0.1)" : "none",
-                                }}
-                            >
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DateCalendar
-                                        value={selectedDate}
-                                        onChange={handleDateChange}
-                                        sx={{
-                                            width: "100%",
-                                            "& .Mui-selected": {
-                                                backgroundColor: "primary.main",
-                                                color: "primary.contrastText",
-                                                fontWeight: "bold",
-                                                "&:hover": {
-                                                    backgroundColor: "primary.dark",
-                                                },
-                                            },
-                                            "& .MuiPickersDay-root": {
-                                                fontSize: { xs: "0.75rem", md: "0.875rem" },
-                                                width: { xs: 36, md: 40 },
-                                                height: { xs: 36, md: 40 },
-                                                "&:hover": {
-                                                    backgroundColor: "action.hover",
-                                                },
-                                            },
-                                            "& .MuiTypography-caption": {
-                                                color: "text.secondary",
-                                                fontWeight: "500",
-                                                fontSize: { xs: "0.75rem", md: "0.875rem" },
-                                            },
-                                            "& .MuiPickersCalendarHeader-label": {
-                                                color: "text.primary",
-                                                fontWeight: "600",
-                                                fontSize: { xs: "0.875rem", md: "1rem" },
-                                            },
-                                        }}
-                                        showDaysOutsideCurrentMonth
-                                    />
-                                </LocalizationProvider>
-                            </Box>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                <CalendarPanel isMobile={isMobile} showCalendar={showCalendar} selectedDate={selectedDate} handleDateChange={handleDateChange} />
 
                 {/* Content Panel */}
                 <Box
@@ -632,7 +327,7 @@ export const Diet: React.FC = () => {
                         }}
                     >
                         {loading ? (
-                            <LoadingSkeleton />
+                            <DietSkeleton isMobile={isMobile} />
                         ) : error ? (
                             <Box
                                 sx={{
@@ -716,7 +411,7 @@ export const Diet: React.FC = () => {
                                     exit="exit"
                                     style={{ height: "100%" }}
                                 >
-                                    <DayContentPanel
+                                    <DietContentPanel
                                         showDayContent={showDayContent || isMobile}
                                         isMobile={isMobile}
                                         dietData={dietData}

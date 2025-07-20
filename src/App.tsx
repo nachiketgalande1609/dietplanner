@@ -15,10 +15,10 @@ export const App: React.FC = () => {
     const isMobile = useMediaQuery(useTheme().breakpoints.down("md"));
 
     const getButtonStyles = (path: string) => ({
-        backgroundColor: location.pathname === path ? "primary.main" : "background.paper",
-        color: location.pathname === path ? "primary.contrastText" : "text.primary",
+        backgroundColor: location.pathname === path || (path === "/diet" && location.pathname === "/") ? "primary.main" : "background.paper",
+        color: location.pathname === path || (path === "/diet" && location.pathname === "/") ? "primary.contrastText" : "text.primary",
         "&:hover": {
-            backgroundColor: location.pathname === path ? "primary.dark" : "action.hover",
+            backgroundColor: location.pathname === path || (path === "/diet" && location.pathname === "/") ? "primary.dark" : "action.hover",
         },
     });
 
