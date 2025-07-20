@@ -139,7 +139,7 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({
                 <Paper
                     elevation={0}
                     sx={{
-                        p: { xs: 1, sm: 3 },
+                        p: { xs: "16px 24px", sm: 3 },
                         mb: { xs: 1, sm: 2 },
                         borderRadius: 3,
                         bgcolor: "background.paper",
@@ -206,23 +206,25 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({
                             <Paper
                                 elevation={isMobile ? 0 : 1}
                                 sx={{
-                                    mb: { xs: 1, sm: 2 },
+                                    mb: { xs: 2, sm: 2 },
                                     borderRadius: 3,
                                     overflow: "hidden",
                                     borderLeft: `4px solid ${isCompleted ? theme.palette.success.main : theme.palette.divider}`,
                                     bgcolor: "background.paper",
+                                    width: "100%",
+                                    backgroundColor: isCompleted ? theme.palette.success.light : "inherit",
                                 }}
                             >
                                 <ListItem
                                     sx={{
-                                        backgroundColor: isCompleted ? theme.palette.success.light : "inherit",
                                         pr: { xs: 8, sm: 10 },
-                                        py: { xs: 1, sm: 1.5 },
+                                        py: { xs: 2, sm: 2 },
                                         cursor: "pointer",
+                                        width: "100%",
                                     }}
                                     onClick={() => handleToggleExpand(meal.time)}
                                 >
-                                    <ListItemSecondaryAction sx={{ right: { xs: 36, sm: 48 } }}>
+                                    <ListItemSecondaryAction sx={{ right: { xs: 48, sm: 48 } }}>
                                         <Checkbox
                                             edge="end"
                                             checked={isCompleted}
@@ -314,16 +316,22 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({
                                     </Box>
                                 </ListItem>
 
-                                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                                    <Box sx={{ px: { xs: 1, sm: 2 }, pb: { xs: 1, sm: 2 } }}>
-                                        <Divider />
+                                <Collapse in={isExpanded} timeout="auto" unmountOnExit sx={{ borderRadius: 2 }}>
+                                    <Box
+                                        sx={{
+                                            px: { xs: 1, sm: 2 },
+                                            pb: { xs: 1, sm: 2 },
+                                            backgroundColor: theme.palette.background.default,
+                                            borderRadius: 3,
+                                        }}
+                                    >
                                         <List dense sx={{ py: 0 }}>
                                             {meal.items.map((item: any, itemIndex: number) => (
                                                 <ListItem
                                                     key={itemIndex}
                                                     sx={{
                                                         py: 0.5,
-                                                        px: { xs: 0, sm: 1 },
+                                                        px: { xs: 1, sm: 1 },
                                                     }}
                                                 >
                                                     <ListItemText
@@ -441,13 +449,16 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({
                         </Paper>
 
                         {/* Macros Row */}
-                        <Box sx={{ display: "flex", gap: 1.5 }}>
+                        <Box sx={{ display: "flex", gap: 1 }}>
                             {/* Protein */}
                             <Box sx={{ flex: 1 }}>
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: "12px 24px",
+                                        padding: isMobile ? "12px" : "12px 24px",
+                                        display: "flex",
+                                        justifyContent: isMobile ? "center" : "flex-start",
+                                        alignItems: "center",
                                         height: "100%",
                                         borderRadius: 3,
                                         bgcolor: theme.palette.primary.light,
@@ -479,7 +490,10 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: "12px 24px",
+                                        padding: isMobile ? "12px" : "12px 24px",
+                                        display: "flex",
+                                        justifyContent: isMobile ? "center" : "flex-start",
+                                        alignItems: "center",
                                         height: "100%",
                                         borderRadius: 3,
                                         bgcolor: theme.palette.success.light,
@@ -511,7 +525,10 @@ export const DayContentPanel: React.FC<DayContentPanelProps> = ({
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: "12px 24px",
+                                        padding: isMobile ? "12px" : "12px 24px",
+                                        display: "flex",
+                                        justifyContent: isMobile ? "center" : "flex-start",
+                                        alignItems: "center",
                                         height: "100%",
                                         borderRadius: 3,
                                         bgcolor: theme.palette.warning.light,

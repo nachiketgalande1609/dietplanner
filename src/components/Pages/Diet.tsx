@@ -194,7 +194,7 @@ export const Diet: React.FC = () => {
                 <Paper
                     elevation={0}
                     sx={{
-                        p: { xs: 1.5, sm: 2 },
+                        p: { xs: 2, sm: 2 },
                         borderRadius: 3,
                         bgcolor: "background.paper",
                         border: `1px solid ${theme.palette.divider}`,
@@ -400,7 +400,7 @@ export const Diet: React.FC = () => {
     return (
         <Box
             sx={{
-                p: { xs: 1, sm: 2, md: 3 },
+                p: { xs: 0, sm: 2, md: 3 },
                 borderRadius: { xs: 0, sm: 4 },
                 minHeight: { xs: "100vh", sm: "calc(100vh - 120px)" },
                 display: "flex",
@@ -423,7 +423,6 @@ export const Diet: React.FC = () => {
                         top: 0,
                         zIndex: 10,
                         bgcolor: "background.Box",
-                        borderBottom: "1px solid",
                         borderColor: "divider",
                     }}
                 >
@@ -627,7 +626,7 @@ export const Diet: React.FC = () => {
                         sx={{
                             flexGrow: 1,
                             overflowY: "auto",
-                            p: { xs: 1, sm: 2, md: 3 },
+                            p: { xs: 0, sm: 2, md: 3 },
                             position: "relative",
                             overflowX: "hidden",
                         }}

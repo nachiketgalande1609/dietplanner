@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { Box, CssBaseline, ThemeProvider, Button, ButtonGroup, Tooltip, IconButton } from "@mui/material";
+import { Box, CssBaseline, ThemeProvider, Button, ButtonGroup, Tooltip, IconButton, useMediaQuery, useTheme } from "@mui/material";
 import { Diet } from "./components/Pages/Diet";
 import { Workout } from "./components/Pages/Workout";
 import { Page3 } from "./components/Pages/Page3";
@@ -12,6 +12,7 @@ export const App: React.FC = () => {
     const [darkMode, setDarkMode] = useState(false);
     const navigate = useNavigate();
     const location = useLocation(); // Get the current path
+    const isMobile = useMediaQuery(useTheme().breakpoints.down("md"));
 
     const getButtonStyles = (path: string) => ({
         backgroundColor: location.pathname === path ? "primary.main" : "background.paper",
@@ -29,12 +30,13 @@ export const App: React.FC = () => {
                     component="main"
                     sx={{
                         flexGrow: 1,
-                        p: 3,
+                        p: isMobile ? 1.5 : 3,
                         transition: (theme) =>
                             theme.transitions.create("margin", {
                                 easing: theme.transitions.easing.sharp,
                                 duration: theme.transitions.duration.leavingScreen,
                             }),
+                        width: "100%",
                     }}
                 >
                     <Box
