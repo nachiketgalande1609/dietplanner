@@ -97,7 +97,7 @@ export const Diet: React.FC = () => {
     const handleSaveEditedPlan = async (updatedData: any) => {
         try {
             const response = await updateDietPlan(updatedData);
-            const { success, error } = response.data; // <-- extract from response.data
+            const { success, error } = response.data;
 
             if (!success) {
                 throw new Error(error || "Failed to save diet plan");
@@ -110,30 +110,6 @@ export const Diet: React.FC = () => {
             console.error("Failed to save diet plan:", error);
             alert("Failed to save diet plan. Please try again.");
         }
-    };
-
-    // Animation variants
-    const dateHeaderVariants = {
-        enter: (direction: "left" | "right") => ({
-            x: direction === "right" ? 100 : -100,
-            opacity: 0,
-        }),
-        center: () => ({
-            x: 0,
-            opacity: 1,
-            transition: {
-                x: { type: "spring" as const, stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 },
-            },
-        }),
-        exit: (direction: "left" | "right") => ({
-            x: direction === "right" ? -100 : 100,
-            opacity: 0,
-            transition: {
-                x: { type: "spring" as const, stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 },
-            },
-        }),
     };
 
     const contentVariants = {
@@ -172,7 +148,7 @@ export const Diet: React.FC = () => {
                 boxShadow: { xs: "none", sm: "0px 4px 20px rgba(0, 0, 0, 0.08)" },
             }}
         >
-            {/* Header - only shown on mobile */}
+            {/* Modern Mobile Header */}
             {isMobile && (
                 <Box
                     sx={{
@@ -184,49 +160,97 @@ export const Diet: React.FC = () => {
                         position: "sticky",
                         top: 0,
                         zIndex: 10,
-                        bgcolor: "background.Box",
+                        bgcolor: "rgba(255, 255, 255, 0.8)",
+                        backdropFilter: "blur(8px)",
+                        borderBottom: "1px solid",
                         borderColor: "divider",
                     }}
                 >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <IconButton
                             onClick={() => handleDateChange(selectedDate.subtract(1, "day"))}
                             size="small"
                             sx={{
                                 color: "text.primary",
+                                backgroundColor: "rgba(0, 0, 0, 0.05)",
                                 "&:hover": {
-                                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                    backgroundColor: "rgba(0, 0, 0, 0.08)",
                                 },
+                                borderRadius: "10px",
+                                p: 1,
                             }}
                         >
-                            <ChevronLeft />
+                            <ChevronLeft fontSize="small" />
                         </IconButton>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                            {selectedDate.format("MMM D, YYYY")}
-                        </Typography>
+
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                px: 2,
+                                py: 1,
+                                borderRadius: "12px",
+                                bgcolor: "background.default",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                minWidth: 120,
+                            }}
+                        >
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    fontWeight: 600,
+                                    color: "text.secondary",
+                                    lineHeight: 1,
+                                    mb: 0.5,
+                                }}
+                            >
+                                {selectedDate.format("ddd").toUpperCase()}
+                            </Typography>
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    fontWeight: 700,
+                                    color: "text.primary",
+                                    lineHeight: 1,
+                                }}
+                            >
+                                {selectedDate.format("D MMM")}
+                            </Typography>
+                        </Paper>
+
                         <IconButton
                             onClick={() => handleDateChange(selectedDate.add(1, "day"))}
                             size="small"
                             sx={{
                                 color: "text.primary",
+                                backgroundColor: "rgba(0, 0, 0, 0.05)",
                                 "&:hover": {
-                                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                    backgroundColor: "rgba(0, 0, 0, 0.08)",
                                 },
+                                borderRadius: "10px",
+                                p: 1,
                             }}
                         >
-                            <ChevronRight />
+                            <ChevronRight fontSize="small" />
                         </IconButton>
                     </Box>
+
                     <Button
-                        variant="contained"
                         onClick={toggleCalendar}
-                        startIcon={<CalendarMonth />}
+                        startIcon={<CalendarMonth sx={{ fontSize: "1rem" }} />}
                         sx={{
-                            borderRadius: "20px",
+                            borderRadius: "12px",
                             textTransform: "none",
-                            px: 2,
-                            py: 1,
+                            px: 1.5,
+                            py: 0.5,
                             fontSize: "0.75rem",
+                            fontWeight: 600,
+                            backgroundColor: "rgba(0, 0, 0, 0.03)",
+                            color: "text.primary",
+                            "&:hover": {
+                                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                            },
                             minWidth: "auto",
                         }}
                     >
@@ -262,58 +286,146 @@ export const Diet: React.FC = () => {
                         minHeight: isMobile ? "calc(100vh - 120px)" : "auto",
                     }}
                 >
+                    {/* Modern Desktop Header */}
                     {!isMobile && (
                         <Box
                             sx={{
-                                p: 3,
-                                bgcolor: "primary.main",
-                                color: "primary.contrastText",
-                                position: "relative",
-                                overflow: "hidden",
+                                p: 2,
+                                bgcolor: "background.paper",
+                                borderBottom: "1px solid",
+                                borderColor: "divider",
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
+                                position: "relative",
+                                overflow: "hidden",
+                                "&::before": {
+                                    content: '""',
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    height: "4px",
+                                    background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                },
                             }}
                         >
-                            <AnimatePresence mode="wait" custom={direction}>
-                                <motion.div
-                                    key={selectedDate.toString()}
-                                    custom={direction}
-                                    variants={dateHeaderVariants}
-                                    initial="enter"
-                                    animate="center"
-                                    exit="exit"
-                                >
-                                    <Typography variant="h6" fontWeight="600">
-                                        {selectedDate.format("dddd, MMMM D, YYYY")}
-                                    </Typography>
-                                </motion.div>
-                            </AnimatePresence>
-
-                            <Box sx={{ display: "flex", gap: 1 }}>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                }}
+                            >
                                 <IconButton
                                     onClick={() => handleDateChange(selectedDate.subtract(1, "day"))}
                                     sx={{
-                                        color: "primary.contrastText",
+                                        color: "text.primary",
+                                        backgroundColor: "rgba(0, 0, 0, 0.03)",
                                         "&:hover": {
-                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                            backgroundColor: "rgba(0, 0, 0, 0.08)",
                                         },
+                                        borderRadius: "10px",
+                                        p: 1,
                                     }}
                                 >
                                     <ChevronLeft />
                                 </IconButton>
+
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        px: 2.5,
+                                        py: 1.5,
+                                        borderRadius: "14px",
+                                        bgcolor: "background.default",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 2,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            width: "120px",
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                fontWeight: 600,
+                                                color: "text.secondary",
+                                                lineHeight: 1,
+                                            }}
+                                        >
+                                            {selectedDate.format("dddd").toUpperCase()}
+                                        </Typography>
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontWeight: 700,
+                                                color: "text.primary",
+                                                lineHeight: 1.2,
+                                            }}
+                                        >
+                                            {selectedDate.format("MMMM D")}
+                                        </Typography>
+                                    </Box>
+                                    <Box
+                                        sx={{
+                                            width: "1px",
+                                            height: 30,
+                                            bgcolor: "divider",
+                                        }}
+                                    />
+                                    <Typography
+                                        variant="subtitle1"
+                                        sx={{
+                                            fontWeight: 500,
+                                            color: "text.secondary",
+                                        }}
+                                    >
+                                        {selectedDate.format("YYYY")}
+                                    </Typography>
+                                </Paper>
+
                                 <IconButton
                                     onClick={() => handleDateChange(selectedDate.add(1, "day"))}
                                     sx={{
-                                        color: "primary.contrastText",
+                                        color: "text.primary",
+                                        backgroundColor: "rgba(0, 0, 0, 0.03)",
                                         "&:hover": {
-                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                            backgroundColor: "rgba(0, 0, 0, 0.08)",
                                         },
+                                        borderRadius: "10px",
+                                        p: 1,
                                     }}
                                 >
                                     <ChevronRight />
                                 </IconButton>
                             </Box>
+
+                            <Button
+                                variant="contained"
+                                onClick={() => setEditMode(true)}
+                                sx={{
+                                    borderRadius: "12px",
+                                    textTransform: "none",
+                                    px: 3,
+                                    py: 1,
+                                    fontSize: "0.875rem",
+                                    fontWeight: 600,
+                                    background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                    boxShadow: "none",
+                                    "&:hover": {
+                                        boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
+                                    },
+                                }}
+                            >
+                                Edit Plan
+                            </Button>
                         </Box>
                     )}
 

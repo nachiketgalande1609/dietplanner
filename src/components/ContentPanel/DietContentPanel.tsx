@@ -211,7 +211,7 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                     borderLeft: `4px solid ${isCompleted ? theme.palette.success.main : theme.palette.divider}`,
                                     bgcolor: "background.paper",
                                     width: "100%",
-                                    backgroundColor: isCompleted ? theme.palette.success.light : "inherit",
+                                    backgroundColor: isCompleted ? theme.palette.success.light : "background.paper",
                                 }}
                             >
                                 <ListItem
