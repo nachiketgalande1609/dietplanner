@@ -14,13 +14,26 @@ export const App: React.FC = () => {
     const location = useLocation(); // Get the current path
     const isMobile = useMediaQuery(useTheme().breakpoints.down("md"));
 
-    const getButtonStyles = (path: string) => ({
-        backgroundColor: location.pathname === path || (path === "/diet" && location.pathname === "/") ? "primary.main" : "background.paper",
-        color: location.pathname === path || (path === "/diet" && location.pathname === "/") ? "primary.contrastText" : "text.primary",
-        "&:hover": {
-            backgroundColor: location.pathname === path || (path === "/diet" && location.pathname === "/") ? "primary.dark" : "action.hover",
-        },
-    });
+    const useButtonStyles = () => {
+        const theme = useTheme();
+        const location = useLocation();
+
+        const getButtonStyles = (path: string) => {
+            const isActive = location.pathname === path || (path === "/diet" && location.pathname === "/");
+
+            return {
+                background: isActive ? "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)" : theme.palette.background.paper,
+                color: isActive ? theme.palette.primary.contrastText : theme.palette.text.primary,
+                "&:hover": {
+                    backgroundColor: isActive ? theme.palette.primary.dark : theme.palette.action.hover,
+                },
+            };
+        };
+
+        return getButtonStyles;
+    };
+
+    const getButtonStyles = useButtonStyles();
 
     return (
         <ThemeProvider theme={theme(darkMode ? "dark" : "light")}>

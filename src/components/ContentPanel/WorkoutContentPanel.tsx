@@ -399,7 +399,7 @@ export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs }> = ({ selectedDat
                             fontSize: "1rem",
                             fontWeight: 600,
                             textTransform: "none",
-                            background: "linear-gradient(135deg, #1976d2 0%, #0d47a1 100%)",
+                            background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
                             boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
                             "&:hover": {
                                 boxShadow: "0 6px 8px rgba(0,0,0,0.15)",

@@ -67,7 +67,7 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
                                         minHeight: 240, // Fixed height for the days container
                                     },
                                     "& .Mui-selected": {
-                                        backgroundColor: "primary.main",
+                                        background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
                                         color: "white",
                                         fontWeight: "bold",
                                         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
@@ -119,7 +119,7 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
                                     },
                                     "& .MuiPickersDay-today": {
                                         border: "2px solid",
-                                        borderColor: "primary.light",
+                                        borderColor: "#FF8E53",
                                     },
                                 }}
                                 showDaysOutsideCurrentMonth
