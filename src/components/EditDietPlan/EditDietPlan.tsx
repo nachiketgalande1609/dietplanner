@@ -233,54 +233,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
         setNewItemDialogOpen(false);
     };
 
-    const handleSave = () => {
-        const updatedData: DietPlan = {
-            ...dietData,
-            meals: meals,
-            dailyTotal: meals.reduce(
-                (acc, meal) => ({
-                    calories: acc.calories + meal.total.calories,
-                    protein: acc.protein + meal.total.protein,
-                    carbs: acc.carbs + meal.total.carbs,
-                    fats: acc.fats + meal.total.fats,
-                }),
-                { calories: 0, protein: 0, carbs: 0, fats: 0 }
-            ),
-        };
-
-        onSave(updatedData);
-    };
-
     return (
-        <Box sx={{ p: isMobile ? 1 : 3 }}>
-            <Stack direction={isMobile ? "column" : "row"} justifyContent="space-between" alignItems="flex-start" spacing={2} mb={3}>
-                <Typography variant="h5" fontWeight="bold" gutterBottom={isMobile}>
-                    Edit Diet Plan
-                </Typography>
-                <Stack direction="row" spacing={1} width={isMobile ? "100%" : "auto"}>
-                    <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={onCancel}
-                        startIcon={<Close />}
-                        fullWidth={isMobile}
-                        size={isMobile ? "small" : "medium"}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSave}
-                        startIcon={<Check />}
-                        fullWidth={isMobile}
-                        size={isMobile ? "small" : "medium"}
-                    >
-                        Save
-                    </Button>
-                </Stack>
-            </Stack>
-
+        <Box>
             <Button
                 variant="outlined"
                 startIcon={<Add />}
@@ -432,8 +386,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                                                     fullWidth
                                                                     margin="dense"
                                                                 />
-                                                                <Grid container spacing={1}>
-                                                                    <Grid item xs={12} sm={6} md={3}>
+                                                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                                                    <Box sx={{ flex: 1, minWidth: 120 }}>
                                                                         <TextField
                                                                             size="small"
                                                                             label="Calories"
@@ -461,8 +415,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                                                                 endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
                                                                             }}
                                                                         />
-                                                                    </Grid>
-                                                                    <Grid item xs={12} sm={6} md={3}>
+                                                                    </Box>
+                                                                    <Box sx={{ flex: 1, minWidth: 120 }}>
                                                                         <TextField
                                                                             size="small"
                                                                             label="Protein"
@@ -490,8 +444,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                                                                 endAdornment: <InputAdornment position="end">g</InputAdornment>,
                                                                             }}
                                                                         />
-                                                                    </Grid>
-                                                                    <Grid item xs={12} sm={6} md={3}>
+                                                                    </Box>
+                                                                    <Box sx={{ flex: 1, minWidth: 120 }}>
                                                                         <TextField
                                                                             size="small"
                                                                             label="Carbs"
@@ -519,8 +473,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                                                                 endAdornment: <InputAdornment position="end">g</InputAdornment>,
                                                                             }}
                                                                         />
-                                                                    </Grid>
-                                                                    <Grid item xs={12} sm={6} md={3}>
+                                                                    </Box>
+                                                                    <Box sx={{ flex: 1, minWidth: 120 }}>
                                                                         <TextField
                                                                             size="small"
                                                                             label="Fats"
@@ -548,8 +502,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                                                                 endAdornment: <InputAdornment position="end">g</InputAdornment>,
                                                                             }}
                                                                         />
-                                                                    </Grid>
-                                                                </Grid>
+                                                                    </Box>
+                                                                </Box>
                                                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
                                                                     <Button
                                                                         size="small"
@@ -665,8 +619,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                             fullWidth
                             margin="normal"
                         />
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                            <Box sx={{ flex: 1, minWidth: 120 }}>
                                 <TextField
                                     label="Calories"
                                     type="number"
@@ -678,8 +632,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                         endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
                                     }}
                                 />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 120 }}>
                                 <TextField
                                     label="Protein"
                                     type="number"
@@ -691,8 +645,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                         endAdornment: <InputAdornment position="end">g</InputAdornment>,
                                     }}
                                 />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 120 }}>
                                 <TextField
                                     label="Carbohydrates"
                                     type="number"
@@ -704,8 +658,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                         endAdornment: <InputAdornment position="end">g</InputAdornment>,
                                     }}
                                 />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 120 }}>
                                 <TextField
                                     label="Fats"
                                     type="number"
@@ -717,8 +671,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                         endAdornment: <InputAdornment position="end">g</InputAdornment>,
                                     }}
                                 />
-                            </Grid>
-                        </Grid>
+                            </Box>
+                        </Box>
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ p: 2 }}>

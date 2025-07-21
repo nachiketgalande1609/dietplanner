@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, useMediaQuery, Paper, IconButton } from "@mui/material";
+import { Box, Typography, Button, useMediaQuery, Paper, IconButton, Stack } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { DietContentPanel } from "../ContentPanel/DietContentPanel";
 import { useTheme } from "@mui/material/styles";
@@ -58,6 +58,7 @@ export const Diet: React.FC = () => {
 
     const handleDateChange = (date: Dayjs | null) => {
         if (date) {
+            setEditMode(false);
             const newDirection = date.isAfter(selectedDate) ? "right" : "left";
             setDirection(newDirection);
             setSelectedDate(date);
@@ -407,25 +408,68 @@ export const Diet: React.FC = () => {
                                 </IconButton>
                             </Box>
 
-                            <Button
-                                variant="contained"
-                                onClick={() => setEditMode(true)}
-                                sx={{
-                                    borderRadius: "12px",
-                                    textTransform: "none",
-                                    px: 3,
-                                    py: 1,
-                                    fontSize: "0.875rem",
-                                    fontWeight: 600,
-                                    background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
-                                    boxShadow: "none",
-                                    "&:hover": {
-                                        boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
-                                    },
-                                }}
-                            >
-                                Edit Plan
-                            </Button>
+                            {editMode ? (
+                                <Stack direction="row" spacing={1}>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => setEditMode(false)}
+                                        sx={{
+                                            borderRadius: "12px",
+                                            textTransform: "none",
+                                            px: 3,
+                                            py: 1,
+                                            fontSize: "0.875rem",
+                                            fontWeight: 600,
+                                            color: "text.primary",
+                                            borderColor: "divider",
+                                            "&:hover": {
+                                                borderColor: "text.primary",
+                                            },
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => handleSaveEditedPlan(dietData)}
+                                        sx={{
+                                            borderRadius: "12px",
+                                            textTransform: "none",
+                                            px: 3,
+                                            py: 1,
+                                            fontSize: "0.875rem",
+                                            fontWeight: 600,
+                                            background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                            boxShadow: "none",
+                                            "&:hover": {
+                                                boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
+                                            },
+                                        }}
+                                    >
+                                        Save
+                                    </Button>
+                                </Stack>
+                            ) : (
+                                <Button
+                                    variant="contained"
+                                    onClick={() => setEditMode(true)}
+                                    sx={{
+                                        borderRadius: "12px",
+                                        textTransform: "none",
+                                        px: 3,
+                                        py: 1,
+                                        fontSize: "0.875rem",
+                                        fontWeight: 600,
+                                        background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                        boxShadow: "none",
+                                        "&:hover": {
+                                            boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
+                                        },
+                                    }}
+                                >
+                                    Edit Plan
+                                </Button>
+                            )}
                         </Box>
                     )}
 
