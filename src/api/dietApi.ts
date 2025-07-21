@@ -41,7 +41,7 @@ export const markMealIncomplete = async (date: string, mealTime: string) => {
 export const updateDietPlan = async (updatedData: any) => {
     try {
         const response = await axios.put(updateDietPlanURL, updatedData);
-        return response.data.data; // Return full response
+        return response.data; // Return full response
     } catch (error) {
         console.error("Error updating diet plan:", error);
         throw error;

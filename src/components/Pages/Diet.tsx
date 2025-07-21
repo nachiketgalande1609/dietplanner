@@ -98,7 +98,7 @@ export const Diet: React.FC = () => {
     const handleSaveEditedPlan = async (updatedData: any) => {
         try {
             const response = await updateDietPlan(updatedData);
-            const { success, error } = response.data;
+            const { success, error } = response;
 
             if (!success) {
                 throw new Error(error || "Failed to save diet plan");

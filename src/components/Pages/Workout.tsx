@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, Button, useMediaQuery, Paper, IconButton } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { useTheme } from "@mui/material/styles";
 import { CalendarMonth, ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { WorkoutDayPanel } from "../ContentPanel/WorkoutContentPanel";
+import { WorkoutContentPanel } from "../ContentPanel/WorkoutContentPanel";
 import CalendarPanel from "../CalendarPanel/CalendarPanel";
+import { fetchWorkoutPlan } from "../../api/workoutApi";
 
 // Workout data structure
 type Workout = {
@@ -21,6 +22,29 @@ export const Workout: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
     const [showCalendar, setShowCalendar] = useState(false);
     const [direction, setDirection] = useState<"left" | "right">("right");
+    const [workoutData, setWorkoutData] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const dateStr = selectedDate.format("YYYY-MM-DD");
+            const data = await fetchWorkoutPlan(dateStr);
+            setWorkoutData(data);
+        } catch (err) {
+            console.error("Failed to fetch workout plan:", err);
+            setError("Failed to load workout plan. Please try again.");
+            setWorkoutData(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [selectedDate]);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -372,7 +396,13 @@ export const Workout: React.FC = () => {
                                 exit="exit"
                                 style={{ height: "100%" }}
                             >
-                                <WorkoutDayPanel selectedDate={selectedDate} />
+                                <WorkoutContentPanel
+                                    selectedDate={selectedDate}
+                                    workoutData={workoutData}
+                                    loading={loading}
+                                    error={error}
+                                    onRefresh={fetchData}
+                                />
                             </motion.div>
                         </AnimatePresence>
                     </Box>

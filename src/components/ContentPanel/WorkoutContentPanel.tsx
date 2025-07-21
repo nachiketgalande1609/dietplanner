@@ -1,14 +1,11 @@
-import React, { useState } from "react";
-import { Box, Typography, Button, Chip, Checkbox, TextField, Stack, Paper, Collapse, Divider, IconButton } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Box, Typography, Button, Chip, Checkbox, TextField, Stack, Paper, Collapse, Divider, IconButton, CircularProgress } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { CheckCircle, Close, Edit, ExpandLess, ExpandMore, RadioButtonUnchecked, Save } from "@mui/icons-material";
-
-type WorkoutDay = {
-    day: string;
-    categories: WorkoutCategory[];
-};
+import { markExerciseComplete, updateWorkoutPlan } from "../../api/workoutApi";
 
 type Workout = {
+    id?: string;
     name: string;
     completed: boolean;
     sets: number;
@@ -22,159 +19,73 @@ type WorkoutCategory = {
     exercises: Workout[];
 };
 
-const workoutRoutine: WorkoutDay[] = [
-    {
-        day: "Monday",
-        categories: [
-            {
-                name: "Chest",
-                exercises: [
-                    { name: "Barbell Bench Press", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Incline Barbell Press", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Dumbell Fly", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                    { name: "Machine Chest Press", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                ],
-            },
-            {
-                name: "Shoulder",
-                exercises: [
-                    { name: "Overhead Dumbbell Press", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Lateral Dumbbell Raises", completed: false, sets: 3, reps: 12, weight: 0, notes: "" },
-                    { name: "Front Dumbbell Raises", completed: false, sets: 3, reps: 12, weight: 0, notes: "" },
-                ],
-            },
-            {
-                name: "Triceps",
-                exercises: [
-                    { name: "Close Grip Bench Press", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Triceps Cable Pushdown", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                ],
-            },
-        ],
-    },
-    {
-        day: "Tuesday",
-        categories: [
-            {
-                name: "Back",
-                exercises: [
-                    { name: "Wide Grip Lat Pulldowns", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Bent-Over Barbell Rows", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Deadlifts", completed: false, sets: 3, reps: 6, weight: 0, notes: "" },
-                ],
-            },
-            {
-                name: "Biceps",
-                exercises: [
-                    { name: "Dumbbell Curls", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                    { name: "EZ Bar Curls", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                    { name: "Hammer Curls", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                ],
-            },
-        ],
-    },
-    {
-        day: "Wednesday",
-        categories: [
-            {
-                name: "Legs",
-                exercises: [
-                    { name: "Barbell Squats", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Leg Extensions", completed: false, sets: 3, reps: 12, weight: 0, notes: "" },
-                    { name: "Leg Curls", completed: false, sets: 3, reps: 12, weight: 0, notes: "" },
-                    { name: "Calf Raises", completed: false, sets: 3, reps: 15, weight: 0, notes: "" },
-                ],
-            },
-        ],
-    },
-    {
-        day: "Thursday",
-        categories: [
-            {
-                name: "Abs",
-                exercises: [
-                    { name: "Leg Raises", completed: false, sets: 3, reps: 15, weight: 0, notes: "" },
-                    { name: "Crunches", completed: false, sets: 3, reps: 20, weight: 0, notes: "" },
-                    { name: "Planks", completed: false, sets: 3, reps: 1, weight: 0, notes: "Hold for 60 seconds" },
-                ],
-            },
-        ],
-    },
-    {
-        day: "Friday",
-        categories: [
-            {
-                name: "Chest",
-                exercises: [
-                    { name: "Dumbbell Bench Press", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Incline Dumbbell Press", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Pushups", completed: false, sets: 3, reps: 15, weight: 0, notes: "" },
-                ],
-            },
-            {
-                name: "Back",
-                exercises: [
-                    { name: "Seated Cable Rows", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                    { name: "T Bar Rows", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                ],
-            },
-            {
-                name: "Shoulder",
-                exercises: [
-                    { name: "Arnold Press", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                    { name: "Face Pulls", completed: false, sets: 3, reps: 12, weight: 0, notes: "" },
-                ],
-            },
-        ],
-    },
-    {
-        day: "Saturday",
-        categories: [
-            {
-                name: "Legs",
-                exercises: [
-                    { name: "Front Barbell Squats", completed: false, sets: 3, reps: 8, weight: 0, notes: "" },
-                    { name: "Lunges", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                ],
-            },
-            {
-                name: "Triceps",
-                exercises: [{ name: "Skull Crushers", completed: false, sets: 3, reps: 10, weight: 0, notes: "" }],
-            },
-            {
-                name: "Biceps",
-                exercises: [
-                    { name: "Concentration Curls", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                    { name: "Preacher Curls", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                ],
-            },
-        ],
-    },
-    {
-        day: "Sunday",
-        categories: [
-            {
-                name: "Abs",
-                exercises: [
-                    { name: "Ab Wheel Roll", completed: false, sets: 3, reps: 10, weight: 0, notes: "" },
-                    { name: "Bicycle Crunches", completed: false, sets: 3, reps: 20, weight: 0, notes: "" },
-                ],
-            },
-        ],
-    },
-];
-export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs }> = ({ selectedDate }) => {
-    const dayOfWeek = selectedDate.format("dddd");
-    const todayWorkout = workoutRoutine.find((day) => day.day === dayOfWeek) || { day: "Rest Day", categories: [] };
-    const [workoutData, setWorkoutData] = useState<WorkoutDay>(todayWorkout);
-    const [expandedCategory, setExpandedCategory] = useState<number | null>(0);
-    const [editingExercise, setEditingExercise] = useState<{ categoryIndex: number; exerciseIndex: number } | null>(null);
+interface WorkoutDayPanelProps {
+    selectedDate: Dayjs;
+    workoutData: {
+        day: string;
+        categories: WorkoutCategory[];
+    } | null;
+    loading: boolean;
+    error: string | null;
+    onRefresh: () => void;
+}
 
-    const handleExerciseChange = (categoryIndex: number, exerciseIndex: number, field: keyof Workout, value: any) => {
-        const updatedWorkoutData = { ...workoutData };
+export const WorkoutContentPanel = ({ selectedDate, workoutData, loading, error, onRefresh }: WorkoutDayPanelProps) => {
+    const [localWorkoutData, setLocalWorkoutData] = useState<{
+        day: string;
+        categories: WorkoutCategory[];
+    } | null>(null);
+    const [expandedCategory, setExpandedCategory] = useState<number | null>(0);
+    const [editingExercise, setEditingExercise] = useState<{
+        categoryIndex: number;
+        exerciseIndex: number;
+    } | null>(null);
+
+    useEffect(() => {
+        if (workoutData) {
+            setLocalWorkoutData(workoutData);
+        } else {
+            // No workout data for this day
+            setLocalWorkoutData({
+                day: selectedDate.format("dddd"),
+                categories: [],
+            });
+        }
+    }, [workoutData, selectedDate]);
+
+    const handleExerciseChange = async (categoryIndex: number, exerciseIndex: number, field: keyof Workout, value: any) => {
+        if (!localWorkoutData) return;
+
+        const updatedWorkoutData = { ...localWorkoutData };
         const exercise = updatedWorkoutData.categories[categoryIndex].exercises[exerciseIndex];
         (exercise as any)[field] = value;
-        setWorkoutData(updatedWorkoutData);
+
+        setLocalWorkoutData(updatedWorkoutData);
+
+        // Auto-save when marking complete
+        if (field === "completed") {
+            try {
+                await markExerciseComplete(selectedDate.format("YYYY-MM-DD"), exercise.id || exercise.name);
+            } catch (err) {
+                console.error("Failed to update exercise status:", err);
+                // Revert if failed
+                exercise[field] = !value;
+                setLocalWorkoutData({ ...updatedWorkoutData });
+            }
+        }
+    };
+
+    const saveWorkoutPlan = async () => {
+        if (!localWorkoutData) return;
+
+        try {
+            await updateWorkoutPlan(selectedDate.format("YYYY-MM-DD"), localWorkoutData.categories);
+            alert("Workout saved successfully!");
+            onRefresh();
+        } catch (err) {
+            console.error("Failed to save workout:", err);
+            alert("Failed to save workout. Please try again.");
+        }
     };
 
     const toggleCategory = (index: number) => {
@@ -189,6 +100,29 @@ export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs }> = ({ selectedDat
         setEditingExercise(null);
     };
 
+    if (loading) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Paper sx={{ p: 3, textAlign: "center" }}>
+                <Typography color="error">{error}</Typography>
+                <Button onClick={onRefresh} sx={{ mt: 2 }}>
+                    Retry
+                </Button>
+            </Paper>
+        );
+    }
+
+    if (!localWorkoutData) {
+        return null;
+    }
+
     return (
         <Box
             sx={{
@@ -199,7 +133,7 @@ export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs }> = ({ selectedDat
                 bgcolor: "background.default",
             }}
         >
-            {todayWorkout.categories.length === 0 ? (
+            {localWorkoutData.categories.length === 0 ? (
                 <Paper
                     elevation={0}
                     sx={{
@@ -212,15 +146,15 @@ export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs }> = ({ selectedDat
                     }}
                 >
                     <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-                        It's a rest day!
+                        {localWorkoutData.day === "Rest Day" ? "It's a rest day!" : "No workout planned for today"}
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                        Enjoy your recovery. You've earned it.
+                        {localWorkoutData.day === "Rest Day" ? "Enjoy your recovery. You've earned it." : "Check your workout plan or add exercises."}
                     </Typography>
                 </Paper>
             ) : (
                 <Box sx={{ mt: 2 }}>
-                    {workoutData.categories.map((category, categoryIndex) => (
+                    {localWorkoutData.categories.map((category, categoryIndex) => (
                         <Paper
                             key={categoryIndex}
                             elevation={0}
@@ -388,29 +322,31 @@ export const WorkoutDayPanel: React.FC<{ selectedDate: Dayjs }> = ({ selectedDat
                         </Paper>
                     ))}
 
-                    <Button
-                        variant="contained"
-                        fullWidth
-                        size="large"
-                        sx={{
-                            mt: 2,
-                            py: 1.5,
-                            borderRadius: 2,
-                            fontSize: "1rem",
-                            fontWeight: 600,
-                            textTransform: "none",
-                            background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
-                            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                            "&:hover": {
-                                boxShadow: "0 6px 8px rgba(0,0,0,0.15)",
-                                transform: "translateY(-1px)",
-                            },
-                            transition: "all 0.2s ease",
-                        }}
-                        onClick={() => alert("Workout saved!")}
-                    >
-                        Complete Today's Workout
-                    </Button>
+                    {localWorkoutData.categories.length > 0 && (
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            size="large"
+                            sx={{
+                                mt: 2,
+                                py: 1.5,
+                                borderRadius: 2,
+                                fontSize: "1rem",
+                                fontWeight: 600,
+                                textTransform: "none",
+                                background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                                "&:hover": {
+                                    boxShadow: "0 6px 8px rgba(0,0,0,0.15)",
+                                    transform: "translateY(-1px)",
+                                },
+                                transition: "all 0.2s ease",
+                            }}
+                            onClick={saveWorkoutPlan}
+                        >
+                            Complete Today's Workout
+                        </Button>
+                    )}
                 </Box>
             )}
         </Box>
