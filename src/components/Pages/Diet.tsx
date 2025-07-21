@@ -322,11 +322,11 @@ export const Diet: React.FC = () => {
                                     onClick={() => handleDateChange(selectedDate.subtract(1, "day"))}
                                     sx={{
                                         color: "text.primary",
-                                        backgroundColor: "rgba(0, 0, 0, 0.03)",
+                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
                                         "&:hover": {
                                             backgroundColor: "rgba(0, 0, 0, 0.08)",
                                         },
-                                        borderRadius: "10px",
+                                        borderRadius: "16px",
                                         p: 1,
                                     }}
                                 >
@@ -338,8 +338,8 @@ export const Diet: React.FC = () => {
                                     sx={{
                                         px: 2.5,
                                         py: 1.5,
-                                        borderRadius: "14px",
-                                        bgcolor: "background.default",
+                                        borderRadius: "16px",
+                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
                                         display: "flex",
                                         alignItems: "center",
                                         gap: 2,
@@ -396,11 +396,11 @@ export const Diet: React.FC = () => {
                                     onClick={() => handleDateChange(selectedDate.add(1, "day"))}
                                     sx={{
                                         color: "text.primary",
-                                        backgroundColor: "rgba(0, 0, 0, 0.03)",
+                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
                                         "&:hover": {
                                             backgroundColor: "rgba(0, 0, 0, 0.08)",
                                         },
-                                        borderRadius: "10px",
+                                        borderRadius: "16px",
                                         p: 1,
                                     }}
                                 >
@@ -573,7 +573,6 @@ export const Diet: React.FC = () => {
                                         dietData={dietData}
                                         completedMeals={completedMeals}
                                         onToggleMeal={handleToggleMeal}
-                                        onEdit={() => setEditMode(true)}
                                     />
                                 </motion.div>
                             </AnimatePresence>

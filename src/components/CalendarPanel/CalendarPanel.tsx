@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import type { Dayjs } from "dayjs";
@@ -12,6 +12,8 @@ interface CalendarPanelProps {
 }
 
 export default function CalendarPanel({ isMobile, showCalendar, selectedDate, handleDateChange }: CalendarPanelProps) {
+    const theme = useTheme();
+
     return (
         <AnimatePresence>
             {(showCalendar || !isMobile) && (
@@ -46,10 +48,11 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
                                 sx={{
                                     width: "100%",
                                     maxHeight: 360, // Fixed height to prevent overflow
-                                    borderRadius: { xs: 0, sm: 3 },
+                                    borderRadius: { xs: 3, sm: 3 },
                                     boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.05)",
                                     border: "1px solid",
                                     borderColor: "divider",
+                                    backgroundColor: theme.palette.background.paper,
                                     py: 1,
                                     px: 2,
                                     overflow: "hidden", // Hide any potential overflow

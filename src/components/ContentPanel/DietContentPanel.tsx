@@ -9,7 +9,6 @@ import {
     ListItemSecondaryAction,
     Checkbox,
     Chip as MuiChip,
-    LinearProgress,
     Stack,
     Avatar,
     useTheme,
@@ -17,11 +16,21 @@ import {
     Collapse,
     useMediaQuery,
     styled,
-    Button,
     type SxProps,
     type Theme,
 } from "@mui/material";
-import { Restaurant, CheckCircle, Circle, LocalFireDepartment, ExpandMore, FitnessCenter, Grain, SetMeal, Edit } from "@mui/icons-material";
+import {
+    Restaurant,
+    CheckCircle,
+    Circle,
+    LocalFireDepartment,
+    ExpandMore,
+    FitnessCenter,
+    Grain,
+    SetMeal,
+    TrendingUp,
+    Check,
+} from "@mui/icons-material";
 
 // Styled Chip component
 const Chip = styled(MuiChip)(({ theme }) => ({
@@ -52,17 +61,9 @@ interface DietContentPanelProps {
     dietData?: any;
     completedMeals: Record<string, boolean>;
     onToggleMeal: (mealTime: string) => void;
-    onEdit?: () => void; // Add this line
 }
 
-export const DietContentPanel: React.FC<DietContentPanelProps> = ({
-    showDayContent,
-    isMobile = false,
-    dietData,
-    completedMeals,
-    onToggleMeal,
-    onEdit,
-}) => {
+export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayContent, isMobile = false, dietData, completedMeals, onToggleMeal }) => {
     const theme = useTheme();
     const [expandedMeals, setExpandedMeals] = useState<Record<string, boolean>>({});
     const smallMobile = useMediaQuery(theme.breakpoints.down(400));
@@ -138,11 +139,15 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                 <Paper
                     elevation={0}
                     sx={{
-                        p: { xs: "16px 24px", sm: 3 },
-                        mb: { xs: 1, sm: 2 },
+                        p: { xs: "20px", sm: "24px" },
+                        mb: { xs: 2, sm: 3 },
                         borderRadius: 3,
                         bgcolor: "background.paper",
-                        border: `1px solid ${theme.palette.divider}`,
+                        boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
+                        overflow: "hidden",
+                        position: "relative",
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        borderLeft: `4px solid ${progress === 100 ? theme.palette.success.main : theme.palette.primary.main}`,
                     }}
                 >
                     <Box
@@ -150,48 +155,104 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
+                            mb: 2,
                         }}
                     >
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
-                                Daily Progress
-                            </Typography>
-                            <Chip label={`${completedCount}/${totalMeals} meals`} size="small" variant="outlined" color="default" />
+                        <Stack direction="row" alignItems="center" spacing={1.5}>
+                            <Box
+                                sx={{
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: "50%",
+                                    bgcolor: progress === 100 ? "success.light" : "primary.light",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    animation: "pulse 2s infinite",
+                                    "@keyframes pulse": {
+                                        "0%": {
+                                            boxShadow: `0 0 0 0 ${progress === 100 ? theme.palette.success.light : theme.palette.primary.light}`,
+                                        },
+                                        "70%": {
+                                            boxShadow: `0 0 0 8px ${
+                                                progress === 100 ? theme.palette.success.light + "00" : theme.palette.primary.light + "00"
+                                            }`,
+                                        },
+                                        "100%": {
+                                            boxShadow: `0 0 0 0 ${
+                                                progress === 100 ? theme.palette.success.light + "00" : theme.palette.primary.light + "00"
+                                            }`,
+                                        },
+                                    },
+                                }}
+                            >
+                                {progress === 100 ? (
+                                    <Check fontSize="small" sx={{ color: theme.palette.success.contrastText }} />
+                                ) : (
+                                    <TrendingUp fontSize="small" sx={{ color: theme.palette.background.default }} />
+                                )}
+                            </Box>
+                            <Box>
+                                <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
+                                    Daily Progress
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                    {completedCount} of {totalMeals} meals completed
+                                </Typography>
+                            </Box>
                         </Stack>
 
-                        <Stack direction="row" spacing={1}>
-                            <Chip
-                                label={`${progress}%`}
-                                color={progress === 100 ? "success" : "primary"}
-                                variant={progress === 100 ? "filled" : "outlined"}
-                                sx={{
-                                    fontWeight: 600,
-                                    fontSize: smallMobile ? "0.75rem" : "0.875rem",
-                                }}
-                            />
-                            {onEdit && (
-                                <Button variant="outlined" size="small" onClick={onEdit} startIcon={<Edit fontSize="small" />}>
-                                    Edit
-                                </Button>
-                            )}
-                        </Stack>
+                        <Box
+                            sx={{
+                                bgcolor: progress === 100 ? "success.50" : "primary.50",
+                                px: 1.5,
+                                py: 0.5,
+                                borderRadius: "12px",
+                                minWidth: 60,
+                                textAlign: "center",
+                                animation: "fadeIn 0.5s ease",
+                                "@keyframes fadeIn": {
+                                    "0%": { opacity: 0, transform: "translateY(5px)" },
+                                    "100%": { opacity: 1, transform: "translateY(0)" },
+                                },
+                            }}
+                        >
+                            <Typography variant="subtitle2" fontWeight={700} color={progress === 100 ? "success.dark" : "primary.dark"}>
+                                {progress}%
+                            </Typography>
+                        </Box>
                     </Box>
 
-                    {/* Progress Bar */}
-                    <LinearProgress
-                        variant="determinate"
-                        value={progress}
-                        color="success"
-                        sx={{
-                            mt: 2,
-                            height: 8,
-                            borderRadius: 5,
-                            backgroundColor: theme.palette.grey[200],
-                            "& .MuiLinearProgress-bar": {
-                                borderRadius: 5,
-                            },
-                        }}
-                    />
+                    {/* Animated Progress Bar */}
+                    <Box sx={{ position: "relative", height: 8, borderRadius: 4, bgcolor: "grey.100", overflow: "hidden" }}>
+                        <Box
+                            sx={{
+                                position: "absolute",
+                                left: 0,
+                                top: 0,
+                                height: "100%",
+                                width: `${progress}%`,
+                                bgcolor: progress === 100 ? "success.main" : "primary.main",
+                                borderRadius: 4,
+                                transition: "width 1s ease-out, background-color 0.5s ease",
+                                "&:after": {
+                                    content: '""',
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    backgroundImage:
+                                        "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%)",
+                                    animation: "shimmer 2s infinite",
+                                    "@keyframes shimmer": {
+                                        "0%": { transform: "translateX(-100%)" },
+                                        "100%": { transform: "translateX(100%)" },
+                                    },
+                                },
+                            }}
+                        />
+                    </Box>
                 </Paper>
             )}
 
@@ -230,7 +291,7 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                             onChange={() => onToggleMeal(meal.time)}
                                             onClick={(e) => e.stopPropagation()}
                                             icon={<Circle fontSize="small" />}
-                                            checkedIcon={<CheckCircle color="success" fontSize="small" />}
+                                            checkedIcon={<CheckCircle sx={{ color: theme.palette.success.dark, fontSize: "1.5rem" }} />}
                                             size={smallMobile ? "small" : "medium"}
                                         />
                                     </ListItemSecondaryAction>
@@ -258,14 +319,13 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                         <Stack direction="row" alignItems="center" spacing={1}>
                                             <Avatar
                                                 sx={{
-                                                    bgcolor: isCompleted ? "success.light" : "primary.light",
-                                                    color: isCompleted ? "success.dark" : "primary.dark",
+                                                    bgcolor: isCompleted ? "success.dark" : "primary.light",
                                                     width: { xs: 28, sm: 32 },
                                                     height: { xs: 28, sm: 32 },
                                                     display: { xs: "none", sm: "flex" },
                                                 }}
                                             >
-                                                <Restaurant fontSize="small" />
+                                                <Restaurant fontSize="small" sx={{ color: theme.palette.success.contrastText }} />
                                             </Avatar>
                                             <Box sx={{ flex: 1 }}>
                                                 <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
@@ -276,7 +336,6 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                                         variant="body2"
                                                         color={isCompleted ? "success.dark" : "text.secondary"}
                                                         sx={{
-                                                            fontStyle: isCompleted ? "italic" : "normal",
                                                             fontSize: smallMobile ? "0.75rem" : "0.875rem",
                                                         }}
                                                     >
@@ -315,7 +374,7 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                     </Box>
                                 </ListItem>
 
-                                <Collapse in={isExpanded} timeout="auto" unmountOnExit sx={{ borderRadius: 2 }}>
+                                <Collapse in={isExpanded} timeout="auto" unmountOnExit sx={{ borderRadius: 2, padding: "0 4px 0 0" }}>
                                     <Box
                                         sx={{
                                             px: { xs: 1, sm: 2 },
