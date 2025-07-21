@@ -6,7 +6,7 @@ export const fetchDietPlan = async (date: string) => {
         const response = await axios.get(fetchDietPlanURL, {
             params: { date },
         });
-        return response.data;
+        return response.data.data;
     } catch (error) {
         console.error("Error fetching diet plan:", error);
         throw error;
@@ -19,7 +19,7 @@ export const markMealComplete = async (date: string, mealTime: string) => {
             date,
             mealTime,
         });
-        return response.data;
+        return response.data.data;
     } catch (error) {
         console.error("Error marking meal complete:", error);
         throw error;
@@ -31,7 +31,7 @@ export const markMealIncomplete = async (date: string, mealTime: string) => {
         const response = await axios.delete(markMealIncompleteURL, {
             data: { date, mealTime },
         });
-        return response.data;
+        return response.data.data;
     } catch (error) {
         console.error("Error marking meal incomplete:", error);
         throw error;
@@ -41,7 +41,7 @@ export const markMealIncomplete = async (date: string, mealTime: string) => {
 export const updateDietPlan = async (updatedData: any) => {
     try {
         const response = await axios.put(updateDietPlanURL, updatedData);
-        return response; // Return full response
+        return response.data.data; // Return full response
     } catch (error) {
         console.error("Error updating diet plan:", error);
         throw error;

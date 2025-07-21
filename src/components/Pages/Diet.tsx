@@ -105,11 +105,12 @@ export const Diet: React.FC = () => {
             }
 
             setDietData(updatedData);
-            setEditMode(false);
             alert("Diet plan saved successfully!");
         } catch (error) {
             console.error("Failed to save diet plan:", error);
             alert("Failed to save diet plan. Please try again.");
+        } finally {
+            setEditMode(false);
         }
     };
 
