@@ -33,12 +33,9 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
                             height: isMobile ? "auto" : "100%",
                             display: "flex",
                             justifyContent: "center",
-                            p: { xs: 1, md: 2 },
                             borderRadius: { xs: 0, sm: 3 },
                             bgcolor: "background.default",
-                            border: isMobile ? "none" : "1px solid",
                             borderColor: "divider",
-                            boxShadow: isMobile ? "0px 4px 10px rgba(0, 0, 0, 0.1)" : "none",
                             overflow: "hidden", // Add this to prevent scrollbar
                         }}
                     >
@@ -49,7 +46,7 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
                                 sx={{
                                     width: "100%",
                                     maxHeight: 360, // Fixed height to prevent overflow
-                                    borderRadius: 2,
+                                    borderRadius: { xs: 0, sm: 3 },
                                     boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.05)",
                                     border: "1px solid",
                                     borderColor: "divider",

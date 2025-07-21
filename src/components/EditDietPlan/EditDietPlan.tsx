@@ -21,6 +21,9 @@ import {
     Chip,
     Tooltip,
     useTheme,
+    useMediaQuery,
+    Divider,
+    Grid,
 } from "@mui/material";
 import { Add, Delete, Edit, Check, Close, DragHandle, LocalFireDepartment, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -61,6 +64,7 @@ interface EditDietPlanProps {
 
 export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, onCancel }) => {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [meals, setMeals] = useState<Meal[]>(dietData.meals);
     const [editingItem, setEditingItem] = useState<{ mealTime: string; itemName: string } | null>(null);
     const [newMealDialogOpen, setNewMealDialogOpen] = useState(false);
@@ -248,22 +252,43 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
     };
 
     return (
-        <Box sx={{ p: 3 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-                <Typography variant="h5" fontWeight="bold">
+        <Box sx={{ p: isMobile ? 1 : 3 }}>
+            <Stack direction={isMobile ? "column" : "row"} justifyContent="space-between" alignItems="flex-start" spacing={2} mb={3}>
+                <Typography variant="h5" fontWeight="bold" gutterBottom={isMobile}>
                     Edit Diet Plan
                 </Typography>
-                <Stack direction="row" spacing={2}>
-                    <Button variant="outlined" color="secondary" onClick={onCancel} startIcon={<Close />}>
+                <Stack direction="row" spacing={1} width={isMobile ? "100%" : "auto"}>
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        onClick={onCancel}
+                        startIcon={<Close />}
+                        fullWidth={isMobile}
+                        size={isMobile ? "small" : "medium"}
+                    >
                         Cancel
                     </Button>
-                    <Button variant="contained" color="primary" onClick={handleSave} startIcon={<Check />}>
-                        Save Changes
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSave}
+                        startIcon={<Check />}
+                        fullWidth={isMobile}
+                        size={isMobile ? "small" : "medium"}
+                    >
+                        Save
                     </Button>
                 </Stack>
             </Stack>
 
-            <Button variant="outlined" startIcon={<Add />} onClick={() => setNewMealDialogOpen(true)} sx={{ mb: 3 }}>
+            <Button
+                variant="outlined"
+                startIcon={<Add />}
+                onClick={() => setNewMealDialogOpen(true)}
+                sx={{ mb: 3 }}
+                fullWidth={isMobile}
+                size={isMobile ? "small" : "medium"}
+            >
                 Add New Meal
             </Button>
 
@@ -282,69 +307,92 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                         <Box
                             sx={{
                                 p: 2,
-                                bgcolor: theme.palette.primary.light,
+                                bgcolor: "primary.main",
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
                             }}
                         >
                             <Stack>
-                                <Typography variant="subtitle1" fontWeight="bold" sx={{ color: theme.palette.primary.contrastText }}>
+                                <Typography variant="subtitle1" fontWeight="bold" color="white">
                                     {meal.time}
                                 </Typography>
-                                <Typography variant="body2" sx={{ color: theme.palette.primary.contrastText }}>
+                                <Typography variant="body2" color="white">
                                     {meal.meal}
                                 </Typography>
                             </Stack>
-                            <Stack direction="row" spacing={1}>
+                            <Stack direction="row" spacing={0.5}>
                                 <Tooltip title="Add food item">
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => openAddItemDialog(meal.time)}
-                                        sx={{ color: theme.palette.background.default }}
-                                    >
+                                    <IconButton size="small" onClick={() => openAddItemDialog(meal.time)} sx={{ color: "white" }}>
                                         <Add />
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Delete meal">
-                                    <IconButton size="small" onClick={() => deleteMeal(meal.time)} sx={{ color: theme.palette.background.default }}>
+                                    <IconButton size="small" onClick={() => deleteMeal(meal.time)} sx={{ color: "white" }}>
                                         <Delete />
                                     </IconButton>
                                 </Tooltip>
                             </Stack>
                         </Box>
 
-                        <Box sx={{ p: 2 }}>
-                            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                        <Box sx={{ p: isMobile ? 1 : 2 }}>
+                            <Stack direction="row" spacing={1} alignItems={isMobile ? "flex-start" : "center"} flexWrap="wrap" useFlexGap mb={2}>
                                 <Chip
                                     icon={<LocalFireDepartment />}
                                     label={`${meal.total.calories} kcal`}
                                     size="small"
-                                    sx={{ bgcolor: theme.palette.error.light }}
+                                    sx={{
+                                        bgcolor: "error.light",
+                                        color: "error.contrastText",
+                                        flex: { xs: "1 1 48%", sm: "unset" },
+                                        mb: { xs: 1, sm: 0 },
+                                    }}
                                 />
                                 <Chip
                                     icon={<FitnessCenter />}
                                     label={`${meal.total.protein}g protein`}
                                     size="small"
-                                    sx={{ bgcolor: theme.palette.primary.light }}
+                                    sx={{
+                                        bgcolor: "primary.light",
+                                        color: "primary.contrastText",
+                                        flex: { xs: "1 1 48%", sm: "unset" },
+                                        mb: { xs: 1, sm: 0 },
+                                    }}
                                 />
                                 <Chip
                                     icon={<Grain />}
                                     label={`${meal.total.carbs}g carbs`}
                                     size="small"
-                                    sx={{ bgcolor: theme.palette.success.light }}
+                                    sx={{
+                                        bgcolor: "success.light",
+                                        color: "success.contrastText",
+                                        flex: { xs: "1 1 48%", sm: "unset" },
+                                        mb: { xs: 1, sm: 0 },
+                                    }}
                                 />
                                 <Chip
                                     icon={<SetMeal />}
                                     label={`${meal.total.fats}g fats`}
                                     size="small"
-                                    sx={{ bgcolor: theme.palette.warning.light }}
+                                    sx={{
+                                        bgcolor: "warning.light",
+                                        color: "warning.contrastText",
+                                        flex: { xs: "1 1 48%", sm: "unset" },
+                                    }}
                                 />
                             </Stack>
 
                             <Droppable droppableId={meal.time}>
                                 {(provided: any) => (
-                                    <List ref={provided.innerRef} {...provided.droppableProps} dense sx={{ bgcolor: "background.paper" }}>
+                                    <List
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
+                                        dense
+                                        sx={{
+                                            bgcolor: "background.paper",
+                                            p: 0,
+                                        }}
+                                    >
                                         {meal.items.map((item, index) => (
                                             <Draggable key={item.name} draggableId={item.name} index={index}>
                                                 {(provided: any) => (
@@ -382,117 +430,140 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                                                         setMeals(updatedMeals);
                                                                     }}
                                                                     fullWidth
+                                                                    margin="dense"
                                                                 />
-                                                                <Stack direction="row" spacing={1}>
-                                                                    <TextField
-                                                                        size="small"
-                                                                        label="Calories"
-                                                                        type="number"
-                                                                        value={item.calories}
-                                                                        onChange={(e) => {
-                                                                            const updatedItem = {
-                                                                                ...item,
-                                                                                calories: Number(e.target.value),
-                                                                            };
-                                                                            const mealIndex = meals.findIndex((m) => m.time === meal.time);
-                                                                            const itemIndex = meals[mealIndex].items.findIndex(
-                                                                                (i) => i.name === item.name
-                                                                            );
-                                                                            const updatedMeals = [...meals];
-                                                                            updatedMeals[mealIndex].items[itemIndex] = updatedItem;
-                                                                            updatedMeals[mealIndex].total = calculateMealTotals(
-                                                                                updatedMeals[mealIndex].items
-                                                                            );
-                                                                            setMeals(updatedMeals);
-                                                                        }}
-                                                                        InputProps={{
-                                                                            endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
-                                                                        }}
-                                                                    />
-                                                                    <TextField
-                                                                        size="small"
-                                                                        label="Protein"
-                                                                        type="number"
-                                                                        value={item.protein}
-                                                                        onChange={(e) => {
-                                                                            const updatedItem = {
-                                                                                ...item,
-                                                                                protein: Number(e.target.value),
-                                                                            };
-                                                                            const mealIndex = meals.findIndex((m) => m.time === meal.time);
-                                                                            const itemIndex = meals[mealIndex].items.findIndex(
-                                                                                (i) => i.name === item.name
-                                                                            );
-                                                                            const updatedMeals = [...meals];
-                                                                            updatedMeals[mealIndex].items[itemIndex] = updatedItem;
-                                                                            updatedMeals[mealIndex].total = calculateMealTotals(
-                                                                                updatedMeals[mealIndex].items
-                                                                            );
-                                                                            setMeals(updatedMeals);
-                                                                        }}
-                                                                        InputProps={{
-                                                                            endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                                                                        }}
-                                                                    />
-                                                                    <TextField
-                                                                        size="small"
-                                                                        label="Carbs"
-                                                                        type="number"
-                                                                        value={item.carbs}
-                                                                        onChange={(e) => {
-                                                                            const updatedItem = {
-                                                                                ...item,
-                                                                                carbs: Number(e.target.value),
-                                                                            };
-                                                                            const mealIndex = meals.findIndex((m) => m.time === meal.time);
-                                                                            const itemIndex = meals[mealIndex].items.findIndex(
-                                                                                (i) => i.name === item.name
-                                                                            );
-                                                                            const updatedMeals = [...meals];
-                                                                            updatedMeals[mealIndex].items[itemIndex] = updatedItem;
-                                                                            updatedMeals[mealIndex].total = calculateMealTotals(
-                                                                                updatedMeals[mealIndex].items
-                                                                            );
-                                                                            setMeals(updatedMeals);
-                                                                        }}
-                                                                        InputProps={{
-                                                                            endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                                                                        }}
-                                                                    />
-                                                                    <TextField
-                                                                        size="small"
-                                                                        label="Fats"
-                                                                        type="number"
-                                                                        value={item.fats}
-                                                                        onChange={(e) => {
-                                                                            const updatedItem = {
-                                                                                ...item,
-                                                                                fats: Number(e.target.value),
-                                                                            };
-                                                                            const mealIndex = meals.findIndex((m) => m.time === meal.time);
-                                                                            const itemIndex = meals[mealIndex].items.findIndex(
-                                                                                (i) => i.name === item.name
-                                                                            );
-                                                                            const updatedMeals = [...meals];
-                                                                            updatedMeals[mealIndex].items[itemIndex] = updatedItem;
-                                                                            updatedMeals[mealIndex].total = calculateMealTotals(
-                                                                                updatedMeals[mealIndex].items
-                                                                            );
-                                                                            setMeals(updatedMeals);
-                                                                        }}
-                                                                        InputProps={{
-                                                                            endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                                                                        }}
-                                                                    />
-                                                                </Stack>
+                                                                <Grid container spacing={1}>
+                                                                    <Grid item xs={12} sm={6} md={3}>
+                                                                        <TextField
+                                                                            size="small"
+                                                                            label="Calories"
+                                                                            type="number"
+                                                                            value={item.calories}
+                                                                            onChange={(e) => {
+                                                                                const updatedItem = {
+                                                                                    ...item,
+                                                                                    calories: Number(e.target.value),
+                                                                                };
+                                                                                const mealIndex = meals.findIndex((m) => m.time === meal.time);
+                                                                                const itemIndex = meals[mealIndex].items.findIndex(
+                                                                                    (i) => i.name === item.name
+                                                                                );
+                                                                                const updatedMeals = [...meals];
+                                                                                updatedMeals[mealIndex].items[itemIndex] = updatedItem;
+                                                                                updatedMeals[mealIndex].total = calculateMealTotals(
+                                                                                    updatedMeals[mealIndex].items
+                                                                                );
+                                                                                setMeals(updatedMeals);
+                                                                            }}
+                                                                            fullWidth
+                                                                            margin="dense"
+                                                                            InputProps={{
+                                                                                endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
+                                                                            }}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid item xs={12} sm={6} md={3}>
+                                                                        <TextField
+                                                                            size="small"
+                                                                            label="Protein"
+                                                                            type="number"
+                                                                            value={item.protein}
+                                                                            onChange={(e) => {
+                                                                                const updatedItem = {
+                                                                                    ...item,
+                                                                                    protein: Number(e.target.value),
+                                                                                };
+                                                                                const mealIndex = meals.findIndex((m) => m.time === meal.time);
+                                                                                const itemIndex = meals[mealIndex].items.findIndex(
+                                                                                    (i) => i.name === item.name
+                                                                                );
+                                                                                const updatedMeals = [...meals];
+                                                                                updatedMeals[mealIndex].items[itemIndex] = updatedItem;
+                                                                                updatedMeals[mealIndex].total = calculateMealTotals(
+                                                                                    updatedMeals[mealIndex].items
+                                                                                );
+                                                                                setMeals(updatedMeals);
+                                                                            }}
+                                                                            fullWidth
+                                                                            margin="dense"
+                                                                            InputProps={{
+                                                                                endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                                                            }}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid item xs={12} sm={6} md={3}>
+                                                                        <TextField
+                                                                            size="small"
+                                                                            label="Carbs"
+                                                                            type="number"
+                                                                            value={item.carbs}
+                                                                            onChange={(e) => {
+                                                                                const updatedItem = {
+                                                                                    ...item,
+                                                                                    carbs: Number(e.target.value),
+                                                                                };
+                                                                                const mealIndex = meals.findIndex((m) => m.time === meal.time);
+                                                                                const itemIndex = meals[mealIndex].items.findIndex(
+                                                                                    (i) => i.name === item.name
+                                                                                );
+                                                                                const updatedMeals = [...meals];
+                                                                                updatedMeals[mealIndex].items[itemIndex] = updatedItem;
+                                                                                updatedMeals[mealIndex].total = calculateMealTotals(
+                                                                                    updatedMeals[mealIndex].items
+                                                                                );
+                                                                                setMeals(updatedMeals);
+                                                                            }}
+                                                                            fullWidth
+                                                                            margin="dense"
+                                                                            InputProps={{
+                                                                                endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                                                            }}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid item xs={12} sm={6} md={3}>
+                                                                        <TextField
+                                                                            size="small"
+                                                                            label="Fats"
+                                                                            type="number"
+                                                                            value={item.fats}
+                                                                            onChange={(e) => {
+                                                                                const updatedItem = {
+                                                                                    ...item,
+                                                                                    fats: Number(e.target.value),
+                                                                                };
+                                                                                const mealIndex = meals.findIndex((m) => m.time === meal.time);
+                                                                                const itemIndex = meals[mealIndex].items.findIndex(
+                                                                                    (i) => i.name === item.name
+                                                                                );
+                                                                                const updatedMeals = [...meals];
+                                                                                updatedMeals[mealIndex].items[itemIndex] = updatedItem;
+                                                                                updatedMeals[mealIndex].total = calculateMealTotals(
+                                                                                    updatedMeals[mealIndex].items
+                                                                                );
+                                                                                setMeals(updatedMeals);
+                                                                            }}
+                                                                            fullWidth
+                                                                            margin="dense"
+                                                                            InputProps={{
+                                                                                endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                                                            }}
+                                                                        />
+                                                                    </Grid>
+                                                                </Grid>
                                                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
-                                                                    <Button size="small" variant="outlined" onClick={() => setEditingItem(null)}>
+                                                                    <Button
+                                                                        size="small"
+                                                                        variant="outlined"
+                                                                        onClick={() => setEditingItem(null)}
+                                                                        sx={{ minWidth: 80 }}
+                                                                    >
                                                                         Cancel
                                                                     </Button>
                                                                     <Button
                                                                         size="small"
                                                                         variant="contained"
                                                                         onClick={() => saveEditItem(meal.time, item.name, item)}
+                                                                        sx={{ minWidth: 80 }}
                                                                     >
                                                                         Save
                                                                     </Button>
@@ -503,21 +574,34 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                                                                 <ListItemText
                                                                     primary={item.name}
                                                                     secondary={
-                                                                        <Stack direction="row" spacing={2} mt={0.5}>
+                                                                        <Stack
+                                                                            direction={isMobile ? "column" : "row"}
+                                                                            spacing={isMobile ? 0.5 : 2}
+                                                                            mt={0.5}
+                                                                            divider={isMobile ? null : <Divider orientation="vertical" flexItem />}
+                                                                        >
                                                                             <Typography variant="caption">{item.calories} kcal</Typography>
                                                                             <Typography variant="caption">{item.protein}g protein</Typography>
                                                                             <Typography variant="caption">{item.carbs}g carbs</Typography>
                                                                             <Typography variant="caption">{item.fats}g fats</Typography>
                                                                         </Stack>
                                                                     }
-                                                                    sx={{ flex: 1 }}
+                                                                    sx={{ flex: 1, mr: 1 }}
                                                                 />
                                                                 <ListItemSecondaryAction>
                                                                     <Stack direction="row" spacing={0.5}>
-                                                                        <IconButton size="small" onClick={() => startEditItem(meal.time, item.name)}>
+                                                                        <IconButton
+                                                                            size="small"
+                                                                            onClick={() => startEditItem(meal.time, item.name)}
+                                                                            sx={{ color: "text.secondary" }}
+                                                                        >
                                                                             <Edit fontSize="small" />
                                                                         </IconButton>
-                                                                        <IconButton size="small" onClick={() => deleteItem(meal.time, item.name)}>
+                                                                        <IconButton
+                                                                            size="small"
+                                                                            onClick={() => deleteItem(meal.time, item.name)}
+                                                                            sx={{ color: "error.main" }}
+                                                                        >
                                                                             <Delete fontSize="small" />
                                                                         </IconButton>
                                                                     </Stack>
@@ -538,30 +622,39 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
             </DragDropContext>
 
             {/* Add New Meal Dialog */}
-            <Dialog open={newMealDialogOpen} onClose={() => setNewMealDialogOpen(false)}>
+            <Dialog open={newMealDialogOpen} onClose={() => setNewMealDialogOpen(false)} fullWidth maxWidth="sm">
                 <DialogTitle>Add New Meal</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mt: 1 }}>
-                        <TextField label="Meal Time" value={newMealTime} onChange={(e) => setNewMealTime(e.target.value)} fullWidth select>
+                        <TextField
+                            label="Meal Time"
+                            value={newMealTime}
+                            onChange={(e) => setNewMealTime(e.target.value)}
+                            fullWidth
+                            select
+                            margin="normal"
+                        >
                             {["Breakfast", "Morning Snack", "Lunch", "Afternoon Snack", "Dinner", "Evening Snack"].map((time) => (
                                 <MenuItem key={time} value={time}>
                                     {time}
                                 </MenuItem>
                             ))}
                         </TextField>
-                        <TextField label="Meal Name" value={newMealName} onChange={(e) => setNewMealName(e.target.value)} fullWidth />
+                        <TextField label="Meal Name" value={newMealName} onChange={(e) => setNewMealName(e.target.value)} fullWidth margin="normal" />
                     </Stack>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setNewMealDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={addNewMeal} variant="contained">
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setNewMealDialogOpen(false)} sx={{ mr: 1 }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={addNewMeal} variant="contained" disabled={!newMealTime || !newMealName}>
                         Add Meal
                     </Button>
                 </DialogActions>
             </Dialog>
 
             {/* Add New Item Dialog */}
-            <Dialog open={newItemDialogOpen} onClose={() => setNewItemDialogOpen(false)}>
+            <Dialog open={newItemDialogOpen} onClose={() => setNewItemDialogOpen(false)} fullWidth maxWidth="sm">
                 <DialogTitle>Add New Food Item</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mt: 1 }}>
@@ -570,52 +663,69 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, on
                             value={newItemData.name}
                             onChange={(e) => setNewItemData({ ...newItemData, name: e.target.value })}
                             fullWidth
+                            margin="normal"
                         />
-                        <TextField
-                            label="Calories"
-                            type="number"
-                            value={newItemData.calories}
-                            onChange={(e) => setNewItemData({ ...newItemData, calories: Number(e.target.value) })}
-                            fullWidth
-                            InputProps={{
-                                endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
-                            }}
-                        />
-                        <TextField
-                            label="Protein"
-                            type="number"
-                            value={newItemData.protein}
-                            onChange={(e) => setNewItemData({ ...newItemData, protein: Number(e.target.value) })}
-                            fullWidth
-                            InputProps={{
-                                endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                            }}
-                        />
-                        <TextField
-                            label="Carbohydrates"
-                            type="number"
-                            value={newItemData.carbs}
-                            onChange={(e) => setNewItemData({ ...newItemData, carbs: Number(e.target.value) })}
-                            fullWidth
-                            InputProps={{
-                                endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                            }}
-                        />
-                        <TextField
-                            label="Fats"
-                            type="number"
-                            value={newItemData.fats}
-                            onChange={(e) => setNewItemData({ ...newItemData, fats: Number(e.target.value) })}
-                            fullWidth
-                            InputProps={{
-                                endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                            }}
-                        />
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    label="Calories"
+                                    type="number"
+                                    value={newItemData.calories}
+                                    onChange={(e) => setNewItemData({ ...newItemData, calories: Number(e.target.value) })}
+                                    fullWidth
+                                    margin="normal"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    label="Protein"
+                                    type="number"
+                                    value={newItemData.protein}
+                                    onChange={(e) => setNewItemData({ ...newItemData, protein: Number(e.target.value) })}
+                                    fullWidth
+                                    margin="normal"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    label="Carbohydrates"
+                                    type="number"
+                                    value={newItemData.carbs}
+                                    onChange={(e) => setNewItemData({ ...newItemData, carbs: Number(e.target.value) })}
+                                    fullWidth
+                                    margin="normal"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    label="Fats"
+                                    type="number"
+                                    value={newItemData.fats}
+                                    onChange={(e) => setNewItemData({ ...newItemData, fats: Number(e.target.value) })}
+                                    fullWidth
+                                    margin="normal"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                    }}
+                                />
+                            </Grid>
+                        </Grid>
                     </Stack>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setNewItemDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={addNewItem} variant="contained">
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setNewItemDialogOpen(false)} sx={{ mr: 1 }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={addNewItem} variant="contained" disabled={!newItemData.name}>
                         Add Item
                     </Button>
                 </DialogActions>
