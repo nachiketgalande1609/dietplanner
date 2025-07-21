@@ -48,8 +48,11 @@ export const DietSkeleton = ({ isMobile }: LoadingSkeletonProps) => {
                         sx={{
                             borderRadius: 3,
                             overflow: "hidden",
+                            border: isMobile ? "none" : "1px solid",
+                            borderColor: "divider",
                             borderLeft: `4px solid ${theme.palette.divider}`,
                             bgcolor: "background.paper",
+                            boxShadow: "none",
                         }}
                     >
                         <ListItem

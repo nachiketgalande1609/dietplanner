@@ -39,6 +39,7 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
                             bgcolor: "background.default",
                             borderColor: "divider",
                             overflow: "hidden", // Add this to prevent scrollbar
+                            py: isMobile ? 1 : 0,
                         }}
                     >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -49,12 +50,11 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
                                     width: "100%",
                                     maxHeight: 360, // Fixed height to prevent overflow
                                     borderRadius: { xs: 3, sm: 3 },
-                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.05)",
                                     border: "1px solid",
                                     borderColor: "divider",
                                     backgroundColor: theme.palette.background.paper,
-                                    py: 1,
-                                    px: 2,
+                                    py: isMobile ? 3 : 1,
+                                    px: isMobile ? 0 : 2,
                                     overflow: "hidden", // Hide any potential overflow
                                     "& .MuiPickersCalendarHeader-root": {
                                         mt: 0.5,

@@ -91,7 +91,7 @@ export const App: React.FC = () => {
                                     },
                                 }}
                             >
-                                {darkMode ? <DarkModeIcon /> : <SunnyIcon />}
+                                {darkMode ? <DarkModeIcon sx={{ fontSize: "1.25rem" }} /> : <SunnyIcon sx={{ fontSize: "1.25rem" }} />}
                             </IconButton>
                         </Tooltip>
                     </Box>

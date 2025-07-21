@@ -18,6 +18,7 @@ import {
     styled,
     type SxProps,
     type Theme,
+    Button,
 } from "@mui/material";
 import {
     Restaurant,
@@ -30,6 +31,7 @@ import {
     SetMeal,
     TrendingUp,
     Check,
+    CalendarMonth,
 } from "@mui/icons-material";
 
 // Styled Chip component
@@ -61,9 +63,17 @@ interface DietContentPanelProps {
     dietData?: any;
     completedMeals: Record<string, boolean>;
     onToggleMeal: (mealTime: string) => void;
+    selectedDate: any;
 }
 
-export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayContent, isMobile = false, dietData, completedMeals, onToggleMeal }) => {
+export const DietContentPanel: React.FC<DietContentPanelProps> = ({
+    showDayContent,
+    isMobile = false,
+    dietData,
+    completedMeals,
+    onToggleMeal,
+    selectedDate,
+}) => {
     const theme = useTheme();
     const [expandedMeals, setExpandedMeals] = useState<Record<string, boolean>>({});
     const smallMobile = useMediaQuery(theme.breakpoints.down(400));
@@ -93,8 +103,61 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
 
     if (!dietData) {
         return (
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
-                <Typography>No diet data available for this date</Typography>
+            <Box
+                sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    p: 3,
+                    textAlign: "center",
+                    gap: 2,
+                }}
+            >
+                <Paper
+                    elevation={0}
+                    sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 2,
+                        borderRadius: 3,
+                        bgcolor: "background.paper",
+                        border: "1px dashed",
+                        borderColor: "divider",
+                        maxWidth: 400,
+                        width: "100%",
+                    }}
+                >
+                    <Box
+                        sx={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: "50%",
+                            bgcolor: theme.palette.action.hover,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            mb: 2,
+                        }}
+                    >
+                        <CalendarMonth
+                            sx={{
+                                fontSize: 40,
+                                color: theme.palette.text.secondary,
+                            }}
+                        />
+                    </Box>
+
+                    <Typography variant="h6" color="text.primary" fontWeight={600} gutterBottom>
+                        No Meal Plan Found
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                        There's no diet plan available for {selectedDate.format("MMMM D, YYYY")}.
+                    </Typography>
+                </Paper>
             </Box>
         );
     }
@@ -156,10 +219,11 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                         mb: { xs: 2, sm: 3 },
                         borderRadius: 3,
                         bgcolor: "background.paper",
-                        boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
                         overflow: "hidden",
                         position: "relative",
                         transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        border: "1px solid",
+                        borderColor: "divider",
                         borderLeft: `4px solid ${progress === 100 ? theme.palette.success.main : theme.palette.primary.main}`,
                     }}
                 >
@@ -283,11 +347,14 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                     mb: { xs: 2, sm: 2 },
                                     borderRadius: 3,
                                     overflow: "hidden",
+                                    border: "1px solid",
+                                    borderColor: "divider",
                                     borderLeft: `4px solid ${
                                         isCompleted ? theme.palette.success.main : isMissed ? theme.palette.error.main : theme.palette.divider
                                     }`,
                                     bgcolor: "background.paper",
                                     width: "100%",
+                                    boxShadow: "none",
                                     backgroundColor: isCompleted
                                         ? theme.palette.success.light
                                         : isMissed
@@ -313,6 +380,11 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                             icon={<Circle fontSize="small" />}
                                             checkedIcon={<CheckCircle sx={{ color: theme.palette.success.dark, fontSize: "1.5rem" }} />}
                                             size={smallMobile ? "small" : "medium"}
+                                            sx={{
+                                                ":hover": {
+                                                    backgroundColor: "transparent",
+                                                },
+                                            }}
                                         />
                                     </ListItemSecondaryAction>
 
@@ -329,6 +401,9 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                                 transition: theme.transitions.create("transform", {
                                                     duration: theme.transitions.duration.shortest,
                                                 }),
+                                                ":hover": {
+                                                    backgroundColor: "transparent",
+                                                },
                                             }}
                                         >
                                             <ExpandMore fontSize={smallMobile ? "small" : "medium"} />
@@ -491,12 +566,12 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                 <Paper
                     elevation={0}
                     sx={{
-                        p: { xs: 1.5, sm: 2.5 },
+                        p: { xs: 2, sm: 2.5 },
                         mt: { xs: 1, sm: 2 },
                         borderRadius: 3,
                         bgcolor: "background.paper",
-                        border: "none",
-                        boxShadow: theme.shadows[2],
+                        border: "1px solid",
+                        borderColor: "divider",
                     }}
                 >
                     <Typography
