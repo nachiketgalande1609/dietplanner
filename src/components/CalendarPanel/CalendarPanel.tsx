@@ -104,7 +104,7 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
                                         color: "text.secondary",
                                         "&:hover": {
                                             backgroundColor: "transparent",
-                                            color: "primary.main",
+                                            color: "#FF8E53",
                                         },
                                     },
                                     "& .MuiPickersArrowSwitcher-button": {

@@ -1,4 +1,4 @@
-import { Box, Divider, List, ListItem, ListItemSecondaryAction, ListItemText, Paper, Skeleton, Stack, useMediaQuery, useTheme } from "@mui/material";
+import { Box, List, ListItem, ListItemSecondaryAction, Paper, Skeleton, Stack, useMediaQuery, useTheme } from "@mui/material";
 
 type LoadingSkeletonProps = {
     isMobile: boolean;

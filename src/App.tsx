@@ -11,7 +11,6 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 export const App: React.FC = () => {
     const [darkMode, setDarkMode] = useState(false);
     const navigate = useNavigate();
-    const location = useLocation(); // Get the current path
     const isMobile = useMediaQuery(useTheme().breakpoints.down("md"));
 
     const useButtonStyles = () => {

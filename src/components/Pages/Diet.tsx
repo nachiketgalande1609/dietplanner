@@ -3,7 +3,7 @@ import { Box, Typography, Button, useMediaQuery, Paper, IconButton, Stack } from
 import dayjs, { Dayjs } from "dayjs";
 import { DietContentPanel } from "../ContentPanel/DietContentPanel";
 import { useTheme } from "@mui/material/styles";
-import { CalendarMonth, ChevronLeft, ChevronRight, ErrorOutline } from "@mui/icons-material";
+import { CalendarMonth, ChevronLeft, ChevronRight, ErrorOutline, Edit as EditIcon } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchDietPlan, markMealComplete, markMealIncomplete, updateDietPlan } from "../../api/dietApi";
 import { EditDietPlan } from "../EditDietPlan/EditDietPlan";
@@ -237,26 +237,39 @@ export const Diet: React.FC = () => {
                         </IconButton>
                     </Box>
 
-                    <Button
-                        onClick={toggleCalendar}
-                        startIcon={<CalendarMonth sx={{ fontSize: "1rem" }} />}
-                        sx={{
-                            borderRadius: "12px",
-                            textTransform: "none",
-                            px: 1.5,
-                            py: 0.5,
-                            fontSize: "0.75rem",
-                            fontWeight: 600,
-                            backgroundColor: "rgba(0, 0, 0, 0.03)",
-                            color: "text.primary",
-                            "&:hover": {
-                                backgroundColor: "rgba(0, 0, 0, 0.05)",
-                            },
-                            minWidth: "auto",
-                        }}
-                    >
-                        {showCalendar ? "Hide" : "Calendar"}
-                    </Button>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                        <IconButton
+                            onClick={() => setEditMode(!editMode)}
+                            size="small"
+                            sx={{
+                                color: editMode ? "primary.main" : "text.primary",
+                                backgroundColor: editMode ? "rgba(25, 118, 210, 0.08)" : "rgba(0, 0, 0, 0.05)",
+                                "&:hover": {
+                                    backgroundColor: editMode ? "rgba(25, 118, 210, 0.12)" : "rgba(0, 0, 0, 0.08)",
+                                },
+                                borderRadius: "10px",
+                                p: 1,
+                            }}
+                        >
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+
+                        <IconButton
+                            onClick={toggleCalendar}
+                            size="small"
+                            sx={{
+                                color: showCalendar ? "primary.main" : "text.primary",
+                                backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.08)" : "rgba(0, 0, 0, 0.05)",
+                                "&:hover": {
+                                    backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.12)" : "rgba(0, 0, 0, 0.08)",
+                                },
+                                borderRadius: "10px",
+                                p: 1,
+                            }}
+                        >
+                            <CalendarMonth fontSize="small" />
+                        </IconButton>
+                    </Box>
                 </Box>
             )}
 
@@ -555,7 +568,7 @@ export const Diet: React.FC = () => {
                                 </Paper>
                             </Box>
                         ) : editMode ? (
-                            <EditDietPlan dietData={dietData} onSave={handleSaveEditedPlan} onCancel={() => setEditMode(false)} />
+                            <EditDietPlan dietData={dietData} />
                         ) : (
                             <AnimatePresence mode="wait" custom={direction}>
                                 <motion.div

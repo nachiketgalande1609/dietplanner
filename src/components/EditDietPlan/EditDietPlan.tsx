@@ -23,9 +23,8 @@ import {
     useTheme,
     useMediaQuery,
     Divider,
-    Grid,
 } from "@mui/material";
-import { Add, Delete, Edit, Check, Close, DragHandle, LocalFireDepartment, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
+import { Add, Delete, Edit, DragHandle, LocalFireDepartment, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 interface NutritionValues {
@@ -58,11 +57,9 @@ interface DietPlan {
 
 interface EditDietPlanProps {
     dietData: DietPlan;
-    onSave: (updatedData: DietPlan) => void;
-    onCancel: () => void;
 }
 
-export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onSave, onCancel }) => {
+export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [meals, setMeals] = useState<Meal[]>(dietData.meals);
