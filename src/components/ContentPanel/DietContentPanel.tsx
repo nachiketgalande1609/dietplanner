@@ -110,6 +110,19 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
     const totalMeals = dietData.meals?.length || 0;
     const progress = totalMeals > 0 ? Math.round((completedCount / totalMeals) * 100) : 0;
 
+    // Function to check if a meal was missed (not completed but a later meal is completed)
+    const isMealMissed = (mealIndex: number) => {
+        if (completedMeals[dietData.meals[mealIndex].time]) return false; // Meal is completed
+
+        // Check if any subsequent meal is completed
+        for (let i = mealIndex + 1; i < dietData.meals.length; i++) {
+            if (completedMeals[dietData.meals[i].time]) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     const NutritionChip = ({ icon, value, unit, color }: NutritionChipProps) => (
         <Stack direction="row" spacing={0.5} alignItems="center">
             {React.cloneElement(icon, {
@@ -260,6 +273,7 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                 {dietData.meals?.map((meal: any, index: number) => {
                     const isCompleted = !!completedMeals[meal.time];
                     const isExpanded = !!expandedMeals[meal.time];
+                    const isMissed = isMealMissed(index);
 
                     return (
                         <React.Fragment key={index}>
@@ -269,10 +283,16 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                     mb: { xs: 2, sm: 2 },
                                     borderRadius: 3,
                                     overflow: "hidden",
-                                    borderLeft: `4px solid ${isCompleted ? theme.palette.success.main : theme.palette.divider}`,
+                                    borderLeft: `4px solid ${
+                                        isCompleted ? theme.palette.success.main : isMissed ? theme.palette.error.main : theme.palette.divider
+                                    }`,
                                     bgcolor: "background.paper",
                                     width: "100%",
-                                    backgroundColor: isCompleted ? theme.palette.success.light : "background.paper",
+                                    backgroundColor: isCompleted
+                                        ? theme.palette.success.light
+                                        : isMissed
+                                          ? theme.palette.error.light
+                                          : "background.paper",
                                 }}
                             >
                                 <ListItem
@@ -319,28 +339,43 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                         <Stack direction="row" alignItems="center" spacing={1}>
                                             <Avatar
                                                 sx={{
-                                                    bgcolor: isCompleted ? "success.dark" : "primary.light",
+                                                    bgcolor: isCompleted ? "success.dark" : isMissed ? "error.dark" : "primary.light",
                                                     width: { xs: 28, sm: 32 },
                                                     height: { xs: 28, sm: 32 },
                                                     display: { xs: "none", sm: "flex" },
                                                 }}
                                             >
-                                                <Restaurant fontSize="small" sx={{ color: theme.palette.success.contrastText }} />
+                                                <Restaurant fontSize="small" sx={{ color: theme.palette.common.white }} />
                                             </Avatar>
                                             <Box sx={{ flex: 1 }}>
                                                 <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
-                                                    <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
+                                                    <Typography
+                                                        variant="subtitle1"
+                                                        fontWeight={600}
+                                                        fontSize={smallMobile ? "0.875rem" : "1rem"}
+                                                        color={"text.primary"}
+                                                    >
                                                         {meal.time}
                                                     </Typography>
                                                     <Typography
                                                         variant="body2"
-                                                        color={isCompleted ? "success.dark" : "text.secondary"}
+                                                        color={isCompleted ? "success.dark" : isMissed ? "error.dark" : "text.secondary"}
                                                         sx={{
                                                             fontSize: smallMobile ? "0.75rem" : "0.875rem",
                                                         }}
                                                     >
                                                         {meal.meal}
                                                     </Typography>
+                                                    {isMissed && (
+                                                        <Chip
+                                                            label="Missed"
+                                                            size="small"
+                                                            sx={{
+                                                                backgroundColor: theme.palette.error.main,
+                                                                color: theme.palette.error.contrastText,
+                                                            }}
+                                                        />
+                                                    )}
                                                 </Stack>
                                                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
                                                     {!smallMobile && <Chip label={`${meal.items.length} items`} size="small" variant="outlined" />}
@@ -348,25 +383,25 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                                         icon={<FitnessCenter />}
                                                         value={meal.total.protein}
                                                         unit="g"
-                                                        color={theme.palette.primary.main}
+                                                        color={isMissed ? theme.palette.error.main : theme.palette.primary.main}
                                                     />
                                                     <NutritionChip
                                                         icon={<Grain />}
                                                         value={meal.total.carbs}
                                                         unit="g"
-                                                        color={theme.palette.secondary.main}
+                                                        color={isMissed ? theme.palette.error.main : theme.palette.secondary.main}
                                                     />
                                                     <NutritionChip
                                                         icon={<SetMeal />}
                                                         value={meal.total.fats}
                                                         unit="g"
-                                                        color={theme.palette.warning.main}
+                                                        color={isMissed ? theme.palette.error.main : theme.palette.warning.main}
                                                     />
                                                     <NutritionChip
                                                         icon={<LocalFireDepartment />}
                                                         value={meal.total.calories}
                                                         unit="kcal"
-                                                        color={theme.palette.error.main}
+                                                        color={isMissed ? theme.palette.error.main : theme.palette.error.main}
                                                     />
                                                 </Stack>
                                             </Box>
@@ -379,7 +414,7 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                         sx={{
                                             px: { xs: 1, sm: 2 },
                                             pb: { xs: 1, sm: 2 },
-                                            backgroundColor: theme.palette.background.default,
+                                            backgroundColor: isMissed ? theme.palette.error.light : theme.palette.background.default,
                                             borderRadius: 3,
                                         }}
                                     >
@@ -394,7 +429,11 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                                 >
                                                     <ListItemText
                                                         primary={
-                                                            <Typography variant="body2" fontSize={smallMobile ? "0.8125rem" : "0.875rem"}>
+                                                            <Typography
+                                                                variant="body2"
+                                                                fontSize={smallMobile ? "0.8125rem" : "0.875rem"}
+                                                                color={isMissed ? "error.dark" : "text.primary"}
+                                                            >
                                                                 {item.name}
                                                             </Typography>
                                                         }
@@ -411,25 +450,25 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({ showDayConte
                                                                     icon={<FitnessCenter />}
                                                                     value={item.protein}
                                                                     unit="g"
-                                                                    color={theme.palette.primary.main}
+                                                                    color={isMissed ? theme.palette.error.main : theme.palette.primary.main}
                                                                 />
                                                                 <NutritionChip
                                                                     icon={<Grain />}
                                                                     value={item.carbs}
                                                                     unit="g"
-                                                                    color={theme.palette.secondary.main}
+                                                                    color={isMissed ? theme.palette.error.main : theme.palette.secondary.main}
                                                                 />
                                                                 <NutritionChip
                                                                     icon={<SetMeal />}
                                                                     value={item.fats}
                                                                     unit="g"
-                                                                    color={theme.palette.warning.main}
+                                                                    color={isMissed ? theme.palette.error.main : theme.palette.warning.main}
                                                                 />
                                                                 <NutritionChip
                                                                     icon={<LocalFireDepartment />}
                                                                     value={item.calories}
                                                                     unit="kcal"
-                                                                    color={theme.palette.error.main}
+                                                                    color={isMissed ? theme.palette.error.main : theme.palette.error.main}
                                                                 />
                                                             </Stack>
                                                         }
