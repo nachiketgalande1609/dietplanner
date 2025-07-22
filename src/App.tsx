@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box, CssBaseline, ThemeProvider, Button, ButtonGroup, Tooltip, IconButton, useMediaQuery, useTheme } from "@mui/material";
 import { Diet } from "./components/Pages/Diet";
@@ -9,9 +9,16 @@ import SunnyIcon from "@mui/icons-material/Sunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 export const App: React.FC = () => {
-    const [darkMode, setDarkMode] = useState(false);
+    const [darkMode, setDarkMode] = useState(() => {
+        const savedMode = localStorage.getItem("dietDarkMode");
+        return savedMode ? JSON.parse(savedMode) : false;
+    });
     const navigate = useNavigate();
     const isMobile = useMediaQuery(useTheme().breakpoints.down("md"));
+
+    useEffect(() => {
+        localStorage.setItem("dietDarkMode", JSON.stringify(darkMode));
+    }, [darkMode]);
 
     const useButtonStyles = () => {
         const theme = useTheme();
