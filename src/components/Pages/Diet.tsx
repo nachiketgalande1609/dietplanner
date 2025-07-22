@@ -430,7 +430,10 @@ export const Diet: React.FC = () => {
                                 <Stack direction="row" spacing={1}>
                                     <Button
                                         variant="outlined"
-                                        onClick={() => setEditMode(false)}
+                                        onClick={() => {
+                                            setEditMode(false);
+                                            fetchData();
+                                        }}
                                         sx={{
                                             borderRadius: "12px",
                                             textTransform: "none",

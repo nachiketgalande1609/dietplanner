@@ -82,8 +82,6 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
     const [currentMealForNewItem, setCurrentMealForNewItem] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
 
-    console.log("xxx", dietData.meals);
-
     const calculateMealTotals = (items: MealItem[]): NutritionValues => {
         return items.reduce(
             (acc, item) => ({
@@ -103,7 +101,6 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
         let updatedMeals = [...meals];
 
         if (source.droppableId === destination.droppableId) {
-            // Reorder within the same meal
             const mealIndex = meals.findIndex((m) => m.time === source.droppableId);
             if (mealIndex === -1) return;
 
@@ -117,7 +114,6 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                 total: calculateMealTotals(newItems),
             };
         } else {
-            // Move between meals
             const sourceMealIndex = meals.findIndex((m) => m.time === source.droppableId);
             const destMealIndex = meals.findIndex((m) => m.time === destination.droppableId);
             if (sourceMealIndex === -1 || destMealIndex === -1) return;
