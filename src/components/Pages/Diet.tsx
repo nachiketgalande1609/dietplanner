@@ -96,16 +96,15 @@ export const Diet: React.FC = () => {
         setShowCalendar(!showCalendar);
     };
 
-    const handleSaveEditedPlan = async (updatedData: any) => {
+    const handleSaveEditedPlan = async () => {
         try {
-            const response = await updateDietPlan(updatedData);
+            const response = await updateDietPlan(dietData);
             const { success, error } = response;
 
             if (!success) {
                 throw new Error(error || "Failed to save diet plan");
             }
 
-            setDietData(updatedData);
             alert("Diet plan saved successfully!");
         } catch (error) {
             console.error("Failed to save diet plan:", error);
@@ -450,7 +449,7 @@ export const Diet: React.FC = () => {
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        onClick={() => handleSaveEditedPlan(dietData)}
+                                        onClick={() => handleSaveEditedPlan()}
                                         sx={{
                                             borderRadius: "12px",
                                             textTransform: "none",
@@ -577,7 +576,7 @@ export const Diet: React.FC = () => {
                                 </Paper>
                             </Box>
                         ) : editMode ? (
-                            <EditDietPlan dietData={dietData} />
+                            <EditDietPlan dietData={dietData} onChange={(updatedData) => setDietData(updatedData)} />
                         ) : (
                             <AnimatePresence mode="wait" custom={direction}>
                                 <motion.div

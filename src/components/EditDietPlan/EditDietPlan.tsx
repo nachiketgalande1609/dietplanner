@@ -23,7 +23,7 @@ import {
     useMediaQuery,
     Divider,
 } from "@mui/material";
-import { Add, Delete, Edit, DragHandle, LocalFireDepartment, FitnessCenter, Grain, SetMeal } from "@mui/icons-material";
+import { Add, Delete, Edit, DragHandle, LocalFireDepartment } from "@mui/icons-material";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
@@ -60,9 +60,10 @@ interface DietPlan {
 
 interface EditDietPlanProps {
     dietData: DietPlan;
+    onChange: (updatedData: DietPlan) => void;
 }
 
-export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
+export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [meals, setMeals] = useState<Meal[]>(dietData.meals);
@@ -81,6 +82,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
     const [currentMealForNewItem, setCurrentMealForNewItem] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
 
+    console.log("xxx", dietData.meals);
+
     const calculateMealTotals = (items: MealItem[]): NutritionValues => {
         return items.reduce(
             (acc, item) => ({
@@ -97,6 +100,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
         if (!result.destination) return;
 
         const { source, destination } = result;
+        let updatedMeals = [...meals];
 
         if (source.droppableId === destination.droppableId) {
             // Reorder within the same meal
@@ -107,14 +111,11 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
             const [removed] = newItems.splice(source.index, 1);
             newItems.splice(destination.index, 0, removed);
 
-            const updatedMeals = [...meals];
             updatedMeals[mealIndex] = {
                 ...updatedMeals[mealIndex],
                 items: newItems,
                 total: calculateMealTotals(newItems),
             };
-
-            setMeals(updatedMeals);
         } else {
             // Move between meals
             const sourceMealIndex = meals.findIndex((m) => m.time === source.droppableId);
@@ -126,7 +127,6 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
             const [removed] = sourceItems.splice(source.index, 1);
             destItems.splice(destination.index, 0, removed);
 
-            const updatedMeals = [...meals];
             updatedMeals[sourceMealIndex] = {
                 ...updatedMeals[sourceMealIndex],
                 items: sourceItems,
@@ -137,9 +137,27 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
                 items: destItems,
                 total: calculateMealTotals(destItems),
             };
-
-            setMeals(updatedMeals);
         }
+
+        setMeals(updatedMeals);
+
+        // Calculate new daily total
+        const newDailyTotal = updatedMeals.reduce(
+            (acc, meal) => ({
+                calories: acc.calories + meal.total.calories,
+                protein: acc.protein + meal.total.protein,
+                carbs: acc.carbs + meal.total.carbs,
+                fats: acc.fats + meal.total.fats,
+            }),
+            { calories: 0, protein: 0, carbs: 0, fats: 0 }
+        );
+
+        // Notify parent of the change
+        onChange({
+            ...dietData,
+            meals: updatedMeals,
+            dailyTotal: newDailyTotal,
+        });
     };
 
     const startEditItem = (mealTime: string, itemName: string) => {
@@ -158,6 +176,25 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
         updatedMeals[mealIndex].total = calculateMealTotals(updatedMeals[mealIndex].items);
 
         setMeals(updatedMeals);
+
+        // Calculate new daily total
+        const newDailyTotal = updatedMeals.reduce(
+            (acc, meal) => ({
+                calories: acc.calories + meal.total.calories,
+                protein: acc.protein + meal.total.protein,
+                carbs: acc.carbs + meal.total.carbs,
+                fats: acc.fats + meal.total.fats,
+            }),
+            { calories: 0, protein: 0, carbs: 0, fats: 0 }
+        );
+
+        // Notify parent of the change
+        onChange({
+            ...dietData,
+            meals: updatedMeals,
+            dailyTotal: newDailyTotal,
+        });
+
         setEditingItem(null);
     };
 
@@ -174,6 +211,24 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
         };
 
         setMeals(updatedMeals);
+
+        // Calculate new daily total
+        const newDailyTotal = updatedMeals.reduce(
+            (acc, meal) => ({
+                calories: acc.calories + meal.total.calories,
+                protein: acc.protein + meal.total.protein,
+                carbs: acc.carbs + meal.total.carbs,
+                fats: acc.fats + meal.total.fats,
+            }),
+            { calories: 0, protein: 0, carbs: 0, fats: 0 }
+        );
+
+        // Notify parent of the change
+        onChange({
+            ...dietData,
+            meals: updatedMeals,
+            dailyTotal: newDailyTotal,
+        });
     };
 
     const addNewMeal = () => {
@@ -193,7 +248,24 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData }) => {
     };
 
     const deleteMeal = (mealTime: string) => {
-        setMeals(meals.filter((m) => m.time !== mealTime));
+        const updatedMeals = meals.filter((m) => m.time !== mealTime);
+        setMeals(updatedMeals);
+
+        const newDailyTotal = updatedMeals.reduce(
+            (acc, meal) => ({
+                calories: acc.calories + meal.total.calories,
+                protein: acc.protein + meal.total.protein,
+                carbs: acc.carbs + meal.total.carbs,
+                fats: acc.fats + meal.total.fats,
+            }),
+            { calories: 0, protein: 0, carbs: 0, fats: 0 }
+        );
+
+        onChange({
+            ...dietData,
+            meals: updatedMeals,
+            dailyTotal: newDailyTotal,
+        });
     };
 
     const openAddItemDialog = (mealTime: string) => {
