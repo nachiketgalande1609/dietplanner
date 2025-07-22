@@ -770,16 +770,18 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                                             onChange={(newValue) => {
                                                 if (newValue && dayjs.isDayjs(newValue)) {
                                                     setSelectedTime(newValue);
-                                                    const hours = newValue.hour().toString().padStart(2, "0");
-                                                    const minutes = newValue.minute().toString().padStart(2, "0");
-                                                    setNewMealTime(`${hours}:${minutes}`);
+                                                    const hours = newValue.hour();
+                                                    const minutes = newValue.minute();
+                                                    const period = hours >= 12 ? "PM" : "AM";
+                                                    const displayHour = hours % 12 || 12;
+                                                    setNewMealTime(`${displayHour}:${minutes.toString().padStart(2, "0")} ${period}`);
                                                 } else {
                                                     setSelectedTime(null);
                                                     setNewMealTime("");
                                                 }
                                             }}
                                             ampm={true}
-                                            minutesStep={15}
+                                            minutesStep={1}
                                             slotProps={{
                                                 textField: {
                                                     fullWidth: true,

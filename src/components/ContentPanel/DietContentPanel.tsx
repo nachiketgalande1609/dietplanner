@@ -489,7 +489,7 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                         sx={{
                                             px: { xs: 1, sm: 2 },
                                             pb: { xs: 1, sm: 2 },
-                                            backgroundColor: isMissed ? theme.palette.error.light : theme.palette.background.default,
+                                            backgroundColor: theme.palette.background.default,
                                             borderRadius: 3,
                                         }}
                                     >
@@ -507,7 +507,7 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                                             <Typography
                                                                 variant="body2"
                                                                 fontSize={smallMobile ? "0.8125rem" : "0.875rem"}
-                                                                color={isMissed ? "error.dark" : "text.primary"}
+                                                                color={"text.primary"}
                                                             >
                                                                 {item.name}
                                                             </Typography>
