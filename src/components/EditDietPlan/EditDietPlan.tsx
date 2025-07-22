@@ -23,7 +23,7 @@ import {
     useMediaQuery,
     Divider,
 } from "@mui/material";
-import { Add, Delete, Edit, DragHandle, LocalFireDepartment } from "@mui/icons-material";
+import { Add, Delete, Edit, DragHandle, LocalFireDepartment, AccessTime, LocalDining as NutritionIcon, LocalDining } from "@mui/icons-material";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
@@ -81,6 +81,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
     });
     const [currentMealForNewItem, setCurrentMealForNewItem] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
+    const [newMealItems, setNewMealItems] = useState<MealItem[]>([]);
 
     const calculateMealTotals = (items: MealItem[]): NutritionValues => {
         return items.reduce(
@@ -227,22 +228,6 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
         });
     };
 
-    const addNewMeal = () => {
-        if (!newMealTime || !newMealName) return;
-
-        const newMeal: Meal = {
-            time: newMealTime,
-            meal: newMealName,
-            items: [],
-            total: { calories: 0, protein: 0, carbs: 0, fats: 0 },
-        };
-
-        setMeals([...meals, newMeal]);
-        setNewMealTime("");
-        setNewMealName("");
-        setNewMealDialogOpen(false);
-    };
-
     const deleteMeal = (mealTime: string) => {
         const updatedMeals = meals.filter((m) => m.time !== mealTime);
         setMeals(updatedMeals);
@@ -348,7 +333,6 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                     </IconButton>
                 </Tooltip>
             </Box>
-
             <DragDropContext onDragEnd={handleDragEnd}>
                 {meals.map((meal) => (
                     <Paper
@@ -674,197 +658,395 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                     </Paper>
                 ))}
             </DragDropContext>
-
             {/* Add New Meal Dialog */}
+            // Updated Add New Meal Dialog with inline food item editing
             <Dialog
                 open={newMealDialogOpen}
-                onClose={() => setNewMealDialogOpen(false)}
+                onClose={() => {
+                    setNewMealDialogOpen(false);
+                    setNewMealItems([]);
+                }}
                 fullWidth
-                maxWidth="sm"
+                maxWidth="md"
                 PaperProps={{
                     sx: {
                         borderRadius: 3,
-                        overflow: "hidden",
+                        overflow: "visible",
+                        background: theme.palette.background.paper,
+                        boxShadow: theme.shadows[10],
                     },
                 }}
             >
+                {/* Header */}
                 <Box
                     sx={{
-                        bgcolor: "primary.main",
-                        color: "primary.contrastText",
-                        p: 2,
+                        position: "relative",
+                        pt: 4,
+                        px: 3,
+                        pb: 2,
+                        textAlign: "center",
+                        "&:after": {
+                            content: '""',
+                            position: "absolute",
+                            bottom: 0,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            width: "80%",
+                            height: "1px",
+                            background: `linear-gradient(90deg, transparent, ${theme.palette.divider}, transparent)`,
+                        },
                     }}
                 >
-                    <DialogTitle
-                        sx={{
-                            color: "inherit",
-                            p: 0,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
-                        }}
-                    >
-                        <span>Add New Meal</span>
-                    </DialogTitle>
+                    <Typography variant="h6" component="div" fontWeight={600}>
+                        Create New Meal
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" mt={0.5}>
+                        Add meal time and food items
+                    </Typography>
                 </Box>
 
-                <DialogContent sx={{ p: 3 }}>
-                    <Stack spacing={3} sx={{ mt: 1 }}>
-                        <Box>
-                            <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 500, color: "text.secondary" }}>
+                <DialogContent sx={{ px: 4, py: 3 }}>
+                    <Stack spacing={3}>
+                        {/* Basic Meal Info */}
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 2.5,
+                                borderRadius: 2,
+                                border: `1px solid ${theme.palette.divider}`,
+                                background: theme.palette.background.default,
+                            }}
+                        >
+                            <Typography variant="subtitle2" fontWeight={600} mb={2} sx={{ display: "flex", alignItems: "center" }}>
+                                <AccessTime fontSize="small" sx={{ mr: 1, color: theme.palette.primary.main }} />
                                 Meal Details
                             </Typography>
-                            <Box sx={{ display: "flex", gap: 2, flexDirection: isMobile ? "column" : "row" }}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <TimePicker
-                                        label="Meal Time"
-                                        value={selectedTime}
-                                        onChange={(newValue, _context) => {
-                                            if (newValue && dayjs.isDayjs(newValue)) {
-                                                setSelectedTime(newValue);
-                                                const hours = newValue.hour().toString().padStart(2, "0");
-                                                const minutes = newValue.minute().toString().padStart(2, "0");
-                                                setNewMealTime(`${hours}:${minutes}`);
-                                            } else {
-                                                setSelectedTime(null);
-                                                setNewMealTime("");
-                                            }
-                                        }}
-                                        ampm={true}
-                                        minutesStep={1}
-                                        slotProps={{
-                                            textField: {
-                                                fullWidth: true,
-                                                margin: "normal",
-                                                variant: "outlined",
-                                                size: "small",
-                                                sx: {
-                                                    "& .MuiOutlinedInput-root": {
-                                                        borderRadius: 2,
+
+                            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+                                <Box sx={{ flex: 1 }}>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <TimePicker
+                                            label="Meal Time *"
+                                            value={selectedTime}
+                                            onChange={(newValue) => {
+                                                if (newValue && dayjs.isDayjs(newValue)) {
+                                                    setSelectedTime(newValue);
+                                                    const hours = newValue.hour().toString().padStart(2, "0");
+                                                    const minutes = newValue.minute().toString().padStart(2, "0");
+                                                    setNewMealTime(`${hours}:${minutes}`);
+                                                } else {
+                                                    setSelectedTime(null);
+                                                    setNewMealTime("");
+                                                }
+                                            }}
+                                            ampm={true}
+                                            minutesStep={15}
+                                            slotProps={{
+                                                textField: {
+                                                    fullWidth: true,
+                                                    variant: "outlined",
+                                                    size: "small",
+                                                    sx: {
+                                                        "& .MuiOutlinedInput-root": {
+                                                            borderRadius: 2,
+                                                            background: theme.palette.background.paper,
+                                                        },
                                                     },
                                                 },
+                                            }}
+                                        />
+                                    </LocalizationProvider>
+                                </Box>
+                                <Box sx={{ flex: 1 }}>
+                                    <TextField
+                                        label="Meal Name *"
+                                        value={newMealName}
+                                        onChange={(e) => setNewMealName(e.target.value)}
+                                        fullWidth
+                                        variant="outlined"
+                                        size="small"
+                                        placeholder="e.g. Breakfast, Lunch, Snack"
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                borderRadius: 2,
+                                                background: theme.palette.background.paper,
                                             },
                                         }}
                                     />
-                                </LocalizationProvider>
-
-                                <TextField
-                                    label="Meal Name"
-                                    value={newMealName}
-                                    onChange={(e) => setNewMealName(e.target.value)}
-                                    fullWidth
-                                    margin="normal"
-                                    variant="outlined"
-                                    size="small"
-                                    placeholder="e.g. Protein Shake, Chicken Salad"
-                                    sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: 2,
-                                        },
-                                    }}
-                                />
+                                </Box>
                             </Box>
-                        </Box>
+                        </Paper>
 
-                        <Box>
-                            <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 500, color: "text.secondary" }}>
-                                Initial Nutrition Values (Optional)
-                            </Typography>
-                            <Box
+                        {/* Food Items Section */}
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 2.5,
+                                borderRadius: 2,
+                                border: `1px solid ${theme.palette.divider}`,
+                                background: theme.palette.background.default,
+                            }}
+                        >
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                                <Typography variant="subtitle2" fontWeight={600} sx={{ display: "flex", alignItems: "center" }}>
+                                    <LocalDining fontSize="small" sx={{ mr: 1, color: theme.palette.secondary.main }} />
+                                    Food Items
+                                </Typography>
+                            </Box>
+
+                            {/* Add New Item Form */}
+                            <Paper elevation={0} sx={{ p: 2, mb: 2, border: `1px dashed ${theme.palette.divider}`, borderRadius: 1 }}>
+                                <Stack spacing={2}>
+                                    <TextField
+                                        label="Food Name"
+                                        value={newItemData.name}
+                                        onChange={(e) => setNewItemData({ ...newItemData, name: e.target.value })}
+                                        fullWidth
+                                        size="small"
+                                    />
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                                        <Box sx={{ flex: 1, minWidth: 120 }}>
+                                            <TextField
+                                                label="Calories"
+                                                type="number"
+                                                value={newItemData.calories}
+                                                onChange={(e) => setNewItemData({ ...newItemData, calories: Number(e.target.value) })}
+                                                fullWidth
+                                                size="small"
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
+                                                }}
+                                            />
+                                        </Box>
+                                        <Box sx={{ flex: 1, minWidth: 120 }}>
+                                            <TextField
+                                                label="Protein"
+                                                type="number"
+                                                value={newItemData.protein}
+                                                onChange={(e) => setNewItemData({ ...newItemData, protein: Number(e.target.value) })}
+                                                fullWidth
+                                                size="small"
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                                }}
+                                            />
+                                        </Box>
+                                        <Box sx={{ flex: 1, minWidth: 120 }}>
+                                            <TextField
+                                                label="Carbs"
+                                                type="number"
+                                                value={newItemData.carbs}
+                                                onChange={(e) => setNewItemData({ ...newItemData, carbs: Number(e.target.value) })}
+                                                fullWidth
+                                                size="small"
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                                }}
+                                            />
+                                        </Box>
+                                        <Box sx={{ flex: 1, minWidth: 120 }}>
+                                            <TextField
+                                                label="Fats"
+                                                type="number"
+                                                value={newItemData.fats}
+                                                onChange={(e) => setNewItemData({ ...newItemData, fats: Number(e.target.value) })}
+                                                fullWidth
+                                                size="small"
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                                }}
+                                            />
+                                        </Box>
+                                    </Box>
+                                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                                        <Button
+                                            variant="contained"
+                                            onClick={() => {
+                                                if (newItemData.name) {
+                                                    setNewMealItems([...newMealItems, newItemData]);
+                                                    setNewItemData({
+                                                        name: "",
+                                                        calories: 0,
+                                                        protein: 0,
+                                                        carbs: 0,
+                                                        fats: 0,
+                                                    });
+                                                }
+                                            }}
+                                            disabled={!newItemData.name}
+                                            size="small"
+                                            sx={{ minWidth: 120 }}
+                                        >
+                                            Add Item
+                                        </Button>
+                                    </Box>
+                                </Stack>
+                            </Paper>
+
+                            {/* Food Items List */}
+                            {newMealItems.length > 0 ? (
+                                <List dense sx={{ bgcolor: "background.paper", p: 0 }}>
+                                    {newMealItems.map((item, index) => (
+                                        <ListItem
+                                            key={index}
+                                            sx={{
+                                                p: 1,
+                                                mb: 1,
+                                                borderRadius: 1,
+                                                bgcolor: "background.default",
+                                                border: `1px solid ${theme.palette.divider}`,
+                                            }}
+                                        >
+                                            <ListItemText
+                                                primary={item.name}
+                                                secondary={
+                                                    <Stack
+                                                        direction={isMobile ? "column" : "row"}
+                                                        spacing={isMobile ? 0.5 : 2}
+                                                        mt={0.5}
+                                                        divider={isMobile ? null : <Divider orientation="vertical" flexItem />}
+                                                    >
+                                                        <Typography variant="caption">{item.calories} kcal</Typography>
+                                                        <Typography variant="caption">{item.protein}g protein</Typography>
+                                                        <Typography variant="caption">{item.carbs}g carbs</Typography>
+                                                        <Typography variant="caption">{item.fats}g fats</Typography>
+                                                    </Stack>
+                                                }
+                                                sx={{ flex: 1, mr: 1 }}
+                                            />
+                                            <ListItemSecondaryAction>
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => {
+                                                        setNewMealItems(newMealItems.filter((_, i) => i !== index));
+                                                    }}
+                                                    sx={{ color: "error.main" }}
+                                                >
+                                                    <Delete fontSize="small" />
+                                                </IconButton>
+                                            </ListItemSecondaryAction>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        p: 3,
+                                        textAlign: "center",
+                                        border: `1px dashed ${theme.palette.divider}`,
+                                        borderRadius: 1,
+                                    }}
+                                >
+                                    <Typography variant="body2" color="text.secondary">
+                                        No food items added yet
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Paper>
+
+                        {/* Nutrition Summary */}
+                        {newMealItems.length > 0 && (
+                            <Paper
+                                elevation={0}
                                 sx={{
-                                    display: "grid",
-                                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-                                    gap: 2,
+                                    p: 2,
+                                    borderRadius: 2,
+                                    border: `1px solid ${theme.palette.divider}`,
+                                    background: theme.palette.background.default,
                                 }}
                             >
-                                <TextField
-                                    label="Calories"
-                                    type="number"
-                                    variant="outlined"
-                                    size="small"
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
-                                    }}
-                                    sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: 2,
-                                        },
-                                    }}
-                                />
-                                <TextField
-                                    label="Protein"
-                                    type="number"
-                                    variant="outlined"
-                                    size="small"
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                                    }}
-                                    sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: 2,
-                                        },
-                                    }}
-                                />
-                                <TextField
-                                    label="Carbs"
-                                    type="number"
-                                    variant="outlined"
-                                    size="small"
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                                    }}
-                                    sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: 2,
-                                        },
-                                    }}
-                                />
-                                <TextField
-                                    label="Fats"
-                                    type="number"
-                                    variant="outlined"
-                                    size="small"
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
-                                    }}
-                                    sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: 2,
-                                        },
-                                    }}
-                                />
-                            </Box>
-                        </Box>
+                                <Typography variant="subtitle2" fontWeight={600} mb={1} sx={{ display: "flex", alignItems: "center" }}>
+                                    <NutritionIcon fontSize="small" sx={{ mr: 1, color: theme.palette.success.main }} />
+                                    Meal Nutrition Summary
+                                </Typography>
+                                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+                                    <Chip
+                                        label={`${newMealItems.reduce((sum, item) => sum + item.protein, 0)}g protein`}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: "primary.light",
+                                            color: "primary.contrastText",
+                                        }}
+                                    />
+                                    <Chip
+                                        label={`${newMealItems.reduce((sum, item) => sum + item.carbs, 0)}g carbs`}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: "success.light",
+                                            color: "success.contrastText",
+                                        }}
+                                    />
+                                    <Chip
+                                        label={`${newMealItems.reduce((sum, item) => sum + item.fats, 0)}g fats`}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: "warning.light",
+                                            color: "warning.contrastText",
+                                        }}
+                                    />
+                                    <Chip
+                                        icon={<LocalFireDepartment />}
+                                        label={`${newMealItems.reduce((sum, item) => sum + item.calories, 0)} kcal`}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: "error.light",
+                                            color: "error.contrastText",
+                                        }}
+                                    />
+                                </Stack>
+                            </Paper>
+                        )}
                     </Stack>
                 </DialogContent>
 
                 <DialogActions
                     sx={{
-                        p: 2,
+                        px: 3,
+                        py: 2,
                         borderTop: `1px solid ${theme.palette.divider}`,
-                        justifyContent: "space-between",
                     }}
                 >
                     <Button
-                        onClick={() => setNewMealDialogOpen(false)}
+                        onClick={() => {
+                            setNewMealDialogOpen(false);
+                            setNewMealItems([]);
+                        }}
+                        variant="text"
                         sx={{
                             borderRadius: 2,
                             px: 3,
-                            color: "text.secondary",
+                            color: theme.palette.text.secondary,
+                            "&:hover": {
+                                bgcolor: theme.palette.action.hover,
+                            },
                         }}
                     >
                         Cancel
                     </Button>
                     <Button
-                        onClick={addNewMeal}
+                        onClick={() => {
+                            const newMeal: Meal = {
+                                time: newMealTime,
+                                meal: newMealName,
+                                items: newMealItems,
+                                total: calculateMealTotals(newMealItems),
+                            };
+                            setMeals([...meals, newMeal]);
+                            setNewMealTime("");
+                            setNewMealName("");
+                            setNewMealItems([]);
+                            setNewMealDialogOpen(false);
+                        }}
                         variant="contained"
-                        disabled={!newMealTime || !newMealName}
+                        disabled={!newMealTime || !newMealName || newMealItems.length === 0}
                         sx={{
                             borderRadius: 2,
                             px: 3,
                             boxShadow: "none",
+                            textTransform: "none",
+                            fontWeight: 600,
                             "&:hover": {
-                                boxShadow: "none",
+                                boxShadow: `0 4px 12px ${theme.palette.primary.main}30`,
                             },
                         }}
                         startIcon={<Add />}
@@ -873,7 +1055,97 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                     </Button>
                 </DialogActions>
             </Dialog>
-
+            {/* Add Food Item Dialog */}
+            <Dialog open={newItemDialogOpen} onClose={() => setNewItemDialogOpen(false)} fullWidth maxWidth="sm">
+                <DialogTitle>Add Food Item</DialogTitle>
+                <DialogContent>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                        <TextField
+                            label="Food Name *"
+                            value={newItemData.name}
+                            onChange={(e) => setNewItemData({ ...newItemData, name: e.target.value })}
+                            fullWidth
+                            margin="normal"
+                        />
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                            <Box sx={{ flex: 1, minWidth: 120 }}>
+                                <TextField
+                                    label="Calories *"
+                                    type="number"
+                                    value={newItemData.calories}
+                                    onChange={(e) => setNewItemData({ ...newItemData, calories: Number(e.target.value) })}
+                                    fullWidth
+                                    margin="normal"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
+                                    }}
+                                />
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 120 }}>
+                                <TextField
+                                    label="Protein *"
+                                    type="number"
+                                    value={newItemData.protein}
+                                    onChange={(e) => setNewItemData({ ...newItemData, protein: Number(e.target.value) })}
+                                    fullWidth
+                                    margin="normal"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                    }}
+                                />
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 120 }}>
+                                <TextField
+                                    label="Carbs *"
+                                    type="number"
+                                    value={newItemData.carbs}
+                                    onChange={(e) => setNewItemData({ ...newItemData, carbs: Number(e.target.value) })}
+                                    fullWidth
+                                    margin="normal"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                    }}
+                                />
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 120 }}>
+                                <TextField
+                                    label="Fats *"
+                                    type="number"
+                                    value={newItemData.fats}
+                                    onChange={(e) => setNewItemData({ ...newItemData, fats: Number(e.target.value) })}
+                                    fullWidth
+                                    margin="normal"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setNewItemDialogOpen(false)} sx={{ mr: 1 }}>
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            setNewMealItems([...newMealItems, newItemData]);
+                            setNewItemData({
+                                name: "",
+                                calories: 0,
+                                protein: 0,
+                                carbs: 0,
+                                fats: 0,
+                            });
+                            setNewItemDialogOpen(false);
+                        }}
+                        variant="contained"
+                        disabled={!newItemData.name || !newItemData.calories}
+                    >
+                        Add Item
+                    </Button>
+                </DialogActions>
+            </Dialog>
             {/* Add New Item Dialog */}
             <Dialog open={newItemDialogOpen} onClose={() => setNewItemDialogOpen(false)} fullWidth maxWidth="sm">
                 <DialogTitle>Add New Food Item</DialogTitle>
