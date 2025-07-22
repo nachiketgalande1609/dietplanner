@@ -154,7 +154,7 @@ export const Diet: React.FC = () => {
             {isMobile && (
                 <Box
                     sx={{
-                        mb: 1,
+                        mb: 2,
                         p: 1.5,
                         display: "flex",
                         alignItems: "center",
@@ -175,7 +175,7 @@ export const Diet: React.FC = () => {
                             size="small"
                             sx={{
                                 color: "text.primary",
-                                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                                bgcolor: "background.default",
                                 "&:hover": {
                                     backgroundColor: "rgba(0, 0, 0, 0.08)",
                                 },
@@ -227,7 +227,7 @@ export const Diet: React.FC = () => {
                             size="small"
                             sx={{
                                 color: "text.primary",
-                                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                                bgcolor: "background.default",
                                 "&:hover": {
                                     backgroundColor: "rgba(0, 0, 0, 0.08)",
                                 },
@@ -246,7 +246,7 @@ export const Diet: React.FC = () => {
                                 size="small"
                                 sx={{
                                     color: editMode ? "primary.main" : "text.primary",
-                                    backgroundColor: editMode ? "rgba(25, 118, 210, 0.08)" : "rgba(0, 0, 0, 0.05)",
+                                    backgroundColor: editMode ? "rgba(25, 118, 210, 0.08)" : "background.default",
                                     "&:hover": {
                                         backgroundColor: editMode ? "rgba(25, 118, 210, 0.12)" : "rgba(0, 0, 0, 0.08)",
                                     },
@@ -263,7 +263,7 @@ export const Diet: React.FC = () => {
                             size="small"
                             sx={{
                                 color: showCalendar ? "primary.main" : "text.primary",
-                                backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.08)" : "rgba(0, 0, 0, 0.05)",
+                                backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.08)" : "background.default",
                                 "&:hover": {
                                     backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.12)" : "rgba(0, 0, 0, 0.08)",
                                 },

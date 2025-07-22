@@ -18,7 +18,6 @@ import {
     styled,
     type SxProps,
     type Theme,
-    Button,
 } from "@mui/material";
 import {
     Restaurant,
@@ -428,13 +427,13 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                                         variant="subtitle1"
                                                         fontWeight={600}
                                                         fontSize={smallMobile ? "0.875rem" : "1rem"}
-                                                        color={"text.primary"}
+                                                        color={isMissed || isCompleted ? theme.palette.background.default : "text.primary"}
                                                     >
                                                         {meal.time}
                                                     </Typography>
                                                     <Typography
                                                         variant="body2"
-                                                        color={isCompleted ? "success.dark" : isMissed ? "error.dark" : "text.secondary"}
+                                                        color={isMissed || isCompleted ? theme.palette.background.default : "text.primary"}
                                                         sx={{
                                                             fontSize: smallMobile ? "0.75rem" : "0.875rem",
                                                         }}
@@ -601,19 +600,33 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                         >
                             <Stack direction="row" justifyContent="space-between" alignItems="center">
                                 <Stack direction="row" alignItems="center" spacing={1.5}>
-                                    <LocalFireDepartment fontSize="small" sx={{ color: theme.palette.error.main }} />
-                                    <Typography variant="body1" fontWeight={500} fontSize={smallMobile ? "0.9rem" : "1rem"}>
+                                    <LocalFireDepartment fontSize="small" sx={{ color: theme.palette.error.dark }} />
+                                    <Typography
+                                        variant="body1"
+                                        fontWeight={500}
+                                        fontSize={smallMobile ? "0.9rem" : "1rem"}
+                                        sx={{ color: theme.palette.background.default }}
+                                    >
                                         Calories
                                     </Typography>
                                 </Stack>
                                 <Stack alignItems="flex-end" spacing={0.5}>
-                                    <Typography variant="h6" fontWeight={600} fontSize={smallMobile ? "1.1rem" : "1.3rem"}>
+                                    <Typography
+                                        variant="h6"
+                                        fontWeight={600}
+                                        fontSize={smallMobile ? "1.1rem" : "1.3rem"}
+                                        sx={{ color: theme.palette.background.default }}
+                                    >
                                         {dietData.dailyTotal.calories}
                                         <Box component="span" sx={{ opacity: 0.7, fontSize: "0.9rem" }}>
                                             / 2400
                                         </Box>
                                     </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1 }}>
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ lineHeight: 1, color: theme.palette.background.default }}
+                                    >
                                         kcal
                                     </Typography>
                                 </Stack>
@@ -640,16 +653,30 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                 >
                                     <Stack direction="column" spacing={0.5}>
                                         <Stack direction="row" alignItems="center" spacing={1}>
-                                            <FitnessCenter fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                                            <Typography variant="body2" fontWeight={500} fontSize={smallMobile ? "0.8rem" : "0.9rem"}>
+                                            <Typography
+                                                variant="body2"
+                                                fontWeight={500}
+                                                fontSize={smallMobile ? "0.8rem" : "0.9rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 Protein
                                             </Typography>
                                         </Stack>
                                         <Stack direction="row" alignItems="baseline" spacing={0.5}>
-                                            <Typography variant="h6" fontWeight={600} fontSize={smallMobile ? "1rem" : "1.1rem"}>
+                                            <Typography
+                                                variant="h6"
+                                                fontWeight={600}
+                                                fontSize={smallMobile ? "1rem" : "1.1rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 {dietData.dailyTotal.protein}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary" fontSize={smallMobile ? "0.75rem" : "0.8rem"}>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                fontSize={smallMobile ? "0.75rem" : "0.8rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 / 190g
                                             </Typography>
                                         </Stack>
@@ -675,16 +702,30 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                 >
                                     <Stack direction="column" spacing={0.5}>
                                         <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Grain fontSize="small" sx={{ color: theme.palette.success.main }} />
-                                            <Typography variant="body2" fontWeight={500} fontSize={smallMobile ? "0.8rem" : "0.9rem"}>
+                                            <Typography
+                                                variant="body2"
+                                                fontWeight={500}
+                                                fontSize={smallMobile ? "0.8rem" : "0.9rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 Carbs
                                             </Typography>
                                         </Stack>
                                         <Stack direction="row" alignItems="baseline" spacing={0.5}>
-                                            <Typography variant="h6" fontWeight={600} fontSize={smallMobile ? "1rem" : "1.1rem"}>
+                                            <Typography
+                                                variant="h6"
+                                                fontWeight={600}
+                                                fontSize={smallMobile ? "1rem" : "1.1rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 {dietData.dailyTotal.carbs}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary" fontSize={smallMobile ? "0.75rem" : "0.8rem"}>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                fontSize={smallMobile ? "0.75rem" : "0.8rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 / 200g
                                             </Typography>
                                         </Stack>
@@ -710,16 +751,30 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                                 >
                                     <Stack direction="column" spacing={0.5}>
                                         <Stack direction="row" alignItems="center" spacing={1}>
-                                            <SetMeal fontSize="small" sx={{ color: theme.palette.warning.main }} />
-                                            <Typography variant="body2" fontWeight={500} fontSize={smallMobile ? "0.8rem" : "0.9rem"}>
+                                            <Typography
+                                                variant="body2"
+                                                fontWeight={500}
+                                                fontSize={smallMobile ? "0.8rem" : "0.9rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 Fats
                                             </Typography>
                                         </Stack>
                                         <Stack direction="row" alignItems="baseline" spacing={0.5}>
-                                            <Typography variant="h6" fontWeight={600} fontSize={smallMobile ? "1rem" : "1.1rem"}>
+                                            <Typography
+                                                variant="h6"
+                                                fontWeight={600}
+                                                fontSize={smallMobile ? "1rem" : "1.1rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 {dietData.dailyTotal.fats}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary" fontSize={smallMobile ? "0.75rem" : "0.8rem"}>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                fontSize={smallMobile ? "0.75rem" : "0.8rem"}
+                                                sx={{ color: theme.palette.background.default }}
+                                            >
                                                 / 75g
                                             </Typography>
                                         </Stack>

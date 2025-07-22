@@ -336,13 +336,13 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                     mb: 1,
                     position: "relative",
                     px: 1.5,
-                    py: 1,
+                    py: 0,
                 }}
             >
                 <Typography
-                    variant="subtitle1"
                     fontWeight={600}
                     sx={{
+                        fontSize: "1rem",
                         color: theme.palette.text.primary,
                         letterSpacing: "-0.5px",
                     }}
@@ -378,10 +378,13 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                         key={meal.time}
                         elevation={2}
                         sx={{
-                            mb: 3,
-                            borderRadius: 2,
+                            mt: 2,
+                            borderRadius: 3,
                             overflow: "hidden",
                             borderLeft: `4px solid ${theme.palette.primary.main}`,
+                            borderRight: `4px solid ${theme.palette.primary.main}`,
+                            borderBottom: `4px solid ${theme.palette.primary.main}`,
+                            backgroundColor: theme.palette.primary.main,
                         }}
                     >
                         <Box
@@ -394,10 +397,10 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                             }}
                         >
                             <Stack>
-                                <Typography variant="subtitle1" fontWeight="bold" color="white">
+                                <Typography variant="subtitle1" fontWeight="bold" color={theme.palette.background.default}>
                                     {meal.time}
                                 </Typography>
-                                <Typography variant="body2" color="white">
+                                <Typography variant="body2" color={theme.palette.background.default}>
                                     {meal.meal}
                                 </Typography>
                             </Stack>
@@ -415,7 +418,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                             </Stack>
                         </Box>
 
-                        <Box sx={{ p: isMobile ? 1 : 2 }}>
+                        <Box sx={{ p: isMobile ? 1 : 2, bgcolor: theme.palette.background.paper, borderRadius: 2 }}>
                             <Stack direction="row" spacing={1} alignItems={isMobile ? "flex-start" : "center"} flexWrap="wrap" useFlexGap mb={2}>
                                 <Chip
                                     label={`${meal.total.protein}g protein`}
@@ -478,8 +481,8 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                                                         {...provided.draggableProps}
                                                         sx={{
                                                             p: 1,
-                                                            mb: 1,
-                                                            borderRadius: 1,
+                                                            mt: 1,
+                                                            borderRadius: 1.5,
                                                             bgcolor: "background.default",
                                                             border: `1px solid ${theme.palette.divider}`,
                                                         }}
@@ -677,7 +680,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                                                                         <IconButton
                                                                             size="small"
                                                                             onClick={() => deleteItem(meal.time, item.name)}
-                                                                            sx={{ color: "error.main" }}
+                                                                            sx={{ color: "text.secondary" }}
                                                                         >
                                                                             <Delete fontSize="small" />
                                                                         </IconButton>
@@ -698,7 +701,6 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                 ))}
             </DragDropContext>
             {/* Add New Meal Dialog */}
-            // Updated Add New Meal Dialog with inline food item editing
             <Dialog
                 open={newMealDialogOpen}
                 onClose={() => {
