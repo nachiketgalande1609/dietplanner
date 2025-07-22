@@ -328,7 +328,6 @@ export const Diet: React.FC = () => {
                                 },
                             }}
                         >
-                            <Box sx={{ width: "120px" }}></Box>
                             <Box
                                 sx={{
                                     display: "flex",
@@ -491,9 +490,7 @@ export const Diet: React.FC = () => {
                                 >
                                     Edit Plan
                                 </Button>
-                            ) : (
-                                <Box sx={{ width: "120px" }}></Box>
-                            )}
+                            ) : null}
                         </Box>
                     )}
 
