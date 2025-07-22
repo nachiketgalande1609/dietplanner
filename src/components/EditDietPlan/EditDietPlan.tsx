@@ -66,7 +66,6 @@ interface EditDietPlanProps {
 export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-    const [meals, setMeals] = useState<Meal[]>(dietData.meals);
     const [editingItem, setEditingItem] = useState<{ mealTime: string; itemName: string } | null>(null);
     const [newMealDialogOpen, setNewMealDialogOpen] = useState(false);
     const [newMealTime, setNewMealTime] = useState<string>("");
@@ -82,6 +81,46 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
     const [currentMealForNewItem, setCurrentMealForNewItem] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
     const [newMealItems, setNewMealItems] = useState<MealItem[]>([]);
+
+    const sortMealsByTime = (meals: Meal[]): Meal[] => {
+        return [...meals].sort((a, b) => {
+            const parseTime = (time: string) => {
+                // Handle "HH:mm AM/PM" format
+                if (time.includes("AM") || time.includes("PM")) {
+                    const [timePart, period] = time.split(" ");
+                    const [hours, minutes] = timePart.split(":");
+                    let hourNum = parseInt(hours, 10);
+                    if (period === "PM" && hourNum !== 12) hourNum += 12;
+                    if (period === "AM" && hourNum === 12) hourNum = 0;
+                    return hourNum * 60 + parseInt(minutes, 10);
+                }
+                // Handle "HH:mm" format
+                const [hours, minutes] = time.split(":");
+                return parseInt(hours, 10) * 60 + parseInt(minutes, 10);
+            };
+
+            return parseTime(a.time) - parseTime(b.time);
+        });
+    };
+
+    const standardizeTimeFormat = (time: string): string => {
+        if (time.includes("AM") || time.includes("PM")) return time;
+
+        const [hours, minutes] = time.split(":");
+        const hourNum = parseInt(hours, 10);
+        const period = hourNum >= 12 ? "PM" : "AM";
+        const displayHour = hourNum % 12 || 12;
+        return `${displayHour}:${minutes} ${period}`;
+    };
+
+    const [meals, setMeals] = useState<Meal[]>(
+        sortMealsByTime(
+            dietData.meals.map((meal) => ({
+                ...meal,
+                time: standardizeTimeFormat(meal.time),
+            }))
+        )
+    );
 
     const calculateMealTotals = (items: MealItem[]): NutritionValues => {
         return items.reduce(
@@ -136,7 +175,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
             };
         }
 
-        setMeals(updatedMeals);
+        setMeals(sortMealsByTime(updatedMeals));
 
         // Calculate new daily total
         const newDailyTotal = updatedMeals.reduce(
@@ -172,7 +211,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
         updatedMeals[mealIndex].items[itemIndex] = updatedItem;
         updatedMeals[mealIndex].total = calculateMealTotals(updatedMeals[mealIndex].items);
 
-        setMeals(updatedMeals);
+        setMeals(sortMealsByTime(updatedMeals));
 
         // Calculate new daily total
         const newDailyTotal = updatedMeals.reduce(
@@ -207,7 +246,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
             total: calculateMealTotals(updatedItems),
         };
 
-        setMeals(updatedMeals);
+        setMeals(sortMealsByTime(updatedMeals));
 
         // Calculate new daily total
         const newDailyTotal = updatedMeals.reduce(
@@ -230,7 +269,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
 
     const deleteMeal = (mealTime: string) => {
         const updatedMeals = meals.filter((m) => m.time !== mealTime);
-        setMeals(updatedMeals);
+        setMeals(sortMealsByTime(updatedMeals));
 
         const newDailyTotal = updatedMeals.reduce(
             (acc, meal) => ({
@@ -283,7 +322,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
             total: calculateMealTotals(updatedItems),
         };
 
-        setMeals(updatedMeals);
+        setMeals(sortMealsByTime(updatedMeals));
         setNewItemDialogOpen(false);
     };
 
@@ -465,7 +504,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                                                                         );
                                                                         const updatedMeals = [...meals];
                                                                         updatedMeals[mealIndex].items[itemIndex] = updatedItem;
-                                                                        setMeals(updatedMeals);
+                                                                        setMeals(sortMealsByTime(updatedMeals));
                                                                     }}
                                                                     fullWidth
                                                                     margin="dense"
@@ -491,7 +530,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                                                                                 updatedMeals[mealIndex].total = calculateMealTotals(
                                                                                     updatedMeals[mealIndex].items
                                                                                 );
-                                                                                setMeals(updatedMeals);
+                                                                                setMeals(sortMealsByTime(updatedMeals));
                                                                             }}
                                                                             fullWidth
                                                                             margin="dense"
@@ -520,7 +559,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                                                                                 updatedMeals[mealIndex].total = calculateMealTotals(
                                                                                     updatedMeals[mealIndex].items
                                                                                 );
-                                                                                setMeals(updatedMeals);
+                                                                                setMeals(sortMealsByTime(updatedMeals));
                                                                             }}
                                                                             fullWidth
                                                                             margin="dense"
@@ -549,7 +588,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                                                                                 updatedMeals[mealIndex].total = calculateMealTotals(
                                                                                     updatedMeals[mealIndex].items
                                                                                 );
-                                                                                setMeals(updatedMeals);
+                                                                                setMeals(sortMealsByTime(updatedMeals));
                                                                             }}
                                                                             fullWidth
                                                                             margin="dense"
@@ -578,7 +617,7 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                                                                                 updatedMeals[mealIndex].total = calculateMealTotals(
                                                                                     updatedMeals[mealIndex].items
                                                                                 );
-                                                                                setMeals(updatedMeals);
+                                                                                setMeals(sortMealsByTime(updatedMeals));
                                                                             }}
                                                                             fullWidth
                                                                             margin="dense"
@@ -1025,17 +1064,39 @@ export const EditDietPlan: React.FC<EditDietPlanProps> = ({ dietData, onChange }
                     </Button>
                     <Button
                         onClick={() => {
+                            // Add the new meal sorting and saving code here
+                            const standardizedTime = standardizeTimeFormat(newMealTime);
+
                             const newMeal: Meal = {
-                                time: newMealTime,
+                                time: standardizedTime,
                                 meal: newMealName,
                                 items: newMealItems,
                                 total: calculateMealTotals(newMealItems),
                             };
-                            setMeals([...meals, newMeal]);
+
+                            const updatedMeals = sortMealsByTime([...meals, newMeal]);
+                            setMeals(updatedMeals);
+
                             setNewMealTime("");
                             setNewMealName("");
                             setNewMealItems([]);
                             setNewMealDialogOpen(false);
+
+                            const newDailyTotal = updatedMeals.reduce(
+                                (acc, meal) => ({
+                                    calories: acc.calories + meal.total.calories,
+                                    protein: acc.protein + meal.total.protein,
+                                    carbs: acc.carbs + meal.total.carbs,
+                                    fats: acc.fats + meal.total.fats,
+                                }),
+                                { calories: 0, protein: 0, carbs: 0, fats: 0 }
+                            );
+
+                            onChange({
+                                ...dietData,
+                                meals: updatedMeals,
+                                dailyTotal: newDailyTotal,
+                            });
                         }}
                         variant="contained"
                         disabled={!newMealTime || !newMealName || newMealItems.length === 0}
