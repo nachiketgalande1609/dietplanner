@@ -88,7 +88,7 @@ export const Workout: React.FC = () => {
     return (
         <Box
             sx={{
-                p: { xs: 0, sm: 2, md: 3 },
+                // p: { xs: 0, sm: 2, md: 3 },
                 borderRadius: { xs: 0, sm: 4 },
                 minHeight: { xs: "100vh", sm: "calc(100vh - 120px)" },
                 display: "flex",
@@ -226,7 +226,7 @@ export const Workout: React.FC = () => {
                         overflow: "hidden",
                         display: "flex",
                         flexDirection: "column",
-                        borderRadius: { xs: 0, sm: 3 },
+                        borderRadius: { xs: 0, sm: 4 },
                         bgcolor: "background.default",
                         border: isMobile ? "none" : "1px solid",
                         borderColor: "divider",
@@ -269,11 +269,11 @@ export const Workout: React.FC = () => {
                                     onClick={() => handleDateChange(selectedDate.subtract(1, "day"))}
                                     sx={{
                                         color: "text.primary",
-                                        backgroundColor: "rgba(0, 0, 0, 0.03)",
+                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
                                         "&:hover": {
                                             backgroundColor: "rgba(0, 0, 0, 0.08)",
                                         },
-                                        borderRadius: "10px",
+                                        borderRadius: "16px",
                                         p: 1,
                                     }}
                                 >
@@ -285,8 +285,8 @@ export const Workout: React.FC = () => {
                                     sx={{
                                         px: 2.5,
                                         py: 1.5,
-                                        borderRadius: "14px",
-                                        bgcolor: "background.default",
+                                        borderRadius: "16px",
+                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
                                         display: "flex",
                                         alignItems: "center",
                                         gap: 2,
@@ -343,11 +343,11 @@ export const Workout: React.FC = () => {
                                     onClick={() => handleDateChange(selectedDate.add(1, "day"))}
                                     sx={{
                                         color: "text.primary",
-                                        backgroundColor: "rgba(0, 0, 0, 0.03)",
+                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
                                         "&:hover": {
                                             backgroundColor: "rgba(0, 0, 0, 0.08)",
                                         },
-                                        borderRadius: "10px",
+                                        borderRadius: "16px",
                                         p: 1,
                                     }}
                                 >
