@@ -368,6 +368,7 @@ export const Diet: React.FC = () => {
                                             flexDirection: "column",
                                             alignItems: "center",
                                             width: "120px",
+                                            padding: "0 70px",
                                         }}
                                     >
                                         <Typography
@@ -386,6 +387,7 @@ export const Diet: React.FC = () => {
                                                 fontWeight: 700,
                                                 color: "text.primary",
                                                 lineHeight: 1.2,
+                                                textWrap: "nowrap",
                                             }}
                                         >
                                             {selectedDate.format("MMMM D")}

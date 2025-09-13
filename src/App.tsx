@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box, CssBaseline, ThemeProvider, Button, ButtonGroup, Tooltip, IconButton, useMediaQuery, useTheme } from "@mui/material";
 import { Diet } from "./components/Pages/Diet";
 import { Workout } from "./components/Pages/Workout";
-import { Page3 } from "./components/Pages/Page3";
+import { Tasks } from "./components/Pages/Tasks";
 import { theme } from "./theme";
 import SunnyIcon from "@mui/icons-material/Sunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -25,7 +25,7 @@ export const App: React.FC = () => {
         const location = useLocation();
 
         const getButtonStyles = (path: string) => {
-            const isActive = location.pathname === path || (path === "/diet" && location.pathname === "/");
+            const isActive = location.pathname === path || (path === "/tasks" && location.pathname === "/"); // Treat "/" as "/tasks" active
 
             return {
                 background: isActive ? "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)" : theme.palette.background.paper,
@@ -78,6 +78,9 @@ export const App: React.FC = () => {
                                 },
                             }}
                         >
+                            <Button onClick={() => navigate("/tasks")} sx={getButtonStyles("/tasks")}>
+                                Tasks
+                            </Button>
                             <Button onClick={() => navigate("/diet")} sx={getButtonStyles("/diet")}>
                                 Diet
                             </Button>
@@ -104,10 +107,10 @@ export const App: React.FC = () => {
                     </Box>
 
                     <Routes>
-                        <Route path="/" element={<Diet />} />
+                        <Route path="/" element={<Tasks />} />
                         <Route path="/diet" element={<Diet />} />
                         <Route path="/workout" element={<Workout />} />
-                        <Route path="/page3" element={<Page3 />} />
+                        <Route path="/tasks" element={<Tasks />} />
                     </Routes>
                 </Box>
             </Box>
