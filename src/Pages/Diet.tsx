@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Button, useMediaQuery, Paper, IconButton, Stack } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
-import { DietContentPanel } from "../ContentPanel/DietContentPanel";
+import { DietContentPanel } from "../components/ContentPanel/DietContentPanel";
 import { useTheme } from "@mui/material/styles";
 import { CalendarMonth, ChevronLeft, ChevronRight, ErrorOutline, Edit as EditIcon } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { fetchDietPlan, markMealComplete, markMealIncomplete, updateDietPlan } from "../../api/dietApi";
-import { EditDietPlan } from "../EditDietPlan/EditDietPlan";
-import { DietSkeleton } from "../DietSkeleton/DietSkeleton";
-import CalendarPanel from "../CalendarPanel/CalendarPanel";
+import { fetchDietPlan, markMealComplete, markMealIncomplete, updateDietPlan } from "../api/dietApi";
+import { EditDietPlan } from "../components/EditDietPlan/EditDietPlan";
+import { DietSkeleton } from "../components/DietSkeleton/DietSkeleton";
+import CalendarPanel from "../components/CalendarPanel/CalendarPanel";
 
 export const Diet: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());

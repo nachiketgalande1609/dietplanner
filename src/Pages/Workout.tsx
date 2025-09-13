@@ -4,9 +4,9 @@ import dayjs, { Dayjs } from "dayjs";
 import { useTheme } from "@mui/material/styles";
 import { CalendarMonth, ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { WorkoutContentPanel } from "../ContentPanel/WorkoutContentPanel";
-import CalendarPanel from "../CalendarPanel/CalendarPanel";
-import { fetchWorkoutPlan } from "../../api/workoutApi";
+import { WorkoutContentPanel } from "../components/ContentPanel/WorkoutContentPanel";
+import CalendarPanel from "../components/CalendarPanel/CalendarPanel";
+import { fetchWorkoutPlan } from "../api/workoutApi";
 
 // Workout data structure
 type Workout = {

@@ -15,21 +15,19 @@ import {
     DialogActions,
     MenuItem,
     Checkbox,
-    ListItemText,
     Chip,
-    Divider,
     Tooltip,
     CircularProgress,
 } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { useTheme } from "@mui/material/styles";
-import { CalendarMonth, ChevronLeft, ChevronRight, Add, Delete, Edit, MoreVert, Repeat, Today, DragHandle } from "@mui/icons-material";
+import { CalendarMonth, ChevronLeft, ChevronRight, Add, Delete, Edit, Repeat, Today, DragHandle } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from "uuid";
-import CalendarPanel from "../CalendarPanel/CalendarPanel";
+import CalendarPanel from "../components/CalendarPanel/CalendarPanel";
 
 interface Task {
     id: string;
