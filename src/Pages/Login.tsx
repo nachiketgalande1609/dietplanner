@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { userRegister, userLogin } from "../api/userAuthApi";
 import { useNavigate } from "react-router-dom";
 
-export const AuthPage: React.FC = () => {
+interface LoginProps {
+    setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -253,7 +257,8 @@ export const AuthPage: React.FC = () => {
             localStorage.setItem("authToken", response.token);
             localStorage.setItem("user", JSON.stringify(response.user));
 
-            // Smooth redirect to home page after successful login
+            setIsAuthenticated(true);
+
             setTimeout(() => {
                 navigate("/");
             }, 500);
@@ -873,4 +878,4 @@ export const AuthPage: React.FC = () => {
     );
 };
 
-export default AuthPage;
+export default Login;
