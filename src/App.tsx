@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import {
     Box,
@@ -27,42 +27,41 @@ import Login from "./Pages/Login";
 import Logout from "@mui/icons-material/Logout";
 import Person from "@mui/icons-material/Person";
 import Settings from "@mui/icons-material/Settings";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { logout, setUser, setCheckingAuth } from "./store/slices/userSlice";
+import { toggleDarkMode } from "./store/slices/themeSlice";
 
 export const App: React.FC = () => {
-    const [darkMode, setDarkMode] = useState(() => {
-        const savedMode = localStorage.getItem("dietDarkMode");
-        return savedMode ? JSON.parse(savedMode) : false;
-    });
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [userData, setUserData] = useState<any>(null);
+    const dispatch = useAppDispatch();
+    const { user, isAuthenticated, isCheckingAuth } = useAppSelector((state) => state.user);
+    const { darkMode } = useAppSelector((state) => state.theme);
+
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const navigate = useNavigate();
     const location = useLocation();
     const isMobile = useMediaQuery(useTheme().breakpoints.down("md"));
     const open = Boolean(anchorEl);
 
-    useEffect(() => {
-        localStorage.setItem("dietDarkMode", JSON.stringify(darkMode));
-    }, [darkMode]);
-
     // Check if user is authenticated on app load
     useEffect(() => {
         const checkAuth = () => {
             const token = localStorage.getItem("authToken");
-            const user = localStorage.getItem("user");
+            const userData = localStorage.getItem("user");
 
-            if (token && user) {
-                setIsAuthenticated(true);
-                setUserData(JSON.parse(user));
+            if (token && userData) {
+                dispatch(
+                    setUser({
+                        user: JSON.parse(userData),
+                        token,
+                    })
+                );
 
                 // If user is on login page and authenticated, redirect to tasks
                 if (location.pathname === "/login") {
                     navigate("/tasks", { replace: true });
                 }
             } else {
-                setIsAuthenticated(false);
-                setUserData(null);
+                dispatch(logout());
 
                 // If user is not on login page and not authenticated, redirect to login
                 if (location.pathname !== "/login") {
@@ -70,11 +69,11 @@ export const App: React.FC = () => {
                 }
             }
 
-            setIsCheckingAuth(false);
+            dispatch(setCheckingAuth(false));
         };
 
         checkAuth();
-    }, [navigate, location.pathname]);
+    }, [dispatch, navigate, location.pathname]);
 
     // Protect routes from unauthenticated access
     useEffect(() => {
@@ -96,18 +95,8 @@ export const App: React.FC = () => {
     };
 
     const handleLogout = () => {
-        // Clear authentication data
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("user");
-
-        // Update state
-        setIsAuthenticated(false);
-        setUserData(null);
-
-        // Close menu
+        dispatch(logout());
         setAnchorEl(null);
-
-        // Redirect to login
         navigate("/login", { replace: true });
     };
 
@@ -196,7 +185,7 @@ export const App: React.FC = () => {
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                 <Tooltip title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
                                     <IconButton
-                                        onClick={() => setDarkMode(!darkMode)}
+                                        onClick={() => dispatch(toggleDarkMode())}
                                         sx={{
                                             backgroundColor: "background.paper",
                                             width: "36.5px",
@@ -235,8 +224,8 @@ export const App: React.FC = () => {
                                                 fontSize: "0.875rem",
                                             }}
                                         >
-                                            {userData?.firstName?.[0]}
-                                            {userData?.lastName?.[0]}
+                                            {user?.firstName?.[0]}
+                                            {user?.lastName?.[0]}
                                         </Avatar>
                                     </IconButton>
                                 </Tooltip>
@@ -271,15 +260,15 @@ export const App: React.FC = () => {
                     >
                         <MenuItem onClick={handleProfileMenuClose}>
                             <Avatar sx={{ bgcolor: "primary.main" }}>
-                                {userData?.firstName?.[0]}
-                                {userData?.lastName?.[0]}
+                                {user?.firstName?.[0]}
+                                {user?.lastName?.[0]}
                             </Avatar>
                             <Box>
                                 <Typography variant="body2" fontWeight="bold">
-                                    {userData?.firstName} {userData?.lastName}
+                                    {user?.firstName} {user?.lastName}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary">
-                                    {userData?.email}
+                                    {user?.email}
                                 </Typography>
                             </Box>
                         </MenuItem>
@@ -306,7 +295,7 @@ export const App: React.FC = () => {
                     </Menu>
 
                     <Routes>
-                        <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} setUserData={setUserData} />} />
+                        <Route path="/login" element={<Login />} />
                         <Route path="/" element={isAuthenticated ? <Tasks /> : null} />
                         <Route path="/diet" element={isAuthenticated ? <Diet /> : null} />
                         <Route path="/workout" element={isAuthenticated ? <Workout /> : null} />

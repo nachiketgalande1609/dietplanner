@@ -4,12 +4,12 @@ import { Visibility, VisibilityOff, Email, Lock, Person, Cake, Scale, Height, Ac
 import { motion, AnimatePresence } from "framer-motion";
 import { userRegister, userLogin } from "../api/userAuthApi";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../store/hooks";
+import { setUser } from "../store/slices/userSlice";
 
-interface LoginProps {
-    setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
-}
+export const Login: React.FC = () => {
+    const dispatch = useAppDispatch();
 
-export const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -254,10 +254,12 @@ export const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
         try {
             const response = await userLogin(loginForm.email, loginForm.password);
             console.log("Login successful:", response);
-            localStorage.setItem("authToken", response.token);
-            localStorage.setItem("user", JSON.stringify(response.user));
-
-            setIsAuthenticated(true);
+            dispatch(
+                setUser({
+                    user: response.user,
+                    token: response.token,
+                })
+            );
 
             setTimeout(() => {
                 navigate("/");
@@ -289,10 +291,7 @@ export const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
                 password: registerForm.password,
             };
 
-            const response = await userRegister(registerData);
-            console.log("Registration successful:", response);
-            localStorage.setItem("authToken", response.token);
-            localStorage.setItem("user", JSON.stringify(response.user));
+            await userRegister(registerData);
 
             // Clear the registration form and switch to login form
             setRegisterForm({
@@ -308,11 +307,9 @@ export const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
                 height: "",
             });
 
-            // Show success message and switch to login form
             setAuthError(null);
             setIsLogin(true);
 
-            // Pre-fill the login form with the registered email
             setLoginForm({
                 email: registerForm.email,
                 password: "",
@@ -327,7 +324,7 @@ export const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setLoginForm((prev) => ({ ...prev, [name]: value }));
-        // Clear error when user starts typing
+
         if (loginErrors[name as keyof typeof loginErrors]) {
             setLoginErrors((prev) => ({ ...prev, [name]: "" }));
         }
@@ -360,7 +357,7 @@ export const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
             opacity: 1,
             transition: {
                 duration: 0.5,
-                ease: "easeOut",
+                ease: "easeOut" as const,
             },
         },
     };
