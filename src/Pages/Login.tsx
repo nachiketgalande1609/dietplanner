@@ -490,7 +490,7 @@ export const Login: React.FC = () => {
                                                     InputProps={{
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <Person sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "24px" }} />
+                                                                <Person sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
                                                             </InputAdornment>
                                                         ),
                                                     }}
@@ -534,7 +534,7 @@ export const Login: React.FC = () => {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <AccountCircle sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "24px" }} />
+                                                            <AccountCircle sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
                                                         </InputAdornment>
                                                     ),
                                                 }}
@@ -564,7 +564,7 @@ export const Login: React.FC = () => {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <Email sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "24px" }} />
+                                                    <Email sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
                                                 </InputAdornment>
                                             ),
                                         }}
@@ -594,7 +594,7 @@ export const Login: React.FC = () => {
                                                     InputProps={{
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <Cake sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "24px" }} />
+                                                                <Cake sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
                                                             </InputAdornment>
                                                         ),
                                                     }}
@@ -643,7 +643,7 @@ export const Login: React.FC = () => {
                                                     InputProps={{
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <Scale sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "24px" }} />
+                                                                <Scale sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
                                                             </InputAdornment>
                                                         ),
                                                     }}
@@ -667,7 +667,7 @@ export const Login: React.FC = () => {
                                                     InputProps={{
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <Height sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "24px" }} />
+                                                                <Height sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
                                                             </InputAdornment>
                                                         ),
                                                     }}
@@ -698,7 +698,7 @@ export const Login: React.FC = () => {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <Lock sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "24px" }} />
+                                                    <Lock sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
                                                 </InputAdornment>
                                             ),
                                             endAdornment: (
@@ -709,7 +709,11 @@ export const Login: React.FC = () => {
                                                         sx={{ color: "#9e9e9e" }}
                                                         size={isMobile ? "small" : "medium"}
                                                     >
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        {showPassword ? (
+                                                            <VisibilityOff sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
+                                                        ) : (
+                                                            <Visibility sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
+                                                        )}
                                                     </IconButton>
                                                 </InputAdornment>
                                             ),
@@ -746,7 +750,7 @@ export const Login: React.FC = () => {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <Lock sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "24px" }} />
+                                                            <Lock sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
                                                         </InputAdornment>
                                                     ),
                                                     endAdornment: (
