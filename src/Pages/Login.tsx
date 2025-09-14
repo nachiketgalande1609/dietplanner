@@ -369,7 +369,7 @@ export const Login: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: "linear-gradient(to bottom, #f5f5f5, #e0e0e0)",
+                background: isMobile ? "white" : "linear-gradient(to bottom, #f5f5f5, #e0e0e0)",
                 p: isMobile ? 1 : 2,
             }}
         >
@@ -387,8 +387,8 @@ export const Login: React.FC = () => {
                         borderRadius: 4,
                         overflow: "hidden",
                         bgcolor: "#ffffff",
-                        border: "1px solid #e0e0e0",
-                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
+                        border: isMobile ? "none" : "1px solid #e0e0e0",
+                        boxShadow: isMobile ? "none" : "0 8px 32px rgba(0, 0, 0, 0.08)",
                         mx: "auto", // Center the form
                     }}
                 >
@@ -481,7 +481,7 @@ export const Login: React.FC = () => {
                                                     error={!!registerErrors.firstName}
                                                     helperText={registerErrors.firstName}
                                                     variant="outlined"
-                                                    size={isMobile ? "small" : "medium"}
+                                                    size="medium"
                                                     sx={{
                                                         "& .MuiOutlinedInput-root": {
                                                             borderRadius: 2,
@@ -504,7 +504,7 @@ export const Login: React.FC = () => {
                                                     error={!!registerErrors.lastName}
                                                     helperText={registerErrors.lastName}
                                                     variant="outlined"
-                                                    size={isMobile ? "small" : "medium"}
+                                                    size="medium"
                                                     sx={{
                                                         "& .MuiOutlinedInput-root": {
                                                             borderRadius: 2,
@@ -524,7 +524,7 @@ export const Login: React.FC = () => {
                                                 error={!!registerErrors.username}
                                                 helperText={registerErrors.username}
                                                 variant="outlined"
-                                                size={isMobile ? "small" : "medium"}
+                                                size="medium"
                                                 sx={{
                                                     mb: 2,
                                                     "& .MuiOutlinedInput-root": {
@@ -554,7 +554,7 @@ export const Login: React.FC = () => {
                                         error={isLogin ? !!loginErrors.email : !!registerErrors.email}
                                         helperText={isLogin ? loginErrors.email : registerErrors.email}
                                         variant="outlined"
-                                        size={isMobile ? "small" : "medium"}
+                                        size="medium"
                                         sx={{
                                             mb: 2,
                                             "& .MuiOutlinedInput-root": {
@@ -585,7 +585,7 @@ export const Login: React.FC = () => {
                                                     error={!!registerErrors.age}
                                                     helperText={registerErrors.age}
                                                     variant="outlined"
-                                                    size={isMobile ? "small" : "medium"}
+                                                    size="medium"
                                                     sx={{
                                                         "& .MuiOutlinedInput-root": {
                                                             borderRadius: 2,
@@ -609,7 +609,7 @@ export const Login: React.FC = () => {
                                                     error={!!registerErrors.birthDate}
                                                     helperText={registerErrors.birthDate}
                                                     variant="outlined"
-                                                    size={isMobile ? "small" : "medium"}
+                                                    size="medium"
                                                     sx={{
                                                         "& .MuiOutlinedInput-root": {
                                                             borderRadius: 2,
@@ -634,7 +634,7 @@ export const Login: React.FC = () => {
                                                     error={!!registerErrors.weight}
                                                     helperText={registerErrors.weight}
                                                     variant="outlined"
-                                                    size={isMobile ? "small" : "medium"}
+                                                    size="medium"
                                                     sx={{
                                                         "& .MuiOutlinedInput-root": {
                                                             borderRadius: 2,
@@ -658,7 +658,7 @@ export const Login: React.FC = () => {
                                                     error={!!registerErrors.height}
                                                     helperText={registerErrors.height}
                                                     variant="outlined"
-                                                    size={isMobile ? "small" : "medium"}
+                                                    size="medium"
                                                     sx={{
                                                         "& .MuiOutlinedInput-root": {
                                                             borderRadius: 2,
@@ -688,7 +688,7 @@ export const Login: React.FC = () => {
                                         error={isLogin ? !!loginErrors.password : !!registerErrors.password}
                                         helperText={isLogin ? loginErrors.password : registerErrors.password || "At least 8 characters"}
                                         variant="outlined"
-                                        size={isMobile ? "small" : "medium"}
+                                        size="medium"
                                         sx={{
                                             mb: 2,
                                             "& .MuiOutlinedInput-root": {
@@ -707,7 +707,7 @@ export const Login: React.FC = () => {
                                                         onClick={() => setShowPassword(!showPassword)}
                                                         edge="end"
                                                         sx={{ color: "#9e9e9e" }}
-                                                        size={isMobile ? "small" : "medium"}
+                                                        size="medium"
                                                     >
                                                         {showPassword ? (
                                                             <VisibilityOff sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
@@ -740,7 +740,7 @@ export const Login: React.FC = () => {
                                                 error={!!registerErrors.confirmPassword}
                                                 helperText={registerErrors.confirmPassword}
                                                 variant="outlined"
-                                                size={isMobile ? "small" : "medium"}
+                                                size="medium"
                                                 sx={{
                                                     mb: 2,
                                                     "& .MuiOutlinedInput-root": {
@@ -759,7 +759,7 @@ export const Login: React.FC = () => {
                                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                                                 edge="end"
                                                                 sx={{ color: "#9e9e9e" }}
-                                                                size={isMobile ? "small" : "medium"}
+                                                                size="medium"
                                                             >
                                                                 {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                                                             </IconButton>
@@ -864,9 +864,9 @@ export const Login: React.FC = () => {
                         sx={{
                             py: 2,
                             px: 4,
-                            bgcolor: "#f5f5f5",
+                            bgcolor: isMobile ? "transparent" : "#f5f5f5",
                             textAlign: "center",
-                            borderTop: "1px solid #e0e0e0",
+                            borderTop: isMobile ? "none" : "1px solid #e0e0e0",
                         }}
                     >
                         <Typography variant="body2" sx={{ color: "#9e9e9e", fontSize: isMobile ? "0.75rem" : "0.875rem" }}>

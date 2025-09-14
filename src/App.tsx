@@ -155,80 +155,124 @@ export const App: React.FC = () => {
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: {
-                                    xs: "space-between",
-                                    sm: "space-between",
-                                },
-                                gap: 2,
+                                gap: 3,
                                 mb: 2,
                                 flexWrap: "wrap",
                             }}
                         >
-                            <ButtonGroup
+                            {/* Livo Brand Text */}
+                            {!isMobile && (
+                                <Box
+                                    sx={{
+                                        width: 350,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        px: 3,
+                                        py: 1,
+                                        bgcolor: "background.paper",
+                                        borderRadius: 3,
+                                        border: isMobile ? "none" : "1px solid",
+                                        borderColor: "divider",
+                                    }}
+                                >
+                                    <Typography
+                                        variant="h5"
+                                        component="h1"
+                                        sx={{
+                                            fontWeight: 800,
+                                            letterSpacing: "-0.5px",
+                                            textAlign: "center",
+                                            background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                            WebkitBackgroundClip: "text",
+                                            WebkitTextFillColor: "transparent",
+                                        }}
+                                    >
+                                        Livo
+                                    </Typography>
+                                </Box>
+                            )}
+
+                            {/* Navigation and User Controls Container */}
+                            <Box
                                 sx={{
-                                    "& .MuiButtonGroup-grouped": {
-                                        border: "none",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: {
+                                        xs: "space-between",
+                                        sm: "space-between",
                                     },
+                                    flex: 1,
+                                    gap: 2,
+                                    flexWrap: "wrap",
                                 }}
                             >
-                                <Button onClick={() => navigate("/tasks")} sx={getButtonStyles("/tasks")}>
-                                    Tasks
-                                </Button>
-                                <Button onClick={() => navigate("/diet")} sx={getButtonStyles("/diet")}>
-                                    Diet
-                                </Button>
-                                <Button onClick={() => navigate("/workout")} sx={getButtonStyles("/workout")}>
-                                    Workout
-                                </Button>
-                            </ButtonGroup>
+                                <ButtonGroup
+                                    sx={{
+                                        "& .MuiButtonGroup-grouped": {
+                                            border: isMobile ? "none" : "1px solid",
+                                            borderColor: "divider",
+                                        },
+                                    }}
+                                >
+                                    <Button onClick={() => navigate("/tasks")} sx={getButtonStyles("/tasks")}>
+                                        Tasks
+                                    </Button>
+                                    <Button onClick={() => navigate("/diet")} sx={getButtonStyles("/diet")}>
+                                        Diet
+                                    </Button>
+                                    <Button onClick={() => navigate("/workout")} sx={getButtonStyles("/workout")}>
+                                        Workout
+                                    </Button>
+                                </ButtonGroup>
 
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Tooltip title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
-                                    <IconButton
-                                        onClick={() => dispatch(toggleDarkMode())}
-                                        sx={{
-                                            backgroundColor: "background.paper",
-                                            width: "36.5px",
-                                            height: "36.5px",
-                                            "&:hover": {
-                                                backgroundColor: "action.hover",
-                                            },
-                                        }}
-                                    >
-                                        {darkMode ? <DarkModeIcon sx={{ fontSize: "1.25rem" }} /> : <SunnyIcon sx={{ fontSize: "1.25rem" }} />}
-                                    </IconButton>
-                                </Tooltip>
-
-                                <Tooltip title="Account settings">
-                                    <IconButton
-                                        onClick={handleProfileMenuOpen}
-                                        size="small"
-                                        sx={{
-                                            ml: 1,
-                                            backgroundColor: "background.paper",
-                                            width: "40px",
-                                            height: "40px",
-                                            "&:hover": {
-                                                backgroundColor: "action.hover",
-                                            },
-                                        }}
-                                        aria-controls={open ? "account-menu" : undefined}
-                                        aria-haspopup="true"
-                                        aria-expanded={open ? "true" : undefined}
-                                    >
-                                        <Avatar
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                    <Tooltip title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
+                                        <IconButton
+                                            onClick={() => dispatch(toggleDarkMode())}
                                             sx={{
-                                                width: 32,
-                                                height: 32,
-                                                bgcolor: "primary.main",
-                                                fontSize: "0.875rem",
+                                                backgroundColor: "background.paper",
+                                                width: "36.5px",
+                                                height: "36.5px",
+                                                "&:hover": {
+                                                    backgroundColor: "action.hover",
+                                                },
                                             }}
                                         >
-                                            {user?.firstName?.[0]}
-                                            {user?.lastName?.[0]}
-                                        </Avatar>
-                                    </IconButton>
-                                </Tooltip>
+                                            {darkMode ? <DarkModeIcon sx={{ fontSize: "1.25rem" }} /> : <SunnyIcon sx={{ fontSize: "1.25rem" }} />}
+                                        </IconButton>
+                                    </Tooltip>
+
+                                    <Tooltip title="Account settings">
+                                        <IconButton
+                                            onClick={handleProfileMenuOpen}
+                                            size="small"
+                                            sx={{
+                                                ml: 1,
+                                                backgroundColor: "background.paper",
+                                                width: "40px",
+                                                height: "40px",
+                                                "&:hover": {
+                                                    backgroundColor: "action.hover",
+                                                },
+                                            }}
+                                            aria-controls={open ? "account-menu" : undefined}
+                                            aria-haspopup="true"
+                                            aria-expanded={open ? "true" : undefined}
+                                        >
+                                            <Avatar
+                                                sx={{
+                                                    width: 32,
+                                                    height: 32,
+                                                    bgcolor: "primary.main",
+                                                    fontSize: "0.875rem",
+                                                }}
+                                            >
+                                                {user?.firstName?.[0]}
+                                                {user?.lastName?.[0]}
+                                            </Avatar>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
                             </Box>
                         </Box>
                     )}
@@ -241,12 +285,11 @@ export const App: React.FC = () => {
                         onClose={handleProfileMenuClose}
                         onClick={handleProfileMenuClose}
                         PaperProps={{
-                            elevation: 3,
+                            elevation: 2,
                             sx: {
                                 overflow: "visible",
-                                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
                                 mt: 1.5,
-                                minWidth: 200,
+                                minWidth: 250,
                                 "& .MuiAvatar-root": {
                                     width: 32,
                                     height: 32,
