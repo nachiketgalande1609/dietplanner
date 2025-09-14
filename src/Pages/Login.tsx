@@ -377,7 +377,7 @@ export const Login: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                style={{ width: "100%", maxWidth: "450px" }} // Fixed width for both forms
+                style={{ width: "100%", maxWidth: "450px" }}
             >
                 <Paper
                     elevation={8}
@@ -394,7 +394,7 @@ export const Login: React.FC = () => {
                 >
                     <Box
                         sx={{
-                            p: isMobile ? 3 : 4,
+                            p: isMobile ? 2 : 4,
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
@@ -761,7 +761,11 @@ export const Login: React.FC = () => {
                                                                 sx={{ color: "#9e9e9e" }}
                                                                 size="medium"
                                                             >
-                                                                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                                                {showConfirmPassword ? (
+                                                                    <VisibilityOff sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
+                                                                ) : (
+                                                                    <Visibility sx={{ color: "#9e9e9e", fontSize: isMobile ? "20px" : "20px" }} />
+                                                                )}
                                                             </IconButton>
                                                         </InputAdornment>
                                                     ),
