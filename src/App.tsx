@@ -156,7 +156,7 @@ export const App: React.FC = () => {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 3,
-                                mb: 2,
+                                mb: 1,
                                 flexWrap: "wrap",
                             }}
                         >

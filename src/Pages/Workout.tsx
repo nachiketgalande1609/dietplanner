@@ -95,7 +95,6 @@ export const Workout: React.FC = () => {
                 flexDirection: "column",
                 bgcolor: "background.Box",
                 overflow: "hidden",
-                boxShadow: { xs: "none", sm: "0px 4px 20px rgba(0, 0, 0, 0.08)" },
             }}
         >
             {/* Modern Mobile Header */}

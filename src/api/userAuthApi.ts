@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getCurrentUserURL, userLoginURL, userRegisterURL } from "./apiEndpoints";
+import { userLoginURL, userRegisterURL } from "./apiEndpoints";
 
 export interface User {
     id: string;
@@ -62,22 +62,5 @@ export const userRegister = async (userData: RegisterData): Promise<LoginRespons
             throw new Error(error.response.data.error || "Registration failed");
         }
         throw new Error("Network error during registration");
-    }
-};
-
-export const getCurrentUser = async (token: string): Promise<{ success: boolean; user: User; error?: string }> => {
-    try {
-        const response = await axios.get(getCurrentUserURL, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data;
-    } catch (error: any) {
-        console.error("Error fetching current user:", error);
-        if (error.response?.data) {
-            throw new Error(error.response.data.error || "Failed to fetch user data");
-        }
-        throw new Error("Network error while fetching user data");
     }
 };
