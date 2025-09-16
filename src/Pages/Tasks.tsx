@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { useTheme } from "@mui/material/styles";
-import { CalendarMonth, ChevronLeft, ChevronRight, Add, Delete, Edit, Repeat, Today, DragHandle } from "@mui/icons-material";
+import { CalendarMonth, ChevronLeft, ChevronRight, Add, Delete, Edit, Repeat, DragHandle } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 
@@ -239,9 +239,6 @@ export const Tasks: React.FC = () => {
                             sx={{
                                 color: "text.primary",
                                 bgcolor: "background.default",
-                                "&:hover": {
-                                    backgroundColor: "rgba(0, 0, 0, 0.08)",
-                                },
                                 borderRadius: "10px",
                                 p: 1,
                             }}
@@ -255,11 +252,10 @@ export const Tasks: React.FC = () => {
                                 px: 2,
                                 py: 1,
                                 borderRadius: "12px",
-                                bgcolor: "background.default",
                                 display: "flex",
                                 flexDirection: "column",
                                 alignItems: "center",
-                                minWidth: 120,
+                                minWidth: 80,
                             }}
                         >
                             <Typography
@@ -290,10 +286,6 @@ export const Tasks: React.FC = () => {
                             size="small"
                             sx={{
                                 color: "text.primary",
-                                bgcolor: "background.default",
-                                "&:hover": {
-                                    backgroundColor: "rgba(0, 0, 0, 0.08)",
-                                },
                                 borderRadius: "10px",
                                 p: 1,
                             }}
@@ -405,10 +397,6 @@ export const Tasks: React.FC = () => {
                                     onClick={() => handleDateChange(selectedDate.subtract(1, "day"))}
                                     sx={{
                                         color: "text.primary",
-                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
-                                        "&:hover": {
-                                            backgroundColor: "rgba(0, 0, 0, 0.08)",
-                                        },
                                         borderRadius: "16px",
                                         p: 1,
                                     }}
@@ -419,10 +407,8 @@ export const Tasks: React.FC = () => {
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        px: 2.5,
                                         py: 1.5,
                                         borderRadius: "16px",
-                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
                                         display: "flex",
                                         alignItems: "center",
                                         gap: 2,
@@ -481,37 +467,12 @@ export const Tasks: React.FC = () => {
                                     onClick={() => handleDateChange(selectedDate.add(1, "day"))}
                                     sx={{
                                         color: "text.primary",
-                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
-                                        "&:hover": {
-                                            backgroundColor: "rgba(0, 0, 0, 0.08)",
-                                        },
                                         borderRadius: "16px",
                                         p: 1,
                                     }}
                                 >
                                     <ChevronRight />
                                 </IconButton>
-
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<Today />}
-                                    onClick={() => handleDateChange(dayjs())}
-                                    sx={{
-                                        borderRadius: "12px",
-                                        textTransform: "none",
-                                        px: 2,
-                                        py: 1,
-                                        fontSize: "0.875rem",
-                                        fontWeight: 600,
-                                        color: "text.primary",
-                                        borderColor: "divider",
-                                        "&:hover": {
-                                            borderColor: "text.primary",
-                                        },
-                                    }}
-                                >
-                                    Today
-                                </Button>
                             </Box>
 
                             <Button

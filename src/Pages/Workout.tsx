@@ -101,8 +101,8 @@ export const Workout: React.FC = () => {
             {isMobile && (
                 <Box
                     sx={{
-                        mb: 1,
-                        p: 1,
+                        mb: 2,
+                        p: 1.5,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
@@ -111,8 +111,9 @@ export const Workout: React.FC = () => {
                         zIndex: 10,
                         bgcolor: "rgba(255, 255, 255, 0.8)",
                         backdropFilter: "blur(8px)",
-                        borderBottom: "1px solid",
+                        border: "1px solid",
                         borderColor: "divider",
+                        borderRadius: "16px",
                     }}
                 >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -121,10 +122,6 @@ export const Workout: React.FC = () => {
                             size="small"
                             sx={{
                                 color: "text.primary",
-                                backgroundColor: "rgba(0, 0, 0, 0.05)",
-                                "&:hover": {
-                                    backgroundColor: "rgba(0, 0, 0, 0.08)",
-                                },
                                 borderRadius: "10px",
                                 p: 1,
                             }}
@@ -138,11 +135,10 @@ export const Workout: React.FC = () => {
                                 px: 2,
                                 py: 1,
                                 borderRadius: "12px",
-                                bgcolor: "background.default",
                                 display: "flex",
                                 flexDirection: "column",
                                 alignItems: "center",
-                                minWidth: 120,
+                                minWidth: 80,
                             }}
                         >
                             <Typography
@@ -173,10 +169,6 @@ export const Workout: React.FC = () => {
                             size="small"
                             sx={{
                                 color: "text.primary",
-                                backgroundColor: "rgba(0, 0, 0, 0.05)",
-                                "&:hover": {
-                                    backgroundColor: "rgba(0, 0, 0, 0.08)",
-                                },
                                 borderRadius: "10px",
                                 p: 1,
                             }}
@@ -185,26 +177,21 @@ export const Workout: React.FC = () => {
                         </IconButton>
                     </Box>
 
-                    <Button
+                    <IconButton
                         onClick={toggleCalendar}
-                        startIcon={<CalendarMonth sx={{ fontSize: "1rem" }} />}
+                        size="small"
                         sx={{
-                            borderRadius: "12px",
-                            textTransform: "none",
-                            px: 1.5,
-                            py: 0.5,
-                            fontSize: "0.75rem",
-                            fontWeight: 600,
-                            backgroundColor: "rgba(0, 0, 0, 0.03)",
-                            color: "text.primary",
+                            color: showCalendar ? "primary.main" : "text.primary",
+                            backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.08)" : "background.default",
                             "&:hover": {
-                                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                                backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.12)" : "rgba(0, 0, 0, 0.08)",
                             },
-                            minWidth: "auto",
+                            borderRadius: "10px",
+                            p: 1,
                         }}
                     >
-                        {showCalendar ? "Hide" : "Calendar"}
-                    </Button>
+                        <CalendarMonth fontSize="small" />
+                    </IconButton>
                 </Box>
             )}
 
@@ -268,10 +255,6 @@ export const Workout: React.FC = () => {
                                     onClick={() => handleDateChange(selectedDate.subtract(1, "day"))}
                                     sx={{
                                         color: "text.primary",
-                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
-                                        "&:hover": {
-                                            backgroundColor: "rgba(0, 0, 0, 0.08)",
-                                        },
                                         borderRadius: "16px",
                                         p: 1,
                                     }}
@@ -282,10 +265,8 @@ export const Workout: React.FC = () => {
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        px: 2.5,
                                         py: 1.5,
                                         borderRadius: "16px",
-                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
                                         display: "flex",
                                         alignItems: "center",
                                         gap: 2,
@@ -344,10 +325,6 @@ export const Workout: React.FC = () => {
                                     onClick={() => handleDateChange(selectedDate.add(1, "day"))}
                                     sx={{
                                         color: "text.primary",
-                                        backgroundColor: "rgba(0, 0, 0, 0.05)",
-                                        "&:hover": {
-                                            backgroundColor: "rgba(0, 0, 0, 0.08)",
-                                        },
                                         borderRadius: "16px",
                                         p: 1,
                                     }}
