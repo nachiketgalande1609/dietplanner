@@ -186,7 +186,7 @@ export const TasksContentPanel: React.FC<TasksContentPanelProps> = ({
                                                                 sx={{
                                                                     p: 2,
                                                                     mb: 1,
-                                                                    borderRadius: "12px",
+                                                                    borderRadius: "32px",
                                                                     border: editingTaskId === task.id ? "2px solid" : "1px solid",
                                                                     borderColor: editingTaskId === task.id ? "primary.main" : "divider",
                                                                     bgcolor: "background.paper",

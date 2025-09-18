@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Button, useMediaQuery, Paper, IconButton } from "@mui/material";
+import {
+    Box,
+    Typography,
+    Button,
+    useMediaQuery,
+    Paper,
+    IconButton,
+    Snackbar,
+    Alert,
+    SwipeableDrawer,
+    List,
+    ListItemIcon,
+    ListItemText,
+    ListItemButton,
+} from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { useTheme } from "@mui/material/styles";
-import { CalendarMonth, ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { motion, AnimatePresence } from "framer-motion";
+import { CalendarMonth, ChevronLeft, ChevronRight, Add } from "@mui/icons-material";
 import { WorkoutContentPanel } from "../components/ContentPanel/WorkoutContentPanel";
 import CalendarPanel from "../components/CalendarPanel/CalendarPanel";
 import { fetchWorkoutPlan } from "../api/workoutApi";
-
-// Workout data structure
-type Workout = {
-    name: string;
-    completed: boolean;
-    sets: number;
-    reps: number;
-    weight: number;
-    notes: string;
-};
 
 export const Workout: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -25,6 +28,11 @@ export const Workout: React.FC = () => {
     const [workoutData, setWorkoutData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "info" | "error" });
+    const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const fetchData = async () => {
         setLoading(true);
@@ -33,10 +41,12 @@ export const Workout: React.FC = () => {
             const dateStr = selectedDate.format("YYYY-MM-DD");
             const data = await fetchWorkoutPlan(dateStr);
             setWorkoutData(data);
+            setSnackbar({ open: true, message: "Workout plan loaded successfully", severity: "success" });
         } catch (err) {
             console.error("Failed to fetch workout plan:", err);
             setError("Failed to load workout plan. Please try again.");
             setWorkoutData(null);
+            setSnackbar({ open: true, message: "Failed to load workout plan", severity: "error" });
         } finally {
             setLoading(false);
         }
@@ -45,9 +55,6 @@ export const Workout: React.FC = () => {
     useEffect(() => {
         fetchData();
     }, [selectedDate]);
-
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const handleDateChange = (date: Dayjs | null) => {
         if (date) {
@@ -62,33 +69,14 @@ export const Workout: React.FC = () => {
         setShowCalendar(!showCalendar);
     };
 
-    const contentVariants = {
-        enter: (direction: "left" | "right") => ({
-            x: direction === "right" ? 50 : -50,
-            opacity: 0,
-        }),
-        center: () => ({
-            x: 0,
-            opacity: 1,
-            transition: {
-                x: { type: "spring" as const, stiffness: 300, damping: 30 },
-                opacity: { duration: 0.3 },
-            },
-        }),
-        exit: (direction: "left" | "right") => ({
-            x: direction === "right" ? -50 : 50,
-            opacity: 0,
-            transition: {
-                x: { type: "spring" as const, stiffness: 300, damping: 30 },
-                opacity: { duration: 0.3 },
-            },
-        }),
+    const handleCreateWorkout = () => {
+        // Handle create new workout logic
+        setSnackbar({ open: true, message: "Create workout functionality", severity: "info" });
     };
 
     return (
         <Box
             sx={{
-                // p: { xs: 0, sm: 2, md: 3 },
                 borderRadius: { xs: 0, sm: 4 },
                 minHeight: { xs: "100vh", sm: "calc(100vh - 120px)" },
                 display: "flex",
@@ -97,7 +85,7 @@ export const Workout: React.FC = () => {
                 overflow: "hidden",
             }}
         >
-            {/* Modern Mobile Header */}
+            {/* Mobile Header */}
             {isMobile && (
                 <Box
                     sx={{
@@ -109,8 +97,7 @@ export const Workout: React.FC = () => {
                         position: "sticky",
                         top: 0,
                         zIndex: 10,
-                        bgcolor: "rgba(255, 255, 255, 0.8)",
-                        backdropFilter: "blur(8px)",
+                        bgcolor: "background.paper",
                         border: "1px solid",
                         borderColor: "divider",
                         borderRadius: "16px",
@@ -122,6 +109,7 @@ export const Workout: React.FC = () => {
                             size="small"
                             sx={{
                                 color: "text.primary",
+                                bgcolor: "background.default",
                                 borderRadius: "10px",
                                 p: 1,
                             }}
@@ -177,21 +165,44 @@ export const Workout: React.FC = () => {
                         </IconButton>
                     </Box>
 
-                    <IconButton
-                        onClick={toggleCalendar}
-                        size="small"
-                        sx={{
-                            color: showCalendar ? "primary.main" : "text.primary",
-                            backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.08)" : "background.default",
-                            "&:hover": {
-                                backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.12)" : "rgba(0, 0, 0, 0.08)",
-                            },
-                            borderRadius: "10px",
-                            p: 1,
-                        }}
-                    >
-                        <CalendarMonth fontSize="small" />
-                    </IconButton>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                        <IconButton
+                            onClick={toggleCalendar}
+                            size="small"
+                            sx={{
+                                color: showCalendar ? "primary.main" : "text.primary",
+                                backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.08)" : "background.default",
+                                "&:hover": {
+                                    backgroundColor: showCalendar ? "rgba(25, 118, 210, 0.12)" : "rgba(0, 0, 0, 0.08)",
+                                },
+                                borderRadius: "10px",
+                                p: 1,
+                            }}
+                        >
+                            <CalendarMonth fontSize="small" />
+                        </IconButton>
+
+                        <Button
+                            variant="contained"
+                            startIcon={<Add />}
+                            onClick={handleCreateWorkout}
+                            sx={{
+                                borderRadius: "12px",
+                                textTransform: "none",
+                                px: 1.5,
+                                py: 0.5,
+                                fontSize: "0.75rem",
+                                fontWeight: 600,
+                                background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                boxShadow: "none",
+                                "&:hover": {
+                                    boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
+                                },
+                            }}
+                        >
+                            New
+                        </Button>
+                    </Box>
                 </Box>
             )}
 
@@ -204,8 +215,10 @@ export const Workout: React.FC = () => {
                     overflow: "hidden",
                 }}
             >
+                {/* Calendar Section */}
                 <CalendarPanel isMobile={isMobile} showCalendar={showCalendar} selectedDate={selectedDate} handleDateChange={handleDateChange} />
 
+                {/* Content Panel */}
                 <Box
                     sx={{
                         flexGrow: 1,
@@ -213,20 +226,19 @@ export const Workout: React.FC = () => {
                         display: "flex",
                         flexDirection: "column",
                         borderRadius: { xs: 0, sm: 4 },
-                        bgcolor: "background.default",
+                        bgcolor: "background.paper",
                         border: isMobile ? "none" : "1px solid",
                         borderColor: "divider",
                         position: "relative",
                         minHeight: isMobile ? "calc(100vh - 120px)" : "auto",
                     }}
                 >
-                    {/* Modern Desktop Header */}
+                    {/* Desktop Header */}
                     {!isMobile && (
                         <Box
                             sx={{
                                 p: 2,
                                 bgcolor: "background.paper",
-                                borderBottom: "1px solid",
                                 borderColor: "divider",
                                 display: "flex",
                                 justifyContent: "space-between",
@@ -335,7 +347,8 @@ export const Workout: React.FC = () => {
 
                             <Button
                                 variant="contained"
-                                onClick={() => {}}
+                                startIcon={<Add />}
+                                onClick={handleCreateWorkout}
                                 sx={{
                                     borderRadius: "12px",
                                     textTransform: "none",
@@ -350,42 +363,81 @@ export const Workout: React.FC = () => {
                                     },
                                 }}
                             >
-                                Edit Plan
+                                New Workout
                             </Button>
                         </Box>
                     )}
 
+                    {/* Workout Content */}
                     <Box
                         sx={{
                             flexGrow: 1,
                             overflowY: "auto",
-                            p: { xs: 1, sm: 2, md: 3 },
                             position: "relative",
                             overflowX: "hidden",
                         }}
                     >
-                        <AnimatePresence mode="wait" custom={direction}>
-                            <motion.div
-                                key={selectedDate.toString()}
-                                custom={direction}
-                                variants={contentVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                style={{ height: "100%" }}
-                            >
-                                <WorkoutContentPanel
-                                    selectedDate={selectedDate}
-                                    workoutData={workoutData}
-                                    loading={loading}
-                                    error={error}
-                                    onRefresh={fetchData}
-                                />
-                            </motion.div>
-                        </AnimatePresence>
+                        <WorkoutContentPanel
+                            isMobile={isMobile}
+                            selectedDate={selectedDate}
+                            workoutData={workoutData}
+                            loading={loading}
+                            error={error}
+                            onRefresh={fetchData}
+                            direction={direction}
+                        />
                     </Box>
                 </Box>
             </Box>
+
+            {/* Mobile Bottom Navigation */}
+            {isMobile && (
+                <SwipeableDrawer
+                    anchor="bottom"
+                    open={mobileDrawerOpen}
+                    onClose={() => setMobileDrawerOpen(false)}
+                    onOpen={() => setMobileDrawerOpen(true)}
+                    sx={{
+                        "& .MuiDrawer-paper": {
+                            borderTopLeftRadius: 16,
+                            borderTopRightRadius: 16,
+                            maxHeight: "40vh",
+                        },
+                    }}
+                >
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Quick Actions
+                        </Typography>
+                        <List>
+                            <ListItemButton onClick={handleCreateWorkout}>
+                                <ListItemIcon>
+                                    <Add />
+                                </ListItemIcon>
+                                <ListItemText primary="Add New Workout" />
+                            </ListItemButton>
+                            <ListItemButton onClick={toggleCalendar}>
+                                <ListItemIcon>
+                                    <CalendarMonth />
+                                </ListItemIcon>
+                                <ListItemText primary={showCalendar ? "Hide Calendar" : "Show Calendar"} />
+                            </ListItemButton>
+                        </List>
+                    </Box>
+                </SwipeableDrawer>
+            )}
+
+            {/* Snackbar for notifications */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+                <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: "100%" }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
