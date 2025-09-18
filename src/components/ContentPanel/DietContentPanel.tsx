@@ -18,6 +18,8 @@ import {
     styled,
     type SxProps,
     type Theme,
+    Button,
+    CircularProgress,
 } from "@mui/material";
 import {
     Restaurant,
@@ -31,7 +33,16 @@ import {
     TrendingUp,
     Check,
     CalendarMonth,
+    Edit,
+    Delete,
+    DragHandle,
+    Save,
+    Close,
+    RadioButtonUnchecked,
+    Add,
 } from "@mui/icons-material";
+import { motion, AnimatePresence } from "framer-motion";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 // Styled Chip component
 const Chip = styled(MuiChip)(({ theme }) => ({
@@ -63,6 +74,8 @@ interface DietContentPanelProps {
     completedMeals: Record<string, boolean>;
     onToggleMeal: (mealTime: string) => void;
     selectedDate: any;
+    direction: "left" | "right";
+    loading: boolean;
 }
 
 export const DietContentPanel: React.FC<DietContentPanelProps> = ({
@@ -72,6 +85,8 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
     completedMeals,
     onToggleMeal,
     selectedDate,
+    direction,
+    loading,
 }) => {
     const theme = useTheme();
     const [expandedMeals, setExpandedMeals] = useState<Record<string, boolean>>({});
@@ -96,6 +111,21 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                         Select a date to view diet plan
                     </Typography>
                 </Stack>
+            </Box>
+        );
+    }
+
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                }}
+            >
+                <CircularProgress />
             </Box>
         );
     }
@@ -156,6 +186,28 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
                     <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
                         There's no diet plan available for {selectedDate.format("MMMM D, YYYY")}.
                     </Typography>
+                    <Button
+                        variant="contained"
+                        startIcon={<Add />}
+                        onClick={() => {
+                            /* Handle create new plan */
+                        }}
+                        sx={{
+                            borderRadius: "12px",
+                            textTransform: "none",
+                            px: 3,
+                            py: 1,
+                            fontSize: "0.875rem",
+                            fontWeight: 600,
+                            background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                            boxShadow: "none",
+                            "&:hover": {
+                                boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
+                            },
+                        }}
+                    >
+                        Create Plan
+                    </Button>
                 </Paper>
             </Box>
         );
@@ -203,588 +255,613 @@ export const DietContentPanel: React.FC<DietContentPanelProps> = ({
     return (
         <Box
             sx={{
+                flexGrow: 1,
+                overflow: "hidden",
                 display: "flex",
                 flexDirection: "column",
-                height: "auto",
-                minHeight: "100%",
+                borderRadius: { xs: 0, sm: 4 },
                 bgcolor: "background.default",
+                borderTop: isMobile ? "none" : "1px solid",
+                borderColor: "divider",
+                position: "relative",
+                minHeight: isMobile ? "calc(100vh - 120px)" : "auto",
             }}
         >
-            {(!isMobile || showDayContent) && (
-                <Paper
-                    elevation={0}
-                    sx={{
-                        p: { xs: "20px", sm: "24px" },
-                        mb: { xs: 2, sm: 3 },
-                        borderRadius: 3,
-                        bgcolor: "background.paper",
-                        overflow: "hidden",
-                        position: "relative",
-                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderLeft: `4px solid ${progress === 100 ? theme.palette.success.main : theme.palette.primary.main}`,
-                    }}
-                >
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            mb: 2,
-                        }}
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    overflowY: "auto",
+                    p: { xs: 0, sm: 2, md: 3 },
+                    position: "relative",
+                    overflowX: "hidden",
+                }}
+            >
+                <AnimatePresence mode="wait" custom={direction}>
+                    <motion.div
+                        key={selectedDate.toString()}
+                        custom={direction}
+                        initial={{ x: direction === "left" ? 100 : -100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: direction === "left" ? -100 : 100, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        style={{ height: "100%" }}
                     >
-                        <Stack direction="row" alignItems="center" spacing={1.5}>
-                            <Box
-                                sx={{
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: "50%",
-                                    bgcolor: progress === 100 ? "success.light" : "primary.light",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    animation: "pulse 2s infinite",
-                                    "@keyframes pulse": {
-                                        "0%": {
-                                            boxShadow: `0 0 0 0 ${progress === 100 ? theme.palette.success.light : theme.palette.primary.light}`,
-                                        },
-                                        "70%": {
-                                            boxShadow: `0 0 0 8px ${
-                                                progress === 100 ? theme.palette.success.light + "00" : theme.palette.primary.light + "00"
-                                            }`,
-                                        },
-                                        "100%": {
-                                            boxShadow: `0 0 0 0 ${
-                                                progress === 100 ? theme.palette.success.light + "00" : theme.palette.primary.light + "00"
-                                            }`,
-                                        },
-                                    },
-                                }}
-                            >
-                                {progress === 100 ? (
-                                    <Check fontSize="small" sx={{ color: theme.palette.success.contrastText }} />
-                                ) : (
-                                    <TrendingUp fontSize="small" sx={{ color: theme.palette.background.default }} />
-                                )}
-                            </Box>
-                            <Box>
-                                <Typography variant="subtitle1" fontWeight={600} fontSize={smallMobile ? "0.875rem" : "1rem"}>
-                                    Daily Progress
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                    {completedCount} of {totalMeals} meals completed
-                                </Typography>
-                            </Box>
-                        </Stack>
-
-                        <Box
-                            sx={{
-                                bgcolor: progress === 100 ? "success.50" : "primary.50",
-                                px: 1.5,
-                                py: 0.5,
-                                borderRadius: "12px",
-                                minWidth: 60,
-                                textAlign: "center",
-                                animation: "fadeIn 0.5s ease",
-                                "@keyframes fadeIn": {
-                                    "0%": { opacity: 0, transform: "translateY(5px)" },
-                                    "100%": { opacity: 1, transform: "translateY(0)" },
-                                },
-                            }}
-                        >
-                            <Typography variant="subtitle2" fontWeight={700} color={progress === 100 ? "success.dark" : "primary.dark"}>
-                                {progress}%
-                            </Typography>
-                        </Box>
-                    </Box>
-
-                    {/* Animated Progress Bar */}
-                    <Box sx={{ position: "relative", height: 8, borderRadius: 4, bgcolor: "grey.100", overflow: "hidden" }}>
-                        <Box
-                            sx={{
-                                position: "absolute",
-                                left: 0,
-                                top: 0,
-                                height: "100%",
-                                width: `${progress}%`,
-                                bgcolor: progress === 100 ? "success.main" : "primary.main",
-                                borderRadius: 4,
-                                transition: "width 1s ease-out, background-color 0.5s ease",
-                                "&:after": {
-                                    content: '""',
-                                    position: "absolute",
-                                    top: 0,
-                                    left: 0,
-                                    right: 0,
-                                    bottom: 0,
-                                    backgroundImage:
-                                        "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%)",
-                                    animation: "shimmer 2s infinite",
-                                    "@keyframes shimmer": {
-                                        "0%": { transform: "translateX(-100%)" },
-                                        "100%": { transform: "translateX(100%)" },
-                                    },
-                                },
-                            }}
-                        />
-                    </Box>
-                </Paper>
-            )}
-
-            <List sx={{ width: "100%", flex: 1, py: 0 }}>
-                {dietData.meals?.map((meal: any, index: number) => {
-                    const isCompleted = !!completedMeals[meal.time];
-                    const isExpanded = !!expandedMeals[meal.time];
-                    const isMissed = isMealMissed(index);
-
-                    return (
-                        <React.Fragment key={index}>
-                            <Paper
-                                elevation={isMobile ? 0 : 1}
-                                sx={{
-                                    mb: { xs: 2, sm: 2 },
-                                    borderRadius: 3,
-                                    overflow: "hidden",
-                                    border: "1px solid",
-                                    borderColor: "divider",
-                                    borderLeft: `4px solid ${
-                                        isCompleted ? theme.palette.success.main : isMissed ? theme.palette.error.main : theme.palette.divider
-                                    }`,
-                                    bgcolor: "background.paper",
-                                    width: "100%",
-                                    boxShadow: "none",
-                                    backgroundColor: isCompleted
-                                        ? theme.palette.success.light
-                                        : isMissed
-                                          ? theme.palette.error.light
-                                          : "background.paper",
-                                }}
-                            >
-                                <ListItem
-                                    sx={{
-                                        pr: { xs: 8, sm: 10 },
-                                        py: { xs: 2, sm: 2 },
-                                        cursor: "pointer",
-                                        width: "100%",
-                                    }}
-                                    onClick={() => handleToggleExpand(meal.time)}
-                                >
-                                    <ListItemSecondaryAction sx={{ right: { xs: 48, sm: 48 } }}>
-                                        <Checkbox
-                                            edge="end"
-                                            checked={isCompleted}
-                                            onChange={() => onToggleMeal(meal.time)}
-                                            onClick={(e) => e.stopPropagation()}
-                                            icon={<Circle fontSize="small" />}
-                                            checkedIcon={<CheckCircle sx={{ color: theme.palette.success.dark, fontSize: "1.5rem" }} />}
-                                            size={smallMobile ? "small" : "medium"}
-                                            sx={{
-                                                ":hover": {
-                                                    backgroundColor: "transparent",
-                                                },
-                                            }}
-                                        />
-                                    </ListItemSecondaryAction>
-
-                                    <ListItemSecondaryAction>
-                                        <IconButton
-                                            edge="end"
-                                            size={smallMobile ? "small" : "medium"}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleToggleExpand(meal.time);
-                                            }}
-                                            sx={{
-                                                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                                                transition: theme.transitions.create("transform", {
-                                                    duration: theme.transitions.duration.shortest,
-                                                }),
-                                                ":hover": {
-                                                    backgroundColor: "transparent",
-                                                },
-                                            }}
-                                        >
-                                            <ExpandMore fontSize={smallMobile ? "small" : "medium"} />
-                                        </IconButton>
-                                    </ListItemSecondaryAction>
-
-                                    <Box sx={{ flex: 1 }}>
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Avatar
+                        <DragDropContext onDragEnd={() => {}}>
+                            <Droppable droppableId="droppable">
+                                {(provided) => (
+                                    <div {...provided.droppableProps} ref={provided.innerRef} style={{ height: "100%" }}>
+                                        {/* Progress Header */}
+                                        {(!isMobile || showDayContent) && (
+                                            <Paper
+                                                elevation={2}
                                                 sx={{
-                                                    bgcolor: isCompleted ? "success.dark" : isMissed ? "error.dark" : "primary.light",
-                                                    width: { xs: 28, sm: 32 },
-                                                    height: { xs: 28, sm: 32 },
-                                                    display: { xs: "none", sm: "flex" },
+                                                    p: 2,
+                                                    mb: 2,
+                                                    borderRadius: "12px",
+                                                    bgcolor: "background.paper",
+                                                    border: "1px solid",
+                                                    borderColor: "divider",
+                                                    borderLeft: `4px solid ${progress === 100 ? theme.palette.success.main : theme.palette.primary.main}`,
                                                 }}
                                             >
-                                                <Restaurant fontSize="small" sx={{ color: theme.palette.common.white }} />
-                                            </Avatar>
-                                            <Box sx={{ flex: 1 }}>
-                                                <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
-                                                    <Typography
-                                                        variant="subtitle1"
-                                                        fontWeight={600}
-                                                        fontSize={smallMobile ? "0.875rem" : "1rem"}
-                                                        color={isMissed || isCompleted ? theme.palette.background.default : "text.primary"}
-                                                    >
-                                                        {meal.time}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        color={isMissed || isCompleted ? theme.palette.background.default : "text.primary"}
-                                                        sx={{
-                                                            fontSize: smallMobile ? "0.75rem" : "0.875rem",
-                                                        }}
-                                                    >
-                                                        {meal.meal}
-                                                    </Typography>
-                                                    {isMissed && (
-                                                        <Chip
-                                                            label="Missed"
-                                                            size="small"
-                                                            sx={{
-                                                                backgroundColor: theme.palette.error.main,
-                                                                color: theme.palette.error.contrastText,
-                                                            }}
-                                                        />
-                                                    )}
-                                                </Stack>
-                                                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
-                                                    {!smallMobile && <Chip label={`${meal.items.length} items`} size="small" variant="outlined" />}
-                                                    <NutritionChip
-                                                        icon={<FitnessCenter />}
-                                                        value={meal.total.protein}
-                                                        unit="g"
-                                                        color={isMissed ? theme.palette.error.main : theme.palette.primary.main}
-                                                    />
-                                                    <NutritionChip
-                                                        icon={<Grain />}
-                                                        value={meal.total.carbs}
-                                                        unit="g"
-                                                        color={isMissed ? theme.palette.error.main : theme.palette.secondary.main}
-                                                    />
-                                                    <NutritionChip
-                                                        icon={<SetMeal />}
-                                                        value={meal.total.fats}
-                                                        unit="g"
-                                                        color={isMissed ? theme.palette.error.main : theme.palette.warning.main}
-                                                    />
-                                                    <NutritionChip
-                                                        icon={<LocalFireDepartment />}
-                                                        value={meal.total.calories}
-                                                        unit="kcal"
-                                                        color={isMissed ? theme.palette.error.main : theme.palette.error.main}
-                                                    />
-                                                </Stack>
-                                            </Box>
-                                        </Stack>
-                                    </Box>
-                                </ListItem>
-
-                                <Collapse in={isExpanded} timeout="auto" unmountOnExit sx={{ borderRadius: 2, padding: "0 4px 0 0" }}>
-                                    <Box
-                                        sx={{
-                                            px: { xs: 1, sm: 2 },
-                                            pb: { xs: 1, sm: 2 },
-                                            backgroundColor: theme.palette.background.default,
-                                            borderRadius: 3,
-                                        }}
-                                    >
-                                        <List dense sx={{ py: 0 }}>
-                                            {meal.items.map((item: any, itemIndex: number) => (
-                                                <ListItem
-                                                    key={itemIndex}
+                                                <Box
                                                     sx={{
-                                                        py: 0.5,
-                                                        px: { xs: 1, sm: 1 },
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        mb: 2,
                                                     }}
                                                 >
-                                                    <ListItemText
-                                                        primary={
+                                                    <Stack direction="row" alignItems="center" spacing={1.5}>
+                                                        <Box
+                                                            sx={{
+                                                                width: 40,
+                                                                height: 40,
+                                                                borderRadius: "50%",
+                                                                bgcolor: progress === 100 ? "success.light" : "primary.light",
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                justifyContent: "center",
+                                                            }}
+                                                        >
+                                                            {progress === 100 ? (
+                                                                <Check fontSize="small" sx={{ color: theme.palette.success.contrastText }} />
+                                                            ) : (
+                                                                <TrendingUp fontSize="small" sx={{ color: theme.palette.background.default }} />
+                                                            )}
+                                                        </Box>
+                                                        <Box>
                                                             <Typography
-                                                                variant="body2"
-                                                                fontSize={smallMobile ? "0.8125rem" : "0.875rem"}
-                                                                color={"text.primary"}
+                                                                variant="subtitle1"
+                                                                fontWeight={600}
+                                                                fontSize={smallMobile ? "0.875rem" : "1rem"}
                                                             >
-                                                                {item.name}
+                                                                Daily Progress
                                                             </Typography>
-                                                        }
-                                                        secondary={
-                                                            <Stack
-                                                                direction="row"
-                                                                spacing={1}
-                                                                alignItems="center"
-                                                                flexWrap="wrap"
-                                                                useFlexGap
-                                                                sx={{ pt: 0.5 }}
-                                                            >
-                                                                <NutritionChip
-                                                                    icon={<FitnessCenter />}
-                                                                    value={item.protein}
-                                                                    unit="g"
-                                                                    color={isMissed ? theme.palette.error.main : theme.palette.primary.main}
-                                                                />
-                                                                <NutritionChip
-                                                                    icon={<Grain />}
-                                                                    value={item.carbs}
-                                                                    unit="g"
-                                                                    color={isMissed ? theme.palette.error.main : theme.palette.secondary.main}
-                                                                />
-                                                                <NutritionChip
-                                                                    icon={<SetMeal />}
-                                                                    value={item.fats}
-                                                                    unit="g"
-                                                                    color={isMissed ? theme.palette.error.main : theme.palette.warning.main}
-                                                                />
-                                                                <NutritionChip
-                                                                    icon={<LocalFireDepartment />}
-                                                                    value={item.calories}
-                                                                    unit="kcal"
-                                                                    color={isMissed ? theme.palette.error.main : theme.palette.error.main}
-                                                                />
-                                                            </Stack>
-                                                        }
-                                                        secondaryTypographyProps={{
-                                                            component: "div",
+                                                            <Typography variant="caption" color="text.secondary">
+                                                                {completedCount} of {totalMeals} meals completed
+                                                            </Typography>
+                                                        </Box>
+                                                    </Stack>
+
+                                                    <Box
+                                                        sx={{
+                                                            bgcolor: progress === 100 ? "success.50" : "primary.50",
+                                                            px: 1.5,
+                                                            py: 0.5,
+                                                            borderRadius: "12px",
+                                                            minWidth: 60,
+                                                            textAlign: "center",
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            variant="subtitle2"
+                                                            fontWeight={700}
+                                                            color={progress === 100 ? "success.dark" : "primary.dark"}
+                                                        >
+                                                            {progress}%
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+
+                                                {/* Progress Bar */}
+                                                <Box
+                                                    sx={{ position: "relative", height: 8, borderRadius: 4, bgcolor: "grey.100", overflow: "hidden" }}
+                                                >
+                                                    <Box
+                                                        sx={{
+                                                            position: "absolute",
+                                                            left: 0,
+                                                            top: 0,
+                                                            height: "100%",
+                                                            width: `${progress}%`,
+                                                            bgcolor: progress === 100 ? "success.main" : "primary.main",
+                                                            borderRadius: 4,
+                                                            transition: "width 1s ease-out, background-color 0.5s ease",
                                                         }}
                                                     />
-                                                </ListItem>
-                                            ))}
-                                        </List>
+                                                </Box>
+                                            </Paper>
+                                        )}
+
+                                        {dietData.meals?.length > 0 ? (
+                                            dietData.meals.map((meal: any, index: number) => {
+                                                const isCompleted = !!completedMeals[meal.time];
+                                                const isExpanded = !!expandedMeals[meal.time];
+                                                const isMissed = isMealMissed(index);
+
+                                                return (
+                                                    <Draggable key={index} draggableId={`meal-${index}`} index={index}>
+                                                        {(provided) => (
+                                                            <Paper
+                                                                ref={provided.innerRef}
+                                                                {...provided.draggableProps}
+                                                                elevation={1}
+                                                                sx={{
+                                                                    p: 2,
+                                                                    mb: 1,
+                                                                    borderRadius: "12px",
+                                                                    bgcolor: "background.paper",
+                                                                    border: "1px solid",
+                                                                    borderColor: "divider",
+                                                                    borderLeft: `4px solid ${
+                                                                        isCompleted
+                                                                            ? theme.palette.success.main
+                                                                            : isMissed
+                                                                              ? theme.palette.error.main
+                                                                              : theme.palette.divider
+                                                                    }`,
+                                                                    opacity: isCompleted ? 0.7 : 1,
+                                                                    transition: "all 0.2s ease",
+                                                                    "&:hover": {
+                                                                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <Box
+                                                                    sx={{
+                                                                        display: "flex",
+                                                                        alignItems: "flex-start",
+                                                                        gap: 1.5,
+                                                                    }}
+                                                                >
+                                                                    <Box
+                                                                        {...provided.dragHandleProps}
+                                                                        sx={{
+                                                                            display: "flex",
+                                                                            alignItems: "center",
+                                                                            cursor: "grab",
+                                                                            color: "text.secondary",
+                                                                            "&:active": {
+                                                                                cursor: "grabbing",
+                                                                            },
+                                                                            mt: 0.5,
+                                                                        }}
+                                                                    >
+                                                                        <DragHandle />
+                                                                    </Box>
+
+                                                                    <Checkbox
+                                                                        checked={isCompleted}
+                                                                        onChange={() => onToggleMeal(meal.time)}
+                                                                        icon={<RadioButtonUnchecked />}
+                                                                        checkedIcon={<CheckCircle />}
+                                                                        sx={{
+                                                                            p: 0,
+                                                                            color: "text.secondary",
+                                                                            "&.Mui-checked": {
+                                                                                color: "primary.main",
+                                                                            },
+                                                                            mt: 0.5,
+                                                                        }}
+                                                                    />
+
+                                                                    <Box
+                                                                        sx={{
+                                                                            flexGrow: 1,
+                                                                            overflow: "hidden",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                        onClick={() => handleToggleExpand(meal.time)}
+                                                                    >
+                                                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                                                                            <Avatar
+                                                                                sx={{
+                                                                                    bgcolor: isCompleted
+                                                                                        ? "success.dark"
+                                                                                        : isMissed
+                                                                                          ? "error.dark"
+                                                                                          : "primary.light",
+                                                                                    width: 32,
+                                                                                    height: 32,
+                                                                                }}
+                                                                            >
+                                                                                <Restaurant
+                                                                                    fontSize="small"
+                                                                                    sx={{ color: theme.palette.common.white }}
+                                                                                />
+                                                                            </Avatar>
+                                                                            <Box sx={{ flex: 1 }}>
+                                                                                <Typography
+                                                                                    variant="subtitle1"
+                                                                                    fontWeight={600}
+                                                                                    fontSize={smallMobile ? "0.875rem" : "1rem"}
+                                                                                    color={
+                                                                                        isMissed || isCompleted ? "text.secondary" : "text.primary"
+                                                                                    }
+                                                                                >
+                                                                                    {meal.time}
+                                                                                </Typography>
+                                                                                <Typography
+                                                                                    variant="body2"
+                                                                                    color={
+                                                                                        isMissed || isCompleted ? "text.secondary" : "text.primary"
+                                                                                    }
+                                                                                    sx={{
+                                                                                        fontSize: smallMobile ? "0.75rem" : "0.875rem",
+                                                                                    }}
+                                                                                >
+                                                                                    {meal.meal}
+                                                                                </Typography>
+                                                                            </Box>
+                                                                        </Box>
+
+                                                                        <Stack
+                                                                            direction="row"
+                                                                            spacing={1}
+                                                                            alignItems="center"
+                                                                            flexWrap="wrap"
+                                                                            useFlexGap
+                                                                            sx={{ mt: 0.5 }}
+                                                                        >
+                                                                            <Chip
+                                                                                label={`${meal.items.length} items`}
+                                                                                size="small"
+                                                                                variant="outlined"
+                                                                            />
+                                                                            <NutritionChip
+                                                                                icon={<FitnessCenter />}
+                                                                                value={meal.total.protein}
+                                                                                unit="g"
+                                                                                color={
+                                                                                    isMissed ? theme.palette.error.main : theme.palette.primary.main
+                                                                                }
+                                                                            />
+                                                                            <NutritionChip
+                                                                                icon={<Grain />}
+                                                                                value={meal.total.carbs}
+                                                                                unit="g"
+                                                                                color={
+                                                                                    isMissed ? theme.palette.error.main : theme.palette.secondary.main
+                                                                                }
+                                                                            />
+                                                                            <NutritionChip
+                                                                                icon={<SetMeal />}
+                                                                                value={meal.total.fats}
+                                                                                unit="g"
+                                                                                color={
+                                                                                    isMissed ? theme.palette.error.main : theme.palette.warning.main
+                                                                                }
+                                                                            />
+                                                                            <NutritionChip
+                                                                                icon={<LocalFireDepartment />}
+                                                                                value={meal.total.calories}
+                                                                                unit="kcal"
+                                                                                color={isMissed ? theme.palette.error.main : theme.palette.error.main}
+                                                                            />
+                                                                        </Stack>
+
+                                                                        {isMissed && (
+                                                                            <Chip
+                                                                                label="Missed"
+                                                                                size="small"
+                                                                                sx={{
+                                                                                    mt: 1,
+                                                                                    backgroundColor: theme.palette.error.main,
+                                                                                    color: theme.palette.error.contrastText,
+                                                                                }}
+                                                                            />
+                                                                        )}
+                                                                    </Box>
+
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleToggleExpand(meal.time);
+                                                                        }}
+                                                                        sx={{
+                                                                            color: "text.secondary",
+                                                                            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                                                                            transition: theme.transitions.create("transform", {
+                                                                                duration: theme.transitions.duration.shortest,
+                                                                            }),
+                                                                        }}
+                                                                    >
+                                                                        <ExpandMore fontSize="small" />
+                                                                    </IconButton>
+                                                                </Box>
+
+                                                                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                                                                    <Box
+                                                                        sx={{
+                                                                            mt: 2,
+                                                                            p: 2,
+                                                                            backgroundColor: theme.palette.background.default,
+                                                                            borderRadius: "8px",
+                                                                        }}
+                                                                    >
+                                                                        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                                                                            Meal Items
+                                                                        </Typography>
+                                                                        <List dense sx={{ py: 0 }}>
+                                                                            {meal.items.map((item: any, itemIndex: number) => (
+                                                                                <ListItem
+                                                                                    key={itemIndex}
+                                                                                    sx={{
+                                                                                        py: 0.5,
+                                                                                        px: 0,
+                                                                                    }}
+                                                                                >
+                                                                                    <ListItemText
+                                                                                        primary={
+                                                                                            <Typography
+                                                                                                variant="body2"
+                                                                                                fontSize={smallMobile ? "0.8125rem" : "0.875rem"}
+                                                                                                color={"text.primary"}
+                                                                                            >
+                                                                                                {item.name}
+                                                                                            </Typography>
+                                                                                        }
+                                                                                        secondary={
+                                                                                            <Stack
+                                                                                                direction="row"
+                                                                                                spacing={1}
+                                                                                                alignItems="center"
+                                                                                                flexWrap="wrap"
+                                                                                                useFlexGap
+                                                                                                sx={{ pt: 0.5 }}
+                                                                                            >
+                                                                                                <NutritionChip
+                                                                                                    icon={<FitnessCenter />}
+                                                                                                    value={item.protein}
+                                                                                                    unit="g"
+                                                                                                    color={
+                                                                                                        isMissed
+                                                                                                            ? theme.palette.error.main
+                                                                                                            : theme.palette.primary.main
+                                                                                                    }
+                                                                                                />
+                                                                                                <NutritionChip
+                                                                                                    icon={<Grain />}
+                                                                                                    value={item.carbs}
+                                                                                                    unit="g"
+                                                                                                    color={
+                                                                                                        isMissed
+                                                                                                            ? theme.palette.error.main
+                                                                                                            : theme.palette.secondary.main
+                                                                                                    }
+                                                                                                />
+                                                                                                <NutritionChip
+                                                                                                    icon={<SetMeal />}
+                                                                                                    value={item.fats}
+                                                                                                    unit="g"
+                                                                                                    color={
+                                                                                                        isMissed
+                                                                                                            ? theme.palette.error.main
+                                                                                                            : theme.palette.warning.main
+                                                                                                    }
+                                                                                                />
+                                                                                                <NutritionChip
+                                                                                                    icon={<LocalFireDepartment />}
+                                                                                                    value={item.calories}
+                                                                                                    unit="kcal"
+                                                                                                    color={
+                                                                                                        isMissed
+                                                                                                            ? theme.palette.error.main
+                                                                                                            : theme.palette.error.main
+                                                                                                    }
+                                                                                                />
+                                                                                            </Stack>
+                                                                                        }
+                                                                                        secondaryTypographyProps={{
+                                                                                            component: "div",
+                                                                                        }}
+                                                                                    />
+                                                                                </ListItem>
+                                                                            ))}
+                                                                        </List>
+                                                                    </Box>
+                                                                </Collapse>
+                                                            </Paper>
+                                                        )}
+                                                    </Draggable>
+                                                );
+                                            })
+                                        ) : (
+                                            <Box
+                                                sx={{
+                                                    height: "100%",
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    p: 3,
+                                                    textAlign: "center",
+                                                    gap: 2,
+                                                }}
+                                            >
+                                                <Typography variant="h6" color="text.secondary" fontWeight={500}>
+                                                    No meals planned for {selectedDate.format("MMMM D")}
+                                                </Typography>
+                                                <Button
+                                                    variant="contained"
+                                                    startIcon={<Add />}
+                                                    onClick={() => {
+                                                        /* Handle add meal */
+                                                    }}
+                                                    sx={{
+                                                        borderRadius: "12px",
+                                                        textTransform: "none",
+                                                        px: 3,
+                                                        py: 1,
+                                                        fontSize: "0.875rem",
+                                                        fontWeight: 600,
+                                                        background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                                        boxShadow: "none",
+                                                        "&:hover": {
+                                                            boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
+                                                        },
+                                                    }}
+                                                >
+                                                    Add Meal
+                                                </Button>
+                                            </Box>
+                                        )}
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </DragDropContext>
+
+                        {/* Daily Summary */}
+                        {(!isMobile || showDayContent) && dietData.dailyTotal && (
+                            <Paper
+                                elevation={2}
+                                sx={{
+                                    p: 2,
+                                    mt: 2,
+                                    borderRadius: "12px",
+                                    bgcolor: "background.paper",
+                                    border: "1px solid",
+                                    borderColor: "divider",
+                                }}
+                            >
+                                <Typography variant="h6" fontWeight={600} gutterBottom>
+                                    Daily Summary
+                                </Typography>
+                                <Stack spacing={2}>
+                                    {/* Calories */}
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: "8px",
+                                            bgcolor: theme.palette.error.light,
+                                            borderLeft: "4px solid",
+                                            borderColor: theme.palette.error.main,
+                                        }}
+                                    >
+                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                            <Stack direction="row" alignItems="center" spacing={1.5}>
+                                                <LocalFireDepartment fontSize="small" sx={{ color: theme.palette.error.dark }} />
+                                                <Typography variant="body1" fontWeight={500} sx={{ color: theme.palette.error.dark }}>
+                                                    Calories
+                                                </Typography>
+                                            </Stack>
+                                            <Stack alignItems="flex-end" spacing={0.5}>
+                                                <Typography variant="h6" fontWeight={600} sx={{ color: theme.palette.error.dark }}>
+                                                    {dietData.dailyTotal.calories}
+                                                    <Box component="span" sx={{ opacity: 0.7, fontSize: "0.9rem" }}>
+                                                        / 2400
+                                                    </Box>
+                                                </Typography>
+                                                <Typography variant="caption" sx={{ color: theme.palette.error.dark }}>
+                                                    kcal
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                    </Paper>
+
+                                    {/* Macros Row */}
+                                    <Box sx={{ display: "flex", gap: 1 }}>
+                                        {/* Protein */}
+                                        <Paper
+                                            elevation={0}
+                                            sx={{
+                                                p: 2,
+                                                flex: 1,
+                                                borderRadius: "8px",
+                                                bgcolor: theme.palette.primary.light,
+                                                borderLeft: "4px solid",
+                                                borderColor: theme.palette.primary.main,
+                                            }}
+                                        >
+                                            <Stack direction="column" spacing={0.5}>
+                                                <Typography variant="body2" fontWeight={500} sx={{ color: theme.palette.primary.dark }}>
+                                                    Protein
+                                                </Typography>
+                                                <Stack direction="row" alignItems="baseline" spacing={0.5}>
+                                                    <Typography variant="h6" fontWeight={600} sx={{ color: theme.palette.primary.dark }}>
+                                                        {dietData.dailyTotal.protein}
+                                                    </Typography>
+                                                    <Typography variant="body2" fontSize="0.8rem" sx={{ color: theme.palette.primary.dark }}>
+                                                        / 190g
+                                                    </Typography>
+                                                </Stack>
+                                            </Stack>
+                                        </Paper>
+
+                                        {/* Carbs */}
+                                        <Paper
+                                            elevation={0}
+                                            sx={{
+                                                p: 2,
+                                                flex: 1,
+                                                borderRadius: "8px",
+                                                bgcolor: theme.palette.success.light,
+                                                borderLeft: "4px solid",
+                                                borderColor: theme.palette.success.main,
+                                            }}
+                                        >
+                                            <Stack direction="column" spacing={0.5}>
+                                                <Typography variant="body2" fontWeight={500} sx={{ color: theme.palette.success.dark }}>
+                                                    Carbs
+                                                </Typography>
+                                                <Stack direction="row" alignItems="baseline" spacing={0.5}>
+                                                    <Typography variant="h6" fontWeight={600} sx={{ color: theme.palette.success.dark }}>
+                                                        {dietData.dailyTotal.carbs}
+                                                    </Typography>
+                                                    <Typography variant="body2" fontSize="0.8rem" sx={{ color: theme.palette.success.dark }}>
+                                                        / 200g
+                                                    </Typography>
+                                                </Stack>
+                                            </Stack>
+                                        </Paper>
+
+                                        {/* Fats */}
+                                        <Paper
+                                            elevation={0}
+                                            sx={{
+                                                p: 2,
+                                                flex: 1,
+                                                borderRadius: "8px",
+                                                bgcolor: theme.palette.warning.light,
+                                                borderLeft: "4px solid",
+                                                borderColor: theme.palette.warning.main,
+                                            }}
+                                        >
+                                            <Stack direction="column" spacing={0.5}>
+                                                <Typography variant="body2" fontWeight={500} sx={{ color: theme.palette.warning.dark }}>
+                                                    Fats
+                                                </Typography>
+                                                <Stack direction="row" alignItems="baseline" spacing={0.5}>
+                                                    <Typography variant="h6" fontWeight={600} sx={{ color: theme.palette.warning.dark }}>
+                                                        {dietData.dailyTotal.fats}
+                                                    </Typography>
+                                                    <Typography variant="body2" fontSize="0.8rem" sx={{ color: theme.palette.warning.dark }}>
+                                                        / 75g
+                                                    </Typography>
+                                                </Stack>
+                                            </Stack>
+                                        </Paper>
                                     </Box>
-                                </Collapse>
+                                </Stack>
                             </Paper>
-                        </React.Fragment>
-                    );
-                })}
-            </List>
-
-            {(!isMobile || showDayContent) && dietData.dailyTotal && (
-                <Paper
-                    elevation={0}
-                    sx={{
-                        p: { xs: 2, sm: 2.5 },
-                        mt: { xs: 1, sm: 2 },
-                        borderRadius: 3,
-                        bgcolor: "background.paper",
-                        border: "1px solid",
-                        borderColor: "divider",
-                    }}
-                >
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            mb: 2,
-                            fontWeight: 600,
-                            color: theme.palette.text.primary,
-                            fontSize: smallMobile ? "1.05rem" : "1.3rem",
-                            letterSpacing: "-0.2px",
-                        }}
-                    >
-                        Summary
-                    </Typography>
-
-                    <Stack spacing={2}>
-                        {/* Calories */}
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: "12px 24px",
-                                borderRadius: 3,
-                                bgcolor: theme.palette.error.light,
-                                borderLeft: "4px solid",
-                                borderColor: theme.palette.error.main,
-                            }}
-                        >
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Stack direction="row" alignItems="center" spacing={1.5}>
-                                    <LocalFireDepartment fontSize="small" sx={{ color: theme.palette.error.dark }} />
-                                    <Typography
-                                        variant="body1"
-                                        fontWeight={500}
-                                        fontSize={smallMobile ? "0.9rem" : "1rem"}
-                                        sx={{ color: theme.palette.background.default }}
-                                    >
-                                        Calories
-                                    </Typography>
-                                </Stack>
-                                <Stack alignItems="flex-end" spacing={0.5}>
-                                    <Typography
-                                        variant="h6"
-                                        fontWeight={600}
-                                        fontSize={smallMobile ? "1.1rem" : "1.3rem"}
-                                        sx={{ color: theme.palette.background.default }}
-                                    >
-                                        {dietData.dailyTotal.calories}
-                                        <Box component="span" sx={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                                            / 2400
-                                        </Box>
-                                    </Typography>
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                        sx={{ lineHeight: 1, color: theme.palette.background.default }}
-                                    >
-                                        kcal
-                                    </Typography>
-                                </Stack>
-                            </Stack>
-                        </Paper>
-
-                        {/* Macros Row */}
-                        <Box sx={{ display: "flex", gap: 1 }}>
-                            {/* Protein */}
-                            <Box sx={{ flex: 1 }}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        padding: isMobile ? "12px" : "12px 24px",
-                                        display: "flex",
-                                        justifyContent: isMobile ? "center" : "flex-start",
-                                        alignItems: "center",
-                                        height: "100%",
-                                        borderRadius: 3,
-                                        bgcolor: theme.palette.primary.light,
-                                        borderLeft: "4px solid",
-                                        borderColor: theme.palette.primary.main,
-                                    }}
-                                >
-                                    <Stack direction="column" spacing={0.5}>
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Typography
-                                                variant="body2"
-                                                fontWeight={500}
-                                                fontSize={smallMobile ? "0.8rem" : "0.9rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                Protein
-                                            </Typography>
-                                        </Stack>
-                                        <Stack direction="row" alignItems="baseline" spacing={0.5}>
-                                            <Typography
-                                                variant="h6"
-                                                fontWeight={600}
-                                                fontSize={smallMobile ? "1rem" : "1.1rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                {dietData.dailyTotal.protein}
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                fontSize={smallMobile ? "0.75rem" : "0.8rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                / 190g
-                                            </Typography>
-                                        </Stack>
-                                    </Stack>
-                                </Paper>
-                            </Box>
-
-                            {/* Carbs */}
-                            <Box sx={{ flex: 1 }}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        padding: isMobile ? "12px" : "12px 24px",
-                                        display: "flex",
-                                        justifyContent: isMobile ? "center" : "flex-start",
-                                        alignItems: "center",
-                                        height: "100%",
-                                        borderRadius: 3,
-                                        bgcolor: theme.palette.success.light,
-                                        borderLeft: "4px solid",
-                                        borderColor: theme.palette.success.main,
-                                    }}
-                                >
-                                    <Stack direction="column" spacing={0.5}>
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Typography
-                                                variant="body2"
-                                                fontWeight={500}
-                                                fontSize={smallMobile ? "0.8rem" : "0.9rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                Carbs
-                                            </Typography>
-                                        </Stack>
-                                        <Stack direction="row" alignItems="baseline" spacing={0.5}>
-                                            <Typography
-                                                variant="h6"
-                                                fontWeight={600}
-                                                fontSize={smallMobile ? "1rem" : "1.1rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                {dietData.dailyTotal.carbs}
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                fontSize={smallMobile ? "0.75rem" : "0.8rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                / 200g
-                                            </Typography>
-                                        </Stack>
-                                    </Stack>
-                                </Paper>
-                            </Box>
-
-                            {/* Fats */}
-                            <Box sx={{ flex: 1 }}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        padding: isMobile ? "12px" : "12px 24px",
-                                        display: "flex",
-                                        justifyContent: isMobile ? "center" : "flex-start",
-                                        alignItems: "center",
-                                        height: "100%",
-                                        borderRadius: 3,
-                                        bgcolor: theme.palette.warning.light,
-                                        borderLeft: "4px solid",
-                                        borderColor: theme.palette.warning.main,
-                                    }}
-                                >
-                                    <Stack direction="column" spacing={0.5}>
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Typography
-                                                variant="body2"
-                                                fontWeight={500}
-                                                fontSize={smallMobile ? "0.8rem" : "0.9rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                Fats
-                                            </Typography>
-                                        </Stack>
-                                        <Stack direction="row" alignItems="baseline" spacing={0.5}>
-                                            <Typography
-                                                variant="h6"
-                                                fontWeight={600}
-                                                fontSize={smallMobile ? "1rem" : "1.1rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                {dietData.dailyTotal.fats}
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                fontSize={smallMobile ? "0.75rem" : "0.8rem"}
-                                                sx={{ color: theme.palette.background.default }}
-                                            >
-                                                / 75g
-                                            </Typography>
-                                        </Stack>
-                                    </Stack>
-                                </Paper>
-                            </Box>
-                        </Box>
-                    </Stack>
-                </Paper>
-            )}
+                        )}
+                    </motion.div>
+                </AnimatePresence>
+            </Box>
         </Box>
     );
 };

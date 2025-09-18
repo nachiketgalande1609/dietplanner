@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, useMediaQuery, Paper, IconButton, Stack } from "@mui/material";
+import {
+    Box,
+    Typography,
+    Button,
+    useMediaQuery,
+    Paper,
+    IconButton,
+    Snackbar,
+    Alert,
+    SwipeableDrawer,
+    List,
+    ListItemIcon,
+    ListItemText,
+    ListItemButton,
+} from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { DietContentPanel } from "../components/ContentPanel/DietContentPanel";
 import { useTheme } from "@mui/material/styles";
-import { CalendarMonth, ChevronLeft, ChevronRight, ErrorOutline, Edit as EditIcon } from "@mui/icons-material";
+import { CalendarMonth, ChevronLeft, ChevronRight, Add, ErrorOutline, Edit as EditIcon } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchDietPlan, markMealComplete, markMealIncomplete, updateDietPlan } from "../api/dietApi";
 import { EditDietPlan } from "../components/EditDietPlan/EditDietPlan";
@@ -20,6 +34,8 @@ export const Diet: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [editMode, setEditMode] = useState(false);
+    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
+    const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -82,6 +98,12 @@ export const Diet: React.FC = () => {
             } else {
                 await markMealComplete(dateStr, mealTime);
             }
+
+            setSnackbar({
+                open: true,
+                message: `Meal marked as ${!isCurrentlyCompleted ? "complete" : "incomplete"}`,
+                severity: "success",
+            });
         } catch (error) {
             console.error("Error toggling meal status:", error);
 
@@ -89,6 +111,12 @@ export const Diet: React.FC = () => {
                 ...prev,
                 [mealTime]: isCurrentlyCompleted,
             }));
+
+            setSnackbar({
+                open: true,
+                message: "Failed to update meal status",
+                severity: "error",
+            });
         }
     };
 
@@ -105,12 +133,19 @@ export const Diet: React.FC = () => {
                 throw new Error(error || "Failed to save diet plan");
             }
 
-            alert("Diet plan saved successfully!");
+            setSnackbar({
+                open: true,
+                message: "Diet plan saved successfully!",
+                severity: "success",
+            });
+            setEditMode(false);
         } catch (error) {
             console.error("Failed to save diet plan:", error);
-            alert("Failed to save diet plan. Please try again.");
-        } finally {
-            setEditMode(false);
+            setSnackbar({
+                open: true,
+                message: "Failed to save diet plan. Please try again.",
+                severity: "error",
+            });
         }
     };
 
@@ -140,17 +175,15 @@ export const Diet: React.FC = () => {
     return (
         <Box
             sx={{
-                // p: { xs: 0, sm: 2, md: 3 },
                 borderRadius: { xs: 0, sm: 4 },
                 minHeight: { xs: "100vh", sm: "calc(100vh - 120px)" },
                 display: "flex",
                 flexDirection: "column",
                 bgcolor: "background.Box",
                 overflow: "hidden",
-                // boxShadow: { xs: "none", sm: "0px 4px 20px rgba(0, 0, 0, 0.08)" },
             }}
         >
-            {/* Modern Mobile Header */}
+            {/* Mobile Header */}
             {isMobile && (
                 <Box
                     sx={{
@@ -162,8 +195,7 @@ export const Diet: React.FC = () => {
                         position: "sticky",
                         top: 0,
                         zIndex: 10,
-                        bgcolor: "rgba(255, 255, 255, 0.8)",
-                        backdropFilter: "blur(8px)",
+                        bgcolor: "background.paper",
                         border: "1px solid",
                         borderColor: "divider",
                         borderRadius: "16px",
@@ -175,6 +207,7 @@ export const Diet: React.FC = () => {
                             size="small"
                             sx={{
                                 color: "text.primary",
+                                bgcolor: "background.default",
                                 borderRadius: "10px",
                                 p: 1,
                             }}
@@ -231,24 +264,6 @@ export const Diet: React.FC = () => {
                     </Box>
 
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        {dietData && (
-                            <IconButton
-                                onClick={() => setEditMode(!editMode)}
-                                size="small"
-                                sx={{
-                                    color: editMode ? "primary.main" : "text.primary",
-                                    backgroundColor: editMode ? "rgba(25, 118, 210, 0.08)" : "background.default",
-                                    "&:hover": {
-                                        backgroundColor: editMode ? "rgba(25, 118, 210, 0.12)" : "rgba(0, 0, 0, 0.08)",
-                                    },
-                                    borderRadius: "10px",
-                                    p: 1,
-                                }}
-                            >
-                                <EditIcon fontSize="small" />
-                            </IconButton>
-                        )}
-
                         <IconButton
                             onClick={toggleCalendar}
                             size="small"
@@ -264,6 +279,29 @@ export const Diet: React.FC = () => {
                         >
                             <CalendarMonth fontSize="small" />
                         </IconButton>
+
+                        {dietData && !editMode && (
+                            <Button
+                                variant="contained"
+                                startIcon={<EditIcon />}
+                                onClick={() => setEditMode(true)}
+                                sx={{
+                                    borderRadius: "12px",
+                                    textTransform: "none",
+                                    px: 1.5,
+                                    py: 0.5,
+                                    fontSize: "0.75rem",
+                                    fontWeight: 600,
+                                    background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
+                                    boxShadow: "none",
+                                    "&:hover": {
+                                        boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
+                                    },
+                                }}
+                            >
+                                Edit
+                            </Button>
+                        )}
                     </Box>
                 </Box>
             )}
@@ -288,20 +326,19 @@ export const Diet: React.FC = () => {
                         display: "flex",
                         flexDirection: "column",
                         borderRadius: { xs: 0, sm: 4 },
-                        bgcolor: "background.default",
+                        bgcolor: "background.paper",
                         border: isMobile ? "none" : "1px solid",
                         borderColor: "divider",
                         position: "relative",
                         minHeight: isMobile ? "calc(100vh - 120px)" : "auto",
                     }}
                 >
-                    {/* Modern Desktop Header */}
+                    {/* Desktop Header */}
                     {!isMobile && (
                         <Box
                             sx={{
                                 p: 2,
                                 bgcolor: "background.paper",
-                                borderBottom: "1px solid",
                                 borderColor: "divider",
                                 display: "flex",
                                 justifyContent: "space-between",
@@ -409,7 +446,7 @@ export const Diet: React.FC = () => {
                             </Box>
 
                             {editMode ? (
-                                <Stack direction="row" spacing={1}>
+                                <Box sx={{ display: "flex", gap: 1 }}>
                                     <Button
                                         variant="outlined"
                                         onClick={() => {
@@ -451,15 +488,15 @@ export const Diet: React.FC = () => {
                                     >
                                         Save
                                     </Button>
-                                </Stack>
+                                </Box>
                             ) : dietData ? (
                                 <Button
                                     variant="contained"
+                                    startIcon={<EditIcon />}
                                     onClick={() => setEditMode(true)}
                                     sx={{
                                         borderRadius: "12px",
                                         textTransform: "none",
-                                        width: "120px",
                                         px: 3,
                                         py: 1,
                                         fontSize: "0.875rem",
@@ -484,6 +521,10 @@ export const Diet: React.FC = () => {
                             p: { xs: 0, sm: 2, md: 3 },
                             position: "relative",
                             overflowX: "hidden",
+                            backgroundColor: "background.default",
+                            borderRadius: { xs: 0, sm: 4 },
+                            borderTop: isMobile ? "none" : "1px solid",
+                            borderColor: "divider",
                         }}
                     >
                         {loading ? (
@@ -578,6 +619,8 @@ export const Diet: React.FC = () => {
                                         completedMeals={completedMeals}
                                         onToggleMeal={handleToggleMeal}
                                         selectedDate={selectedDate}
+                                        direction={direction}
+                                        loading={loading}
                                     />
                                 </motion.div>
                             </AnimatePresence>
@@ -585,6 +628,57 @@ export const Diet: React.FC = () => {
                     </Box>
                 </Box>
             </Box>
+
+            {/* Mobile Bottom Navigation */}
+            {isMobile && (
+                <SwipeableDrawer
+                    anchor="bottom"
+                    open={mobileDrawerOpen}
+                    onClose={() => setMobileDrawerOpen(false)}
+                    onOpen={() => setMobileDrawerOpen(true)}
+                    sx={{
+                        "& .MuiDrawer-paper": {
+                            borderTopLeftRadius: 16,
+                            borderTopRightRadius: 16,
+                            maxHeight: "40vh",
+                        },
+                    }}
+                >
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Quick Actions
+                        </Typography>
+                        <List>
+                            <ListItemButton onClick={toggleCalendar}>
+                                <ListItemIcon>
+                                    <CalendarMonth />
+                                </ListItemIcon>
+                                <ListItemText primary={showCalendar ? "Hide Calendar" : "Show Calendar"} />
+                            </ListItemButton>
+                            {dietData && (
+                                <ListItemButton onClick={() => setEditMode(!editMode)}>
+                                    <ListItemIcon>
+                                        <EditIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary={editMode ? "Cancel Edit" : "Edit Plan"} />
+                                </ListItemButton>
+                            )}
+                        </List>
+                    </Box>
+                </SwipeableDrawer>
+            )}
+
+            {/* Snackbar for notifications */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+                <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: "100%" }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

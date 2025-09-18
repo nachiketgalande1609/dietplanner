@@ -18,10 +18,10 @@ export default function CalendarPanel({ isMobile, showCalendar, selectedDate, ha
         <AnimatePresence>
             {(showCalendar || !isMobile) && (
                 <motion.div
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
+                    initial={{ y: -200, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
                     exit={{ x: -20, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.4 }}
                     style={{
                         width: isMobile ? "100%" : 350,
                         flexShrink: 0,

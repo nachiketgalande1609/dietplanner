@@ -1,4 +1,4 @@
-// Tasks.tsx
+// Tasks.tsx (updated imports and state management)
 import React, { useState, useEffect } from "react";
 import {
     Box,
@@ -7,43 +7,26 @@ import {
     useMediaQuery,
     Paper,
     IconButton,
-    Stack,
-    TextField,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    MenuItem,
-    Checkbox,
-    Chip,
-    Tooltip,
-    CircularProgress,
+    Snackbar,
+    Alert,
+    SwipeableDrawer,
+    List,
+    ListItemIcon,
+    ListItemText,
+    ListItemButton,
 } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { useTheme } from "@mui/material/styles";
-import { CalendarMonth, ChevronLeft, ChevronRight, Add, Delete, Edit, Repeat, DragHandle } from "@mui/icons-material";
-import { motion, AnimatePresence } from "framer-motion";
-import type { Variants } from "framer-motion";
+import { CalendarMonth, ChevronLeft, ChevronRight, Add } from "@mui/icons-material";
 
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { v4 as uuidv4 } from "uuid";
+// Import API functions
+import { fetchTasks, createTask, updateTask, deleteTask, toggleTaskCompletion, reorderTasks, type Task as ApiTask } from "../api/tasksApi";
+
 import CalendarPanel from "../components/CalendarPanel/CalendarPanel";
-
-interface Task {
-    id: string;
-    title: string;
-    description?: string;
-    date: string;
-    completed: boolean;
-    priority: "low" | "medium" | "high";
-    repeat?: {
-        frequency: "daily" | "weekly" | "monthly" | "yearly";
-        endDate?: string;
-    };
-}
+import { TasksContentPanel } from "../components/ContentPanel/TasksContentPanel";
 
 // Helper function to reorder list
-const reorder = (list: Task[], startIndex: number, endIndex: number) => {
+const reorder = (list: ApiTask[], startIndex: number, endIndex: number) => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
@@ -54,25 +37,26 @@ export const Tasks: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
     const [showCalendar, setShowCalendar] = useState(false);
     const [direction, setDirection] = useState<"left" | "right">("right");
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const [tasks, setTasks] = useState<ApiTask[]>([]);
     const [loading, setLoading] = useState(true);
-    const [openDialog, setOpenDialog] = useState(false);
-    const [currentTask, setCurrentTask] = useState<Task | null>(null);
-    const [isEditing, setIsEditing] = useState(false);
+    const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+    const [newTask, setNewTask] = useState<Partial<ApiTask> | null>(null);
+    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
+    const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    // Load tasks from localStorage on component mount
+    // Load tasks from backend on component mount
     useEffect(() => {
-        const loadTasks = () => {
+        const loadTasks = async () => {
             try {
-                const savedTasks = localStorage.getItem("tasks");
-                if (savedTasks) {
-                    setTasks(JSON.parse(savedTasks));
-                }
+                setLoading(true);
+                const tasksData = await fetchTasks();
+                setTasks(tasksData);
             } catch (error) {
                 console.error("Failed to load tasks:", error);
+                setSnackbar({ open: true, message: "Failed to load tasks", severity: "error" });
             } finally {
                 setLoading(false);
             }
@@ -80,11 +64,6 @@ export const Tasks: React.FC = () => {
 
         loadTasks();
     }, []);
-
-    // Save tasks to localStorage whenever they change
-    useEffect(() => {
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-    }, [tasks]);
 
     const handleDateChange = (date: Dayjs | null) => {
         if (date) {
@@ -99,63 +78,92 @@ export const Tasks: React.FC = () => {
         setShowCalendar(!showCalendar);
     };
 
-    const handleOpenDialog = (task?: Task) => {
-        if (task) {
-            setCurrentTask(task);
-            setIsEditing(true);
-        } else {
-            setCurrentTask({
-                id: uuidv4(),
-                title: "",
-                description: "",
-                date: selectedDate.format("YYYY-MM-DD"),
-                completed: false,
-                priority: "medium",
-            });
-            setIsEditing(false);
-        }
-        setOpenDialog(true);
+    const handleCreateTask = () => {
+        setNewTask({
+            title: "",
+            description: "",
+            date: selectedDate.format("YYYY-MM-DD"),
+            completed: false,
+            priority: "medium",
+        });
     };
 
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setCurrentTask(null);
+    const handleCancelCreate = () => {
+        setNewTask(null);
     };
 
-    const handleTaskChange = (field: keyof Task, value: any) => {
-        if (currentTask) {
-            setCurrentTask({
-                ...currentTask,
-                [field]: value,
-            });
+    const handleSaveNewTask = async () => {
+        if (!newTask?.title?.trim()) return;
+
+        try {
+            const createdTask = await createTask(newTask as Omit<ApiTask, "id">);
+            setTasks([...tasks, createdTask]);
+            setNewTask(null);
+            setSnackbar({ open: true, message: "Task created successfully", severity: "success" });
+        } catch (error) {
+            console.error("Failed to create task:", error);
+            setSnackbar({ open: true, message: "Failed to create task", severity: "error" });
         }
     };
 
-    const handleSaveTask = () => {
-        if (!currentTask?.title.trim()) return;
+    const handleEditTask = (task: ApiTask) => {
+        setEditingTaskId(task.id);
+    };
 
-        if (isEditing) {
-            setTasks(tasks.map((task) => (task.id === currentTask.id ? currentTask : task)));
-        } else {
-            setTasks([...tasks, currentTask]);
+    const handleCancelEdit = () => {
+        setEditingTaskId(null);
+    };
+
+    const handleSaveTask = async (task: ApiTask) => {
+        try {
+            const updatedTask = await updateTask(task.id, task);
+            setTasks(tasks.map((t) => (t.id === task.id ? updatedTask : t)));
+            setEditingTaskId(null);
+            setSnackbar({ open: true, message: "Task updated successfully", severity: "success" });
+        } catch (error) {
+            console.error("Failed to update task:", error);
+            setSnackbar({ open: true, message: "Failed to update task", severity: "error" });
         }
-        handleCloseDialog();
     };
 
-    const handleDeleteTask = (id: string) => {
-        setTasks(tasks.filter((task) => task.id !== id));
+    const handleDeleteTask = async (id: string) => {
+        try {
+            await deleteTask(id);
+            setTasks(tasks.filter((task) => task.id !== id));
+            setSnackbar({ open: true, message: "Task deleted successfully", severity: "success" });
+        } catch (error) {
+            console.error("Failed to delete task:", error);
+            setSnackbar({ open: true, message: "Failed to delete task", severity: "error" });
+        }
     };
 
-    const handleToggleComplete = (id: string) => {
-        setTasks(tasks.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task)));
+    const handleToggleComplete = async (id: string) => {
+        const task = tasks.find((t) => t.id === id);
+        if (!task) return;
+
+        try {
+            const updatedTask = await toggleTaskCompletion(id, !task.completed);
+            setTasks(tasks.map((t) => (t.id === id ? updatedTask : t)));
+        } catch (error) {
+            console.error("Failed to update task:", error);
+            setSnackbar({ open: true, message: "Failed to update task", severity: "error" });
+        }
     };
 
-    const onDragEnd = (result: any) => {
+    const onDragEnd = async (result: any) => {
         if (!result.destination) return;
 
         const items = reorder(tasks, result.source.index, result.destination.index);
-
         setTasks(items);
+
+        // Send reorder to backend
+        try {
+            await reorderTasks(result.draggableId, result.destination.index);
+        } catch (error) {
+            console.error("Failed to reorder tasks:", error);
+            // Revert UI if backend call fails
+            setTasks(tasks);
+        }
     };
 
     const getFilteredTasks = () => {
@@ -171,25 +179,6 @@ export const Tasks: React.FC = () => {
             });
     };
 
-    const contentVariants: Variants = {
-        enter: (direction: "left" | "right") => ({
-            x: direction === "left" ? 100 : -100,
-            opacity: 0,
-        }),
-        center: () => ({
-            x: 0,
-            opacity: 1,
-            transition: {
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 },
-            },
-        }),
-        exit: (direction: "left" | "right") => ({
-            x: direction === "left" ? -100 : 100,
-            opacity: 0,
-        }),
-    };
-
     const getPriorityColor = (priority: "low" | "medium" | "high") => {
         switch (priority) {
             case "high":
@@ -202,6 +191,8 @@ export const Tasks: React.FC = () => {
                 return "default";
         }
     };
+
+    const filteredTasks = getFilteredTasks();
 
     return (
         <Box
@@ -314,7 +305,7 @@ export const Tasks: React.FC = () => {
                         <Button
                             variant="contained"
                             startIcon={<Add />}
-                            onClick={() => handleOpenDialog()}
+                            onClick={handleCreateTask}
                             sx={{
                                 borderRadius: "12px",
                                 textTransform: "none",
@@ -355,7 +346,7 @@ export const Tasks: React.FC = () => {
                         display: "flex",
                         flexDirection: "column",
                         borderRadius: { xs: 0, sm: 4 },
-                        bgcolor: "background.default",
+                        bgcolor: "background.paper",
                         border: isMobile ? "none" : "1px solid",
                         borderColor: "divider",
                         position: "relative",
@@ -368,7 +359,7 @@ export const Tasks: React.FC = () => {
                             sx={{
                                 p: 2,
                                 bgcolor: "background.paper",
-                                borderBottom: "1px solid",
+                                // borderBottom: "1px solid",
                                 borderColor: "divider",
                                 display: "flex",
                                 justifyContent: "space-between",
@@ -478,7 +469,7 @@ export const Tasks: React.FC = () => {
                             <Button
                                 variant="contained"
                                 startIcon={<Add />}
-                                onClick={() => handleOpenDialog()}
+                                onClick={handleCreateTask}
                                 sx={{
                                     borderRadius: "12px",
                                     textTransform: "none",
@@ -498,512 +489,80 @@ export const Tasks: React.FC = () => {
                         </Box>
                     )}
 
-                    <Box
-                        sx={{
-                            flexGrow: 1,
-                            overflowY: "auto",
-                            p: { xs: 0, sm: 2, md: 3 },
-                            position: "relative",
-                            overflowX: "hidden",
-                        }}
-                    >
-                        {loading ? (
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    height: "100%",
-                                }}
-                            >
-                                <CircularProgress />
-                            </Box>
-                        ) : (
-                            <AnimatePresence mode="wait" custom={direction}>
-                                <motion.div
-                                    key={selectedDate.toString()}
-                                    custom={direction}
-                                    variants={contentVariants}
-                                    initial="enter"
-                                    animate="center"
-                                    exit="exit"
-                                    style={{ height: "100%" }}
-                                >
-                                    <DragDropContext onDragEnd={onDragEnd}>
-                                        <Droppable droppableId="droppable">
-                                            {(provided) => (
-                                                <div {...provided.droppableProps} ref={provided.innerRef} style={{ height: "100%" }}>
-                                                    {getFilteredTasks().length > 0 ? (
-                                                        getFilteredTasks().map((task, index) => (
-                                                            <Draggable key={task.id} draggableId={task.id} index={index}>
-                                                                {(provided) => (
-                                                                    <Paper
-                                                                        ref={provided.innerRef}
-                                                                        {...provided.draggableProps}
-                                                                        elevation={0}
-                                                                        sx={{
-                                                                            p: 2,
-                                                                            mb: 1,
-                                                                            borderRadius: "12px",
-                                                                            border: "1px solid",
-                                                                            borderColor: "divider",
-                                                                            bgcolor: "background.paper",
-                                                                            opacity: task.completed ? 0.7 : 1,
-                                                                            transition: "all 0.2s ease",
-                                                                            "&:hover": {
-                                                                                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                                                                            },
-                                                                        }}
-                                                                    >
-                                                                        <Box
-                                                                            sx={{
-                                                                                display: "flex",
-                                                                                alignItems: "center",
-                                                                                gap: 1.5,
-                                                                            }}
-                                                                        >
-                                                                            <Box
-                                                                                {...provided.dragHandleProps}
-                                                                                sx={{
-                                                                                    display: "flex",
-                                                                                    alignItems: "center",
-                                                                                    cursor: "grab",
-                                                                                    color: "text.secondary",
-                                                                                    "&:active": {
-                                                                                        cursor: "grabbing",
-                                                                                    },
-                                                                                }}
-                                                                            >
-                                                                                <DragHandle />
-                                                                            </Box>
-
-                                                                            <Checkbox
-                                                                                checked={task.completed}
-                                                                                onChange={() => handleToggleComplete(task.id)}
-                                                                                sx={{
-                                                                                    p: 0,
-                                                                                    color: "text.secondary",
-                                                                                    "&.Mui-checked": {
-                                                                                        color: "primary.main",
-                                                                                    },
-                                                                                }}
-                                                                            />
-
-                                                                            <Box
-                                                                                sx={{
-                                                                                    flexGrow: 1,
-                                                                                    overflow: "hidden",
-                                                                                }}
-                                                                            >
-                                                                                <Typography
-                                                                                    variant="subtitle1"
-                                                                                    sx={{
-                                                                                        fontWeight: 600,
-                                                                                        textDecoration: task.completed ? "line-through" : "none",
-                                                                                        color: task.completed ? "text.secondary" : "text.primary",
-                                                                                    }}
-                                                                                >
-                                                                                    {task.title}
-                                                                                </Typography>
-                                                                                {task.description && (
-                                                                                    <Typography
-                                                                                        variant="body2"
-                                                                                        sx={{
-                                                                                            mt: 0.5,
-                                                                                            color: "text.secondary",
-                                                                                        }}
-                                                                                    >
-                                                                                        {task.description}
-                                                                                    </Typography>
-                                                                                )}
-                                                                            </Box>
-
-                                                                            <Box
-                                                                                sx={{
-                                                                                    display: "flex",
-                                                                                    alignItems: "center",
-                                                                                    gap: 1,
-                                                                                }}
-                                                                            >
-                                                                                {task.repeat && (
-                                                                                    <Tooltip
-                                                                                        title={`Repeats ${task.repeat.frequency}${
-                                                                                            task.repeat.endDate
-                                                                                                ? ` until ${dayjs(task.repeat.endDate).format(
-                                                                                                      "MMM D, YYYY"
-                                                                                                  )}`
-                                                                                                : ""
-                                                                                        }`}
-                                                                                    >
-                                                                                        <Chip
-                                                                                            icon={<Repeat fontSize="small" />}
-                                                                                            label={task.repeat.frequency}
-                                                                                            size="small"
-                                                                                            sx={{
-                                                                                                fontSize: "0.65rem",
-                                                                                                height: 24,
-                                                                                            }}
-                                                                                        />
-                                                                                    </Tooltip>
-                                                                                )}
-
-                                                                                <Chip
-                                                                                    label={task.priority}
-                                                                                    size="small"
-                                                                                    color={getPriorityColor(task.priority)}
-                                                                                    sx={{
-                                                                                        fontSize: "0.65rem",
-                                                                                        height: 24,
-                                                                                        textTransform: "capitalize",
-                                                                                    }}
-                                                                                />
-
-                                                                                <IconButton
-                                                                                    size="small"
-                                                                                    onClick={() => handleOpenDialog(task)}
-                                                                                    sx={{
-                                                                                        color: "text.secondary",
-                                                                                    }}
-                                                                                >
-                                                                                    <Edit fontSize="small" />
-                                                                                </IconButton>
-
-                                                                                <IconButton
-                                                                                    size="small"
-                                                                                    onClick={() => handleDeleteTask(task.id)}
-                                                                                    sx={{
-                                                                                        color: "text.secondary",
-                                                                                    }}
-                                                                                >
-                                                                                    <Delete fontSize="small" />
-                                                                                </IconButton>
-                                                                            </Box>
-                                                                        </Box>
-                                                                    </Paper>
-                                                                )}
-                                                            </Draggable>
-                                                        ))
-                                                    ) : (
-                                                        <Box
-                                                            sx={{
-                                                                height: "100%",
-                                                                display: "flex",
-                                                                flexDirection: "column",
-                                                                alignItems: "center",
-                                                                justifyContent: "center",
-                                                                p: 3,
-                                                                textAlign: "center",
-                                                                gap: 2,
-                                                            }}
-                                                        >
-                                                            <Typography variant="h6" color="text.secondary" fontWeight={500}>
-                                                                No tasks for {selectedDate.format("MMMM D")}
-                                                            </Typography>
-                                                            <Button
-                                                                variant="contained"
-                                                                startIcon={<Add />}
-                                                                onClick={() => handleOpenDialog()}
-                                                                sx={{
-                                                                    borderRadius: "12px",
-                                                                    textTransform: "none",
-                                                                    px: 3,
-                                                                    py: 1,
-                                                                    fontSize: "0.875rem",
-                                                                    fontWeight: 600,
-                                                                    background: "linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)",
-                                                                    boxShadow: "none",
-                                                                    "&:hover": {
-                                                                        boxShadow: "0 4px 12px rgba(254, 107, 139, 0.3)",
-                                                                    },
-                                                                }}
-                                                            >
-                                                                Add Task
-                                                            </Button>
-                                                        </Box>
-                                                    )}
-                                                    {provided.placeholder}
-                                                </div>
-                                            )}
-                                        </Droppable>
-                                    </DragDropContext>
-                                </motion.div>
-                            </AnimatePresence>
-                        )}
-                    </Box>
+                    {/* Tasks Content */}
+                    <TasksContentPanel
+                        isMobile={isMobile}
+                        loading={loading}
+                        direction={direction}
+                        selectedDate={selectedDate}
+                        filteredTasks={filteredTasks}
+                        newTask={newTask}
+                        editingTaskId={editingTaskId}
+                        tasks={tasks}
+                        setNewTask={setNewTask}
+                        handleSaveNewTask={handleSaveNewTask}
+                        handleCancelCreate={handleCancelCreate}
+                        handleToggleComplete={handleToggleComplete}
+                        handleEditTask={handleEditTask}
+                        handleSaveTask={handleSaveTask}
+                        handleCancelEdit={handleCancelEdit}
+                        handleDeleteTask={handleDeleteTask}
+                        onDragEnd={onDragEnd}
+                        getPriorityColor={getPriorityColor}
+                        handleCreateTask={handleCreateTask}
+                        setTasks={setTasks}
+                    />
                 </Box>
             </Box>
 
-            {/* Task Dialog */}
-            <Dialog
-                open={openDialog}
-                onClose={handleCloseDialog}
-                fullWidth
-                maxWidth="sm"
-                PaperProps={{
-                    sx: {
-                        borderRadius: "20px",
-                        p: 1,
-                        background: (theme) => (theme.palette.mode === "dark" ? "#1E1E1E" : "#FFFFFF"),
-                        boxShadow: (theme) => (theme.palette.mode === "dark" ? "0px 8px 32px rgba(0, 0, 0, 0.5)" : "0px 8px 32px rgba(0, 0, 0, 0.1)"),
-                        overflow: "hidden",
-                    },
-                }}
+            {/* Mobile Bottom Navigation */}
+            {isMobile && (
+                <SwipeableDrawer
+                    anchor="bottom"
+                    open={mobileDrawerOpen}
+                    onClose={() => setMobileDrawerOpen(false)}
+                    onOpen={() => setMobileDrawerOpen(true)}
+                    sx={{
+                        "& .MuiDrawer-paper": {
+                            borderTopLeftRadius: 16,
+                            borderTopRightRadius: 16,
+                            maxHeight: "40vh",
+                        },
+                    }}
+                >
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Quick Actions
+                        </Typography>
+                        <List>
+                            <ListItemButton onClick={handleCreateTask}>
+                                <ListItemIcon>
+                                    <Add />
+                                </ListItemIcon>
+                                <ListItemText primary="Add New Task" />
+                            </ListItemButton>
+                            <ListItemButton onClick={toggleCalendar}>
+                                <ListItemIcon>
+                                    <CalendarMonth />
+                                </ListItemIcon>
+                                <ListItemText primary={showCalendar ? "Hide Calendar" : "Show Calendar"} />
+                            </ListItemButton>
+                        </List>
+                    </Box>
+                </SwipeableDrawer>
+            )}
+
+            {/* Snackbar for notifications */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-                <DialogTitle
-                    sx={{
-                        p: 3,
-                        pb: 2,
-                        fontSize: "1.5rem",
-                        color: "#000000ff",
-                    }}
-                >
-                    {isEditing ? "Edit Task" : "Add New Task"}
-                </DialogTitle>
-
-                <DialogContent sx={{ p: 3 }}>
-                    <Stack spacing={3} sx={{ mt: 1 }}>
-                        <TextField
-                            autoFocus
-                            label="Title"
-                            fullWidth
-                            value={currentTask?.title || ""}
-                            onChange={(e) => handleTaskChange("title", e.target.value)}
-                            variant="filled"
-                            sx={{
-                                "& .MuiFilledInput-root": {
-                                    borderRadius: "12px",
-                                    backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#2D2D2D" : "#F5F5F5"),
-                                    "&:hover": {
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                    },
-                                    "&.Mui-focused": {
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                    },
-                                },
-                                "& .MuiInputLabel-root.Mui-focused": {
-                                    color: (theme) => (theme.palette.mode === "dark" ? "#FF8E53" : "#FE6B8B"),
-                                },
-                            }}
-                        />
-
-                        <TextField
-                            label="Description"
-                            fullWidth
-                            multiline
-                            rows={3}
-                            value={currentTask?.description || ""}
-                            onChange={(e) => handleTaskChange("description", e.target.value)}
-                            variant="filled"
-                            sx={{
-                                "& .MuiFilledInput-root": {
-                                    borderRadius: "12px",
-                                    backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#2D2D2D" : "#F5F5F5"),
-                                    "&:hover": {
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                    },
-                                    "&.Mui-focused": {
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                    },
-                                },
-                                "& .MuiInputLabel-root.Mui-focused": {
-                                    color: (theme) => (theme.palette.mode === "dark" ? "#FF8E53" : "#FE6B8B"),
-                                },
-                            }}
-                        />
-
-                        <Box
-                            sx={{
-                                display: "flex",
-                                gap: 2,
-                                flexDirection: { xs: "column", sm: "row" },
-                            }}
-                        >
-                            <TextField
-                                label="Date"
-                                type="date"
-                                fullWidth
-                                value={currentTask?.date || ""}
-                                onChange={(e) => handleTaskChange("date", e.target.value)}
-                                variant="filled"
-                                InputLabelProps={{ shrink: true }}
-                                sx={{
-                                    "& .MuiFilledInput-root": {
-                                        borderRadius: "12px",
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#2D2D2D" : "#F5F5F5"),
-                                        "&:hover": {
-                                            backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                        },
-                                        "&.Mui-focused": {
-                                            backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                        },
-                                    },
-                                    "& .MuiInputLabel-root.Mui-focused": {
-                                        color: (theme) => (theme.palette.mode === "dark" ? "#FF8E53" : "#FE6B8B"),
-                                    },
-                                }}
-                            />
-
-                            <TextField
-                                select
-                                label="Priority"
-                                fullWidth
-                                value={currentTask?.priority || "medium"}
-                                onChange={(e) => handleTaskChange("priority", e.target.value as "low" | "medium" | "high")}
-                                variant="filled"
-                                sx={{
-                                    "& .MuiFilledInput-root": {
-                                        borderRadius: "12px",
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#2D2D2D" : "#F5F5F5"),
-                                        "&:hover": {
-                                            backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                        },
-                                        "&.Mui-focused": {
-                                            backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                        },
-                                    },
-                                    "& .MuiInputLabel-root.Mui-focused": {
-                                        color: (theme) => (theme.palette.mode === "dark" ? "#FF8E53" : "#FE6B8B"),
-                                    },
-                                }}
-                            >
-                                <MenuItem value="low">Low</MenuItem>
-                                <MenuItem value="medium">Medium</MenuItem>
-                                <MenuItem value="high">High</MenuItem>
-                            </TextField>
-                        </Box>
-
-                        <TextField
-                            select
-                            label="Repeat"
-                            fullWidth
-                            value={currentTask?.repeat?.frequency || ""}
-                            onChange={(e) =>
-                                handleTaskChange("repeat", {
-                                    frequency: e.target.value as "daily" | "weekly" | "monthly" | "yearly",
-                                    endDate: currentTask?.repeat?.endDate,
-                                })
-                            }
-                            variant="filled"
-                            sx={{
-                                "& .MuiFilledInput-root": {
-                                    borderRadius: "12px",
-                                    backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#2D2D2D" : "#F5F5F5"),
-                                    "&:hover": {
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                    },
-                                    "&.Mui-focused": {
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                    },
-                                },
-                                "& .MuiInputLabel-root.Mui-focused": {
-                                    color: (theme) => (theme.palette.mode === "dark" ? "#FF8E53" : "#FE6B8B"),
-                                },
-                            }}
-                        >
-                            <MenuItem value="">Does not repeat</MenuItem>
-                            <MenuItem value="daily">Daily</MenuItem>
-                            <MenuItem value="weekly">Weekly</MenuItem>
-                            <MenuItem value="monthly">Monthly</MenuItem>
-                            <MenuItem value="yearly">Yearly</MenuItem>
-                        </TextField>
-
-                        {currentTask?.repeat?.frequency && (
-                            <TextField
-                                label="Repeat End Date (optional)"
-                                type="date"
-                                fullWidth
-                                value={currentTask?.repeat?.endDate || ""}
-                                onChange={(e) =>
-                                    handleTaskChange("repeat", {
-                                        ...currentTask.repeat,
-                                        endDate: e.target.value,
-                                    })
-                                }
-                                variant="filled"
-                                InputLabelProps={{ shrink: true }}
-                                sx={{
-                                    "& .MuiFilledInput-root": {
-                                        borderRadius: "12px",
-                                        backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#2D2D2D" : "#F5F5F5"),
-                                        "&:hover": {
-                                            backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                        },
-                                        "&.Mui-focused": {
-                                            backgroundColor: (theme) => (theme.palette.mode === "dark" ? "#383838" : "#ECECEC"),
-                                        },
-                                    },
-                                    "& .MuiInputLabel-root.Mui-focused": {
-                                        color: (theme) => (theme.palette.mode === "dark" ? "#FF8E53" : "#FE6B8B"),
-                                    },
-                                }}
-                            />
-                        )}
-                    </Stack>
-                </DialogContent>
-
-                <DialogActions
-                    sx={{
-                        p: 3,
-                        pt: 2,
-                        background: (theme) => (theme.palette.mode === "dark" ? "#252525" : "#FAFAFA"),
-                    }}
-                >
-                    <Button
-                        onClick={handleCloseDialog}
-                        sx={{
-                            borderRadius: "12px",
-                            textTransform: "none",
-                            px: 3,
-                            py: 1,
-                            fontSize: "1rem",
-                            fontWeight: 600,
-                            color: (theme) => (theme.palette.mode === "dark" ? "#FFFFFF" : "#000000"),
-                            border: "1px solid",
-                            borderColor: (theme) => (theme.palette.mode === "dark" ? "#444444" : "#DDDDDD"),
-                            "&:hover": {
-                                borderColor: (theme) => (theme.palette.mode === "dark" ? "#FF8E53" : "#FE6B8B"),
-                                backgroundColor: (theme) =>
-                                    theme.palette.mode === "dark" ? "rgba(255, 142, 83, 0.08)" : "rgba(254, 107, 139, 0.08)",
-                            },
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSaveTask}
-                        variant="contained"
-                        disabled={!currentTask?.title.trim()}
-                        sx={{
-                            borderRadius: "12px",
-                            textTransform: "none",
-                            px: 3,
-                            py: 1,
-                            fontSize: "1rem",
-                            fontWeight: 600,
-                            background: (theme) =>
-                                theme.palette.mode === "dark"
-                                    ? "linear-gradient(90deg, #FF8E53 10%, #FE6B8B 90%)"
-                                    : "linear-gradient(90deg, #FF8E53 10%, #FE6B8B 90%)",
-                            boxShadow: "none",
-                            "&:hover": {
-                                boxShadow: (theme) =>
-                                    theme.palette.mode === "dark" ? "0 4px 16px rgba(254, 107, 139, 0.4)" : "0 4px 16px rgba(254, 107, 139, 0.3)",
-                                transform: "translateY(-1px)",
-                                transition: "transform 0.2s ease",
-                            },
-                            "&:active": {
-                                transform: "translateY(0)",
-                            },
-                            "&:disabled": {
-                                background: (theme) => (theme.palette.mode === "dark" ? "#3A3A3A" : "#E0E0E0"),
-                                color: (theme) => (theme.palette.mode === "dark" ? "#5A5A5A" : "#9E9E9E"),
-                            },
-                        }}
-                    >
-                        {isEditing ? "Update Task" : "Create Task"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: "100%" }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
